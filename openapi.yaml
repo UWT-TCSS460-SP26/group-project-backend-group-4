@@ -33,3 +33,20 @@ paths:
                   message:
                     type: string
                     example: 'Hello, TCSS 460!'
+
+  /heartbeat:
+    get:
+      tags: [General]
+      summary: Heartbeat
+      description: Returns the health status of the API.
+      responses:
+        '200':
+          description: API is alive and running.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'healthy'
