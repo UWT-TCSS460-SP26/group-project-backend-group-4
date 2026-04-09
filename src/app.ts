@@ -4,6 +4,8 @@ import fs from 'fs';
 import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 
+import { nlevin11Router } from './routes/nlevin11';
+
 const app = express();
 
 // Application-level middleware
@@ -26,6 +28,8 @@ app.get('/hello', (_request: Request, response: Response) => {
 app.get('/greeting', (_request: Request, response: Response) => {
   response.json({ greeting: 'Welcome to the TCSS 460 API!' });
 });
+
+app.use(nlevin11Router);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
