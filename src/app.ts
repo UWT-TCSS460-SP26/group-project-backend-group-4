@@ -5,6 +5,7 @@ import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 
 import { nlevin11Router } from './routes/nlevin11';
+import { oisinRouter } from './routes/oisinroute';
 
 const app = express();
 
@@ -21,19 +22,13 @@ app.get('/openapi.json', (_request: Request, response: Response) => {
 app.use('/api-docs', apiReference({ spec: { url: '/openapi.json' } }));
 
 // Routes
-app.get('/hello', (_request: Request, response: Response) => {
-  response.json({ message: 'Hello, TCSS 460!' });
-});
-
-app.get('/greeting', (_request: Request, response: Response) => {
-  response.json({ greeting: 'Welcome to the TCSS 460 API!' });
-});
 
 app.get('/heartbeat', (_request: Request, response: Response) => {
   response.json({ status: 'healthy' });
 });
 
 app.use(nlevin11Router);
+app.use(oisinRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {

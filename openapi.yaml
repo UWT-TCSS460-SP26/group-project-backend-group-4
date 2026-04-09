@@ -17,23 +17,6 @@ tags:
     description: General-purpose routes
 
 paths:
-  /hello:
-    get:
-      tags: [General]
-      summary: Hello
-      description: Returns a greeting message.
-      responses:
-        '200':
-          description: A greeting message
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Hello, TCSS 460!'
-
   /heartbeat:
     get:
       tags: [General]
