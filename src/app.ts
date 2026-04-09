@@ -25,6 +25,10 @@ app.get('/hello', (_request: Request, response: Response) => {
   response.json({ message: 'Hello, TCSS 460!' });
 });
 
+app.get('/greeting', (_request: Request, response: Response) => {
+  response.json({ greeting: 'Welcome to the TCSS 460 API!' });
+});
+
 app.use(nlevin11Router);
 
 // 404 handler — must be after all routes
