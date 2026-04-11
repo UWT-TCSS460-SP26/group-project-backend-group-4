@@ -5,7 +5,7 @@ info:
     **Team:** Group 4
     **Deployed URL:** https://group-project-backend-group-4.onrender.com
 
-    A RESTful API for the TCSS 460 group project.
+    A RESTful API for a move and TV review community.
   version: 0.1.0
 
 servers:
