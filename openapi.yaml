@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: TCSS 460 Group Project API
   description: |
-    **Team:** [Your Team Name]
-    **Deployed URL:** [Your deployed URL]
+    **Team:** Group 4
+    **Deployed URL:** https://group-project-backend-group-4.onrender.com
 
     A RESTful API for the TCSS 460 group project.
   version: 0.1.0
@@ -11,6 +11,8 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development
+  - url: https://group-project-backend-group-4.onrender.com
+    description: Production deployment
 
 tags:
   - name: General
