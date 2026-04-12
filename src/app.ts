@@ -3,6 +3,7 @@ import cors from 'cors';
 import fs from 'fs';
 import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
+import { statusRouter } from './routes/status';
 
 const app = express();
 
@@ -13,16 +14,13 @@ app.use(express.json());
 // OpenAPI documentation
 const specFile = fs.readFileSync('./openapi.yaml', 'utf8');
 const spec = YAML.parse(specFile);
+// Routes
 app.get('/openapi.json', (_request: Request, response: Response) => {
   response.json(spec);
 });
 app.use('/api-docs', apiReference({ spec: { url: '/openapi.json' } }));
 
-// Routes
-
-app.get('/heartbeat', (_request: Request, response: Response) => {
-  response.json({ status: 'healthy' });
-});
+app.use(statusRouter);
 
 
 // 404 handler — must be after all routes
