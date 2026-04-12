@@ -4,10 +4,6 @@ import fs from 'fs';
 import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 
-import { nlevin11Router } from './routes/nlevin11';
-import { oisinRouter } from './routes/oisinroute';
-import { joshRouter } from './routes/joshRoute';
-
 const app = express();
 
 // Application-level middleware
@@ -28,9 +24,6 @@ app.get('/heartbeat', (_request: Request, response: Response) => {
   response.json({ status: 'healthy' });
 });
 
-app.use(nlevin11Router);
-app.use(oisinRouter);
-app.use(joshRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
