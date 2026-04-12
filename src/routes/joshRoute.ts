@@ -1,4 +1,4 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import { joshHello } from '../controllers/joshController';
 
 const joshRouter = Router();
