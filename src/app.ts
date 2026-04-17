@@ -13,6 +13,7 @@ const app = express();
 app.use(logger);
 app.use(cors());
 app.use(express.json());
+app.use(logger);
 
 // OpenAPI documentation
 const specFile = fs.readFileSync('./openapi.yaml', 'utf8');

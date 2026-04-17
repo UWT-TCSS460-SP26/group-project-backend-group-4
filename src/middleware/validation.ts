@@ -18,7 +18,7 @@ export const requireEnvVar = (key: string) => {
  * Validates that 'movie_id' is present as either a query param or route param.
  */
 export const requireMovieId = (request: Request, response: Response, next: NextFunction) => {
-  const movie_id = request.query.movie_id || request.params.movie_id;
+  const movie_id = request.params.movie_id;
   if (!movie_id) {
     response.status(400).json({ error: 'movie_id is required (query param or route param)' });
     return;
@@ -30,7 +30,7 @@ export const requireMovieId = (request: Request, response: Response, next: NextF
  * Validates that 'series_id' is present as either a query param or route param.
  */
 export const requireSeriesId = (request: Request, response: Response, next: NextFunction) => {
-  const series_id = request.query.series_id || request.params.series_id;
+  const series_id = request.params.series_id;
   if (!series_id) {
     response.status(400).json({ error: 'series_id is required (query param or route param)' });
     return;
