@@ -10,6 +10,7 @@ type TmdbMovieResponse = {
   poster_path: string;
   budget: number;
   genres: Array<{ name: string }>;
+  message?: string;
 };
 
 type TmdbTVResponse = {
@@ -20,6 +21,7 @@ type TmdbTVResponse = {
   poster_path: string;
   status: string;
   genres: Array<{ name: string }>;
+  message?: string;
 };
 
 export const searchTV = async (request: Request, response: Response) => {
