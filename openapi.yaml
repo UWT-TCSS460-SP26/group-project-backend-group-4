@@ -17,6 +17,10 @@ servers:
 tags:
   - name: General
     description: General-purpose routes
+  - name: Movies
+    description: Routes used with Movies
+  - name: TV Shows
+    description: Routes used with TV Shows
 
 paths:
   /heartbeat:
@@ -35,3 +39,161 @@ paths:
                   status:
                     type: string
                     example: 'healthy'
+  /api/movie/{movie_id}:
+    get:
+      tags: [Movies]
+      summary: Movie Details
+      description: Provides details on the provided movie, based on it's provided id
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: TMDB movie ID
+      responses:
+        '200':
+          description: Successfully get back movie details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    example: 550
+                  title:
+                    type: string
+                    example: Fight Club
+                  overview:
+                    type: string
+                    example: A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground \"fight clubs\" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion.
+                  release_date:
+                    type: string
+                    example: '1999-10-15'
+                  poster_path:
+                    type: string
+                    example: /jSziioSwPVrOy9Yow3XhWIBDjq1.jpg
+                  budget:
+                    type: number
+                    example: 63000000
+                  genres:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          example: 18
+                        name:
+                          type: string
+                          example: Drama
+        '400':
+          description: movie_id missing from query/route param
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: movie_id is required (query param or route param)
+        '404':
+          description: movie_id doesn't exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The resource you requested could not be found.
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
+  /api/tv/{series_id}:
+    get:
+      tags: [TV Shows]
+      summary: TV Show Details
+      description: Provides details on the provided TV Show, based on it's provided id
+      parameters:
+        - name: series_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: TMDB series ID
+      responses:
+        '200':
+          description: Successfully get back TV details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    example: 1396
+                  name:
+                    type: string
+                    example: Breaking Bad
+                  overview:
+                    type: string
+                    example: Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.
+                  first_air_date:
+                    type: string
+                    example: 2008-01-20
+                  poster_path:
+                    type: string
+                    example: /ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg
+                  status:
+                    type: string
+                    example: Ended
+                  genres:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          example: 18
+                        name:
+                          type: string
+                          example: Drama
+        '400':
+          description: series_id missing from query/route param
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: series_id is required (query param or route param)
+        '404':
+          description: series_id doesn't exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The resource you requested could not be found.
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
