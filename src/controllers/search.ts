@@ -36,7 +36,7 @@ export const searchTV = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'Bad Request: Requested resource could not be found' });
+        .json({ error: data.message || 'The resource you requested could not be found' });
       return;
     }
 
@@ -68,7 +68,7 @@ export const searchMovies = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'Bad Request: Requested resource could not be found' });
+        .json({ error: data.message || 'The resource you requested could not be found' });
       return;
     }
 
