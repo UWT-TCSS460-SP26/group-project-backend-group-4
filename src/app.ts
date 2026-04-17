@@ -4,6 +4,7 @@ import fs from 'fs';
 import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 import { statusRouter } from './routes/status';
+import { searchRouter } from './routes/search';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get('/openapi.json', (_request: Request, response: Response) => {
 app.use('/api-docs', apiReference({ spec: { url: '/openapi.json' } }));
 
 app.use(statusRouter);
+app.use(searchRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
