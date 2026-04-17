@@ -25,7 +25,7 @@ type TmdbTVResponse = {
 };
 
 export const searchTV = async (request: Request, response: Response) => {
-  const series_id = request.query.series_id || request.params.series_id;
+  const series_id = request.params.series_id;
   const apiKey = process.env.TMDB_API_KEY;
 
   try {
@@ -34,11 +34,13 @@ export const searchTV = async (request: Request, response: Response) => {
     const data = (await result.json()) as TmdbTVResponse;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.message || 'TMDB API error' });
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
       return;
     }
 
-    const tv_details: TmdbTVResponse = {
+    const tv_details: Record<string, unknown> = {
       id: data.id,
       name: data.name,
       overview: data.overview,
@@ -55,7 +57,7 @@ export const searchTV = async (request: Request, response: Response) => {
 };
 
 export const searchMovies = async (request: Request, response: Response) => {
-  const movie_id = request.query.movie_id || request.params.movie_id;
+  const movie_id = request.params.movie_id;
   const apiKey = process.env.TMDB_API_KEY;
 
   try {
@@ -64,11 +66,13 @@ export const searchMovies = async (request: Request, response: Response) => {
     const data = (await result.json()) as TmdbMovieResponse;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.message || 'TMDB API error' });
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
       return;
     }
 
-    const movies_details: TmdbMovieResponse = {
+    const movies_details: Record<string, unknown> = {
       id: data.id,
       title: data.title,
       overview: data.overview,
