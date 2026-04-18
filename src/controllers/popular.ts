@@ -9,7 +9,7 @@ type TmdbMovieResponse = {
   release_date: string;
   poster_path: string;
   backdrop_path: string;
-  genre_ids: Array<{ name: number }>;
+  genre_ids: number[];
   original_language: string;
 };
 
@@ -20,14 +20,14 @@ type TmdbTVResponse = {
   first_air_date: string;
   poster_path: string;
   status: string;
-  genre_ids: Array<{ name: number }>;
+  genre_ids: number[];
   original_language: string;
   backdrop_path: string;
 };
 
 export const getPopularMovies = async (request: Request, response: Response) => {
-  const language = request.query.language || request.params.language || 'en-US'; // Default to 'en-US' if not provided
-  const page = request.query.page || request.params.page || '1'; // Default to '1' if not provided
+  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
+  const page = (request.query.page as string) || '1'; // Default to '1' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
   if (!apiKey) {
@@ -37,39 +37,38 @@ export const getPopularMovies = async (request: Request, response: Response) => 
 
   try {
     const result = await fetch(
-      `${BASE_URL}/movie/?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as Record<string, unknown>;
+    const data = (await result.json()) as { results: TmdbMovieResponse[]; status_message?: string };
 
     if (!result.ok) {
-      const errorData = data as { status_message?: string };
-      response.status(result.status).json({ error: errorData.status_message || 'TMDB API error' });
+      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results as Array<Record<string, unknown>>;
+    const list = data.results;
 
     response.json(
       list.map((movie) => ({
-        id: (movie as { id?: number }).id,
-        title: (movie as { title?: string }).title,
-        overview: (movie as { overview?: string }).overview,
-        release_date: (movie as { release_date?: string }).release_date,
-        genre_ids: (movie as { genre_ids?: number[] }).genre_ids ?? [],
-        original_language: (movie as { original_language?: string }).original_language,
-        backdrop_path: (movie as { backdrop_path?: string }).backdrop_path,
-        poster_path: (movie as { poster_path?: string }).poster_path,
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        genre_ids: movie.genre_ids ?? [],
+        original_language: movie.original_language,
+        backdrop_path: movie.backdrop_path,
+        poster_path: movie.poster_path,
       }))
     );
   } catch (error) {
-    response.status(500).json({ error: 'Failed to fetch featured content' });
+    response.status(500).json({ error: 'Failed to fetch popular content' });
   }
 };
 
 export const getPopularTVShows = async (request: Request, response: Response) => {
-  const language = request.query.language || request.params.language || 'en-US'; // Default to 'en-US' if not provided
-  const page = request.query.page || request.params.page || '1'; // Default to '1' if not provided
+  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
+  const page = (request.query.page as string) || '1'; // Default to '1' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
   if (!apiKey) {
@@ -79,32 +78,31 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
 
   try {
     const result = await fetch(
-      `${BASE_URL}/tv/?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as Record<string, unknown>;
+    const data = (await result.json()) as { results: TmdbTVResponse[]; status_message?: string };
 
     if (!result.ok) {
-      const errorData = data as { status_message?: string };
-      response.status(result.status).json({ error: errorData.status_message || 'TMDB API error' });
+      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results as Array<Record<string, unknown>>;
+    const list = data.results;
 
     response.json(
       list.map((tv) => ({
-        id: (tv as { id?: number }).id,
-        name: (tv as { name?: string }).name,
-        overview: (tv as { overview?: string }).overview,
-        first_air_date: (tv as { first_air_date?: string }).first_air_date,
-        genre_ids: (tv as { genre_ids?: number[] }).genre_ids ?? [],
-        original_language: (tv as { original_language?: string }).original_language,
-        backdrop_path: (tv as { backdrop_path?: string }).backdrop_path,
-        poster_path: (tv as { poster_path?: string }).poster_path,
+        id: tv.id,
+        name: tv.name,
+        overview: tv.overview,
+        first_air_date: tv.first_air_date,
+        genre_ids: tv.genre_ids ?? [],
+        original_language: tv.original_language,
+        backdrop_path: tv.backdrop_path,
+        poster_path: tv.poster_path,
       }))
     );
   } catch (error) {
-    response.status(500).json({ error: 'Failed to fetch featured content' });
+    response.status(500).json({ error: 'Failed to fetch popular content' });
   }
 };
