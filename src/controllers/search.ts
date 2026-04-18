@@ -39,7 +39,7 @@ export const searchTV = async (request: Request, response: Response) => {
         .json({ error: data.message || 'The resource you requested could not be found' });
       return;
     }
-    
+
     const tv_details: TmdbTVResponse = {
       id: data.id as number,
       name: data.name as string,
