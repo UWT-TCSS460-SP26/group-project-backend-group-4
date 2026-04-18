@@ -30,24 +30,19 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
-
   try {
     const result = await fetch(
       `${BASE_URL}/movie/${timeframe}?language=${language}&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbMovieResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbMovieResponse[];
 
     response.json(
       list.map((movie) => ({
@@ -61,7 +56,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
         poster_path: movie.poster_path,
       }))
     );
-  } catch (error) {
+  } catch (_error) {
     response.status(500).json({ error: 'Failed to fetch featured content' });
   }
 };
@@ -71,24 +66,19 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
-
   try {
     const result = await fetch(
       `${BASE_URL}/tv/${timeframe}?language=${language}&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbTVResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbTVResponse[];
 
     response.json(
       list.map((tv) => ({
@@ -102,7 +92,7 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
         poster_path: tv.poster_path,
       }))
     );
-  } catch (error) {
+  } catch (_error) {
     response.status(500).json({ error: 'Failed to fetch featured content' });
   }
 };
