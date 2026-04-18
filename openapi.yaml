@@ -89,7 +89,7 @@ paths:
                           type: string
                           example: Drama
         '400':
-          description: movie_id missing from query/route param
+          description: movie_id missing in route parameters
           content:
             application/json:
               schema:
@@ -97,7 +97,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: movie_id is required (query param or route param)
+                    example: movie_id is required
         '404':
           description: movie_id doesn't exist
           content:
@@ -168,7 +168,7 @@ paths:
                           type: string
                           example: Drama
         '400':
-          description: series_id missing from query/route param
+          description: series_id missing in route parameters
           content:
             application/json:
               schema:
@@ -176,7 +176,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: series_id is required (query param or route param)
+                    example: series_id is required
         '404':
           description: series_id doesn't exist
           content:
