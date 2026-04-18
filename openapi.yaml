@@ -142,8 +142,8 @@ paths:
           required: false
           schema:
             type: string
-            default: 'popularity.desc'
-            enum: ['popularity.desc', 'popularity.asc']
+            default: 'desc'
+            enum: ['desc', 'asc']
       responses:
         '200':
           description: Successfully retrieved a list of popular movies
@@ -377,8 +377,8 @@ paths:
           required: false
           schema:
             type: string
-            default: 'popularity.desc'
-            enum: ['popularity.desc', 'popularity.asc']
+            default: 'desc'
+            enum: ['desc', 'asc']
       responses:
         '200':
           description: Successfully retrieved a list of popular TV shows
