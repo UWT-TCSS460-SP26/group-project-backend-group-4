@@ -20,7 +20,7 @@ export const requireEnvVar = (key: string) => {
 export const requireMovieId = (request: Request, response: Response, next: NextFunction) => {
   const movie_id = request.params.movie_id;
   if (!movie_id) {
-    response.status(400).json({ error: 'movie_id is required (query param or route param)' });
+    response.status(400).json({ error: 'movie_id is required' });
     return;
   }
   next();
@@ -32,7 +32,7 @@ export const requireMovieId = (request: Request, response: Response, next: NextF
 export const requireSeriesId = (request: Request, response: Response, next: NextFunction) => {
   const series_id = request.params.series_id;
   if (!series_id) {
-    response.status(400).json({ error: 'series_id is required (query param or route param)' });
+    response.status(400).json({ error: 'series_id is required' });
     return;
   }
   next();
