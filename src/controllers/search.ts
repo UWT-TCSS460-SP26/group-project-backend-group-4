@@ -87,3 +87,83 @@ export const searchMovies = async (request: Request, response: Response) => {
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
 };
+
+export const queryMovies = async (request: Request, response: Response) => {
+  const query = request.query.q as string;
+  const apiKey = process.env.TMDB_API_KEY;
+  const page = response.locals.page ?? 1;
+  const limit = response.locals.limit ?? 20;
+
+  try {
+    const result = await fetch(
+      `${BASE_URL}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&page=${page}`
+    );
+    const data = (await result.json()) as Record<string, unknown>;
+
+    if (!result.ok) {
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
+      return;
+    }
+
+    const rawResults = Array.isArray(data.results) ? data.results : [];
+    const results = rawResults
+      .map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        release_date: item.release_date,
+        adult: item.adult,
+        poster_path: item.poster_path,
+      }))
+      .slice(0, limit);
+
+    response.json({
+      page,
+      limit,
+      results,
+    });
+  } catch (_error) {
+    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  }
+};
+
+export const queryTV = async (request: Request, response: Response) => {
+  const query = request.query.q as string;
+  const apiKey = process.env.TMDB_API_KEY;
+  const page = response.locals.page ?? 1;
+  const limit = response.locals.limit ?? 20;
+
+  try {
+    const result = await fetch(
+      `${BASE_URL}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}&page=${page}`
+    );
+    const data = (await result.json()) as Record<string, unknown>;
+
+    if (!result.ok) {
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
+      return;
+    }
+
+    const rawResults = Array.isArray(data.results) ? data.results : [];
+    const results = rawResults
+      .map((item: any) => ({
+        id: item.id,
+        title: item.name,
+        release_date: item.first_air_date,
+        adult: item.adult,
+        poster_path: item.poster_path,
+      }))
+      .slice(0, limit);
+
+    response.json({
+      page,
+      limit,
+      results,
+    });
+  } catch (_error) {
+    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  }
+};
