@@ -28,26 +28,22 @@ type TmdbTVResponse = {
 export const getPopularMovies = async (request: Request, response: Response) => {
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
+  const sortBy = (request.query.sort_by as string) || 'popularity.desc'; // Default to 'popularity.desc' if not provided
   const apiKey = process.env.TMDB_API_KEY;
-
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
 
   try {
     const result = await fetch(
-      `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=${sortBy}&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbMovieResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbMovieResponse[];
 
     response.json(
       list.map((movie) => ({
@@ -61,7 +57,7 @@ export const getPopularMovies = async (request: Request, response: Response) => 
         poster_path: movie.poster_path,
       }))
     );
-  } catch (error) {
+  } catch (_error) {
     response.status(500).json({ error: 'Failed to fetch popular content' });
   }
 };
@@ -69,26 +65,22 @@ export const getPopularMovies = async (request: Request, response: Response) => 
 export const getPopularTVShows = async (request: Request, response: Response) => {
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
+  const sortBy = (request.query.sort_by as string) || 'popularity.desc'; // Default to 'popularity.desc' if not provided
   const apiKey = process.env.TMDB_API_KEY;
-
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
 
   try {
     const result = await fetch(
-      `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=${sortBy}&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbTVResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbTVResponse[];
 
     response.json(
       list.map((tv) => ({
@@ -102,7 +94,7 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
         poster_path: tv.poster_path,
       }))
     );
-  } catch (error) {
+  } catch (_error) {
     response.status(500).json({ error: 'Failed to fetch popular content' });
   }
 };
