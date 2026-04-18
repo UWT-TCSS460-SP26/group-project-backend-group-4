@@ -6,6 +6,7 @@ import { apiReference } from '@scalar/express-api-reference';
 import { statusRouter } from './routes/status';
 import { searchRouter } from './routes/search';
 import { logger } from './middleware/logger';
+import { popularRouter, featuredRouter } from './routes/popular';
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use('/api-docs', apiReference({ spec: { url: '/openapi.json' } }));
 
 app.use(statusRouter);
 app.use(searchRouter);
+app.use(popularRouter);
+app.use(featuredRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
