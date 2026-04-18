@@ -31,7 +31,7 @@ export const searchTV = async (request: Request, response: Response) => {
   try {
     const result = await fetch(`${BASE_URL}/tv/${series_id}?api_key=${apiKey}`);
 
-    const data = (await result.json()) as TmdbTVResponse;
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response
@@ -40,14 +40,14 @@ export const searchTV = async (request: Request, response: Response) => {
       return;
     }
 
-    const tv_details: Record<string, unknown> = {
-      id: data.id,
-      name: data.name,
-      overview: data.overview,
-      first_air_date: data.first_air_date,
-      poster_path: data.poster_path,
-      status: data.status,
-      genres: data.genres,
+    const tv_details: TmdbTVResponse = {
+      id: data.id as number,
+      name: data.name as string,
+      overview: data.overview as string,
+      first_air_date: data.first_air_date as string,
+      poster_path: data.poster_path as string,
+      status: data.status as string,
+      genres: data.genres as Array<{ name: string }>,
     };
 
     response.json(tv_details);
@@ -63,7 +63,7 @@ export const searchMovies = async (request: Request, response: Response) => {
   try {
     const result = await fetch(`${BASE_URL}/movie/${movie_id}?api_key=${apiKey}`);
 
-    const data = (await result.json()) as TmdbMovieResponse;
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response
@@ -72,14 +72,14 @@ export const searchMovies = async (request: Request, response: Response) => {
       return;
     }
 
-    const movies_details: Record<string, unknown> = {
-      id: data.id,
-      title: data.title,
-      overview: data.overview,
-      release_date: data.release_date,
-      poster_path: data.poster_path,
-      budget: data.budget,
-      genres: data.genres,
+    const movies_details: TmdbMovieResponse = {
+      id: data.id as number,
+      title: data.title as string,
+      overview: data.overview as string,
+      release_date: data.release_date as string,
+      poster_path: data.poster_path as string,
+      budget: data.budget as number,
+      genres: data.genres as Array<{ name: string }>,
     };
 
     response.json(movies_details);
