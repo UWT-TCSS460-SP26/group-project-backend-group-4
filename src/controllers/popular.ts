@@ -8,8 +8,9 @@ type TmdbMovieResponse = {
   overview: string;
   release_date: string;
   poster_path: string;
+  backdrop_path: string;
   genre_ids: Array<{ name: number }>;
-  message?: string;
+  original_language: string;
 };
 
 type TmdbTVResponse = {
