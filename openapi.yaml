@@ -39,7 +39,7 @@ paths:
                   status:
                     type: string
                     example: 'healthy'
-  /api/movie/{movie_id}:
+  /api/movies/{movie_id}:
     get:
       tags: [Movies]
       summary: Movie Details

@@ -6,7 +6,7 @@ const router = Router();
 
 router.use(requireEnvVar('TMDB_API_KEY'));
 
-router.get('/api/movie/:movie_id', requireMovieId, searchMovies);
+router.get('/api/movies/:movie_id', requireMovieId, searchMovies);
 router.get('/api/tv/:series_id', requireSeriesId, searchTV);
 
 export { router as searchRouter };
