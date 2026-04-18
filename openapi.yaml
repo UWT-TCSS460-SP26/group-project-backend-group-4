@@ -118,6 +118,76 @@ paths:
                   error:
                     type: string
                     example: Failed to reach the TMDB API
+  /api/movies/popular:
+    get:
+      tags: [Movies]
+      summary: Popular Movies
+      description: Returns content sorted by popularity using the TMDB discover endpoint. Showcases widely appealing movies.
+      responses:
+        '200':
+          description: Successfully retrieved a list of popular movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    title:
+                      type: string
+                    overview:
+                      type: string
+                    release_date:
+                      type: string
+                    poster_path:
+                      type: string
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
+  /api/movies/featured:
+    get:
+      tags: [Movies]
+      summary: Featured Movies
+      description: Returns trending movies over a specified time frame. This is a temporary solution until the user-based recommendation system is implemented.
+      responses:
+        '200':
+          description: Successfully retrieved a list of featured movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    title:
+                      type: string
+                    overview:
+                      type: string
+                    release_date:
+                      type: string
+                    poster_path:
+                      type: string
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
   /api/tv/{series_id}:
     get:
       tags: [TV Shows]
@@ -187,6 +257,76 @@ paths:
                   error:
                     type: string
                     example: The resource you requested could not be found.
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
+  /api/tv/featured:
+    get:
+      tags: [TV Shows]
+      summary: Featured TV Shows
+      description: Returns trending TV shows over a specified time frame. This is a temporary solution until the user-based recommendation system is implemented.
+      responses:
+        '200':
+          description: Successfully retrieved a list of featured TV shows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                    overview:
+                      type: string
+                    first_air_date:
+                      type: string
+                    poster_path:
+                      type: string
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
+  /api/tv/popular:
+    get:
+      tags: [TV Shows]
+      summary: Popular TV Shows
+      description: Returns content sorted by popularity using the TMDB discover endpoint. Showcases widely appealing TV shows.
+      responses:
+        '200':
+          description: Successfully retrieved a list of popular TV shows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                    overview:
+                      type: string
+                    first_air_date:
+                      type: string
+                    poster_path:
+                      type: string
         '502':
           description: Failed to reach TMDB API
           content:
