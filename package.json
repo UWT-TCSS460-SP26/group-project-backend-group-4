@@ -20,9 +20,9 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@scalar/express-api-reference": "^0.9.0",
+    "@scalar/express-api-reference": "^0.9.9",
     "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "yaml": "^2.8.3"
   },
@@ -33,15 +33,15 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "@types/supertest": "^7.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.57.2",
-    "@typescript-eslint/parser": "^8.57.2",
-    "eslint": "^10.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
     "jest": "^30.3.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.3",
     "supertest": "^7.2.2",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
-    "typescript": "~5.9"
+    "typescript": "~6.0"
   }
 }
