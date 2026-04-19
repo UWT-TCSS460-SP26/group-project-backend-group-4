@@ -164,6 +164,16 @@ paths:
                       type: string
                     poster_path:
                       type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
