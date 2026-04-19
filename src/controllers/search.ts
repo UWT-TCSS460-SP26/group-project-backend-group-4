@@ -128,7 +128,7 @@ export const queryMovies = async (request: Request, response: Response) => {
     }
 
     const rawResults = Array.isArray(data.results)
-      ? (data as TmdbSearchResponse<TmdbMovieSearchResult>).results ?? []
+      ? ((data as TmdbSearchResponse<TmdbMovieSearchResult>).results ?? [])
       : [];
     const results = (rawResults as TmdbMovieSearchResult[])
       .map((item) => ({
@@ -170,7 +170,7 @@ export const queryTV = async (request: Request, response: Response) => {
     }
 
     const rawResults = Array.isArray(data.results)
-      ? (data as TmdbSearchResponse<TmdbTVSearchResult>).results ?? []
+      ? ((data as TmdbSearchResponse<TmdbTVSearchResult>).results ?? [])
       : [];
     const results = (rawResults as TmdbTVSearchResult[])
       .map((item) => ({
