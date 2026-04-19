@@ -122,7 +122,7 @@ describe('Get movie by id with missing api key', () => {
 });
 
 describe('Get movie by id when no tmdb response', () => {
-  it('Handles a missing API key', async () => {
+  it('Handles TMDB not responding', async () => {
     const res = await request(app).get('/api/movies/550');
 
     expect(res.status).toBe(502);
