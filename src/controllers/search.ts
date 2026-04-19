@@ -24,7 +24,7 @@ type TmdbTVResponse = {
   message?: string;
 };
 
-export const searchTV = async (request: Request, response: Response) => {
+export const getSeries = async (request: Request, response: Response) => {
   const series_id = request.params.series_id;
   const apiKey = process.env.TMDB_API_KEY;
 
@@ -56,7 +56,7 @@ export const searchTV = async (request: Request, response: Response) => {
   }
 };
 
-export const searchMovies = async (request: Request, response: Response) => {
+export const getMovie = async (request: Request, response: Response) => {
   const movie_id = request.params.movie_id;
   const apiKey = process.env.TMDB_API_KEY;
 
