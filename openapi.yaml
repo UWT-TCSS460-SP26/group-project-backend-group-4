@@ -375,6 +375,21 @@ paths:
       tags: [TV Shows]
       summary: Popular TV Shows
       description: Returns content sorted by popularity using the TMDB discover endpoint. Showcases widely appealing TV shows.
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            default: en-US
+          description: The language of the results.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: string
+            default: '1'
+          description: The page number of results to return.
       responses:
         '200':
           description: Successfully retrieved a list of popular TV shows
@@ -395,6 +410,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:

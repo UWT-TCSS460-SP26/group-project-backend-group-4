@@ -30,24 +30,19 @@ export const getPopularMovies = async (request: Request, response: Response) => 
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
-
   try {
     const result = await fetch(
       `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbMovieResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbMovieResponse[];
 
     response.json(
       list.map((movie) => ({
@@ -62,7 +57,7 @@ export const getPopularMovies = async (request: Request, response: Response) => 
       }))
     );
   } catch (error) {
-    response.status(500).json({ error: 'Failed to fetch popular content' });
+    response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };
 
@@ -71,24 +66,19 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
   const apiKey = process.env.TMDB_API_KEY;
 
-  if (!apiKey) {
-    response.status(500).json({ error: 'TMDB API key is missing' });
-    return;
-  }
-
   try {
     const result = await fetch(
       `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbTVResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbTVResponse[];
 
     response.json(
       list.map((tv) => ({
@@ -103,6 +93,6 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
       }))
     );
   } catch (error) {
-    response.status(500).json({ error: 'Failed to fetch popular content' });
+    response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };
