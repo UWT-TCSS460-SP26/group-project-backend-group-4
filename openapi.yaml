@@ -158,6 +158,22 @@ paths:
       tags: [Movies]
       summary: Featured Movies
       description: Returns trending movies over a specified time frame. This is a temporary solution until the user-based recommendation system is implemented.
+      parameters:
+        - name: timeframe
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [day, week]
+            default: week
+          description: The time frame for the trending movies.
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            default: en-US
+          description: The language of the results.
       responses:
         '200':
           description: Successfully retrieved a list of featured movies
@@ -178,6 +194,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
@@ -272,6 +306,22 @@ paths:
       tags: [TV Shows]
       summary: Featured TV Shows
       description: Returns trending TV shows over a specified time frame. This is a temporary solution until the user-based recommendation system is implemented.
+      parameters:
+        - name: timeframe
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [day, week]
+            default: week
+          description: The time frame for the trending TV shows.
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            default: en-US
+          description: The language of the results.
       responses:
         '200':
           description: Successfully retrieved a list of featured TV shows
@@ -292,6 +342,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
