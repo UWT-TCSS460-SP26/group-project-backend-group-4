@@ -37,7 +37,6 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       eqeqeq: ['error', 'always'],
       'prefer-const': 'error',
-      'no-console': 'warn',
     },
   },
   {
@@ -76,7 +75,6 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       eqeqeq: ['error', 'always'],
       'prefer-const': 'error',
-      'no-console': 'warn',
     },
   },
   {
