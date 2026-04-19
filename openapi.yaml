@@ -123,6 +123,27 @@ paths:
       tags: [Movies]
       summary: Popular Movies
       description: Returns content sorted by popularity using the TMDB discover endpoint. Showcases widely appealing movies.
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            default: 'en-US'
+          description: ISO-639-1 language code (e.g., 'en-US')
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            default: 'desc'
+            enum: ['desc', 'asc']
       responses:
         '200':
           description: Successfully retrieved a list of popular movies
@@ -172,8 +193,8 @@ paths:
           required: false
           schema:
             type: string
-            default: en-US
-          description: The language of the results.
+            default: 'en-US'
+          description: ISO-639-1 language code (e.g., 'en-US')
       responses:
         '200':
           description: Successfully retrieved a list of featured movies
@@ -320,8 +341,8 @@ paths:
           required: false
           schema:
             type: string
-            default: en-US
-          description: The language of the results.
+            default: 'en-US'
+          description: ISO-639-1 language code (e.g., 'en-US')
       responses:
         '200':
           description: Successfully retrieved a list of featured TV shows
@@ -381,15 +402,21 @@ paths:
           required: false
           schema:
             type: string
-            default: en-US
-          description: The language of the results.
+            default: 'en-US'
+          description: ISO-639-1 language code (e.g., 'en-US')
         - name: page
           in: query
           required: false
           schema:
+            type: integer
+            default: 1
+        - name: sort_by
+          in: query
+          required: false
+          schema:
             type: string
-            default: '1'
-          description: The page number of results to return.
+            default: 'desc'
+            enum: ['desc', 'asc']
       responses:
         '200':
           description: Successfully retrieved a list of popular TV shows

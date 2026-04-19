@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireEnvVar, requireMovieId, requireSeriesId } from '../middleware/validation';
+import { requireEnvVar } from '../middleware/validation';
 import { getPopularMovies, getPopularTVShows } from '../controllers/popular';
 import { getFeaturedMovies, getFeaturedTVShows } from '../controllers/featured';
 

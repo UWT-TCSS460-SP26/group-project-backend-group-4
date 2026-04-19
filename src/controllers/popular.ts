@@ -28,11 +28,13 @@ type TmdbTVResponse = {
 export const getPopularMovies = async (request: Request, response: Response) => {
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
+  const querySortBy = (request.query.sort_by as string)?.toLowerCase();
+  const sortOrder = querySortBy === 'asc' || querySortBy === 'popularity.asc' ? 'asc' : 'desc'; // Default to 'desc'
   const apiKey = process.env.TMDB_API_KEY;
 
   try {
     const result = await fetch(
-      `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/movie?language=${language}&page=${page}&sort_by=popularity.${sortOrder}&api_key=${apiKey}`
     );
 
     const data = (await result.json()) as Record<string, unknown>;
@@ -57,6 +59,7 @@ export const getPopularMovies = async (request: Request, response: Response) => 
       }))
     );
   } catch (error) {
+    console.error('Error fetching popular movies:', error);
     response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };
@@ -64,11 +67,13 @@ export const getPopularMovies = async (request: Request, response: Response) => 
 export const getPopularTVShows = async (request: Request, response: Response) => {
   const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
   const page = (request.query.page as string) || '1'; // Default to '1' if not provided
+  const querySortBy = (request.query.sort_by as string)?.toLowerCase();
+  const sortOrder = querySortBy === 'asc' || querySortBy === 'popularity.asc' ? 'asc' : 'desc'; // Default to 'desc'
   const apiKey = process.env.TMDB_API_KEY;
 
   try {
     const result = await fetch(
-      `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=popularity.desc&api_key=${apiKey}`
+      `${BASE_URL}/tv?language=${language}&page=${page}&sort_by=popularity.${sortOrder}&api_key=${apiKey}`
     );
 
     const data = (await result.json()) as Record<string, unknown>;
@@ -93,6 +98,7 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
       }))
     );
   } catch (error) {
+    console.error('Error fetching popular TV shows:', error);
     response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };

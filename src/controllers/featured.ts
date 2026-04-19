@@ -57,6 +57,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
       }))
     );
   } catch (error) {
+    console.error('Error fetching featured movies:', error);
     response.status(502).json({ error: 'Failed to fetch featured content' });
   }
 };
@@ -71,14 +72,14 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
       `${BASE_URL}/tv/${timeframe}?language=${language}&api_key=${apiKey}`
     );
 
-    const data = (await result.json()) as { results: TmdbTVResponse[]; status_message?: string };
+    const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
       response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
       return;
     }
 
-    const list = data.results;
+    const list = data.results as TmdbTVResponse[];
 
     response.json(
       list.map((tv) => ({
@@ -93,6 +94,7 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
       }))
     );
   } catch (error) {
+    console.error('Error fetching featured TV shows:', error);
     response.status(502).json({ error: 'Failed to fetch featured content' });
   }
 };
