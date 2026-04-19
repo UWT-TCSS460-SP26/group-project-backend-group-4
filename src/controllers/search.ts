@@ -24,6 +24,26 @@ type TmdbTVResponse = {
   message?: string;
 };
 
+type TmdbMovieSearchResult = {
+  id: number;
+  title: string;
+  release_date: string;
+  adult?: boolean;
+  poster_path: string | null;
+};
+
+type TmdbTVSearchResult = {
+  id: number;
+  name: string;
+  first_air_date: string;
+  adult?: boolean;
+  poster_path: string | null;
+};
+
+type TmdbSearchResponse<T> = {
+  results?: T[];
+};
+
 export const searchTV = async (request: Request, response: Response) => {
   const series_id = request.params.series_id;
   const apiKey = process.env.TMDB_API_KEY;
@@ -107,9 +127,11 @@ export const queryMovies = async (request: Request, response: Response) => {
       return;
     }
 
-    const rawResults = Array.isArray(data.results) ? data.results : [];
-    const results = rawResults
-      .map((item: any) => ({
+    const rawResults = Array.isArray(data.results)
+      ? (data as TmdbSearchResponse<TmdbMovieSearchResult>).results ?? []
+      : [];
+    const results = (rawResults as TmdbMovieSearchResult[])
+      .map((item) => ({
         id: item.id,
         title: item.title,
         release_date: item.release_date,
@@ -147,9 +169,11 @@ export const queryTV = async (request: Request, response: Response) => {
       return;
     }
 
-    const rawResults = Array.isArray(data.results) ? data.results : [];
-    const results = rawResults
-      .map((item: any) => ({
+    const rawResults = Array.isArray(data.results)
+      ? (data as TmdbSearchResponse<TmdbTVSearchResult>).results ?? []
+      : [];
+    const results = (rawResults as TmdbTVSearchResult[])
+      .map((item) => ({
         id: item.id,
         title: item.name,
         release_date: item.first_air_date,
