@@ -60,7 +60,7 @@ export const getPopularMovies = async (request: Request, response: Response) => 
     );
   } catch (error) {
     console.error('Error fetching popular movies:', error);
-    response.status(500).json({ error: 'Failed to fetch popular content' });
+    response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };
 
@@ -99,6 +99,6 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
     );
   } catch (error) {
     console.error('Error fetching popular TV shows:', error);
-    response.status(500).json({ error: 'Failed to fetch popular content' });
+    response.status(502).json({ error: 'Failed to fetch popular content' });
   }
 };

@@ -11,6 +11,7 @@ import { popularRouter, featuredRouter } from './routes/popular';
 const app = express();
 
 // Application-level middleware
+app.use(logger);
 app.use(cors());
 app.use(express.json());
 app.use(logger);

@@ -58,7 +58,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
     );
   } catch (error) {
     console.error('Error fetching featured movies:', error);
-    response.status(500).json({ error: 'Failed to fetch featured content' });
+    response.status(502).json({ error: 'Failed to fetch featured content' });
   }
 };
 
@@ -95,6 +95,6 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
     );
   } catch (error) {
     console.error('Error fetching featured TV shows:', error);
-    response.status(500).json({ error: 'Failed to fetch featured content' });
+    response.status(502).json({ error: 'Failed to fetch featured content' });
   }
 };

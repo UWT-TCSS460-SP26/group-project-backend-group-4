@@ -38,7 +38,7 @@ type TmdbTVSearchResult = {
   poster_path: string | null;
 };
 
-export const searchTV = async (request: Request, response: Response) => {
+export const getSeries = async (request: Request, response: Response) => {
   const series_id = request.params.series_id;
   const apiKey = process.env.TMDB_API_KEY;
 
@@ -70,7 +70,7 @@ export const searchTV = async (request: Request, response: Response) => {
   }
 };
 
-export const searchMovies = async (request: Request, response: Response) => {
+export const getMovie = async (request: Request, response: Response) => {
   const movie_id = request.params.movie_id;
   const apiKey = process.env.TMDB_API_KEY;
 
@@ -102,7 +102,7 @@ export const searchMovies = async (request: Request, response: Response) => {
   }
 };
 
-export const queryMovies = async (request: Request, response: Response) => {
+export const searchMovies = async (request: Request, response: Response) => {
   const query = request.query.q as string;
   const page = request.query.page ? Number(request.query.page) : 1;
   const limit = request.query.limit ? Number(request.query.limit) : 20;
@@ -139,7 +139,7 @@ export const queryMovies = async (request: Request, response: Response) => {
   }
 };
 
-export const queryTV = async (request: Request, response: Response) => {
+export const searchShows = async (request: Request, response: Response) => {
   const query = request.query.q as string;
   const page = request.query.page ? Number(request.query.page) : 1;
   const limit = request.query.limit ? Number(request.query.limit) : 20;

@@ -1,0 +1,193 @@
+import request from 'supertest';
+import { app } from '../src/app';
+
+beforeAll(() => {
+  process.env.NODE_ENV = 'test';
+});
+
+beforeEach(() => {
+  process.env.TMDB_API_KEY = 'TEST API KEY';
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  delete process.env.TMDB_API_KEY;
+  jest.restoreAllMocks();
+});
+
+describe('Get show by id', () => {
+  it('GET /api/tv/83867 should return movie with id 83867 (andor)', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        adult: false,
+        backdrop_path: '/ajztm40qDPqMONaSJhQ2PaNe2Xd.jpg',
+        created_by: [
+          {
+            id: 19242,
+            credit_id: '5fd2abb9b3f6f5003e41a184',
+            name: 'Tony Gilroy',
+            original_name: 'Tony Gilroy',
+            gender: 2,
+            profile_path: '/p0F3AoDTO3cEU2vnMzL9J4YuXNA.jpg',
+          },
+        ],
+        episode_run_time: [],
+        first_air_date: '2022-09-21',
+        genres: [
+          { id: 10765, name: 'Sci-Fi & Fantasy' },
+          { id: 10759, name: 'Action & Adventure' },
+          { id: 18, name: 'Drama' },
+        ],
+        homepage: 'https://www.disneyplus.com/browse/entity-faba988a-a9f5-45f2-a074-0775a7d6f67a',
+        id: 83867,
+        in_production: false,
+        languages: ['en'],
+        last_air_date: '2025-05-13',
+        last_episode_to_air: {
+          id: 5747441,
+          name: 'Jedha, Kyber, Erso',
+          overview: 'Cassian returns to Yavin with intel that will change everything.',
+          vote_average: 8.347,
+          vote_count: 62,
+          air_date: '2025-05-13',
+          episode_number: 12,
+          episode_type: 'finale',
+          production_code: '',
+          runtime: 49,
+          season_number: 2,
+          show_id: 83867,
+          still_path: '/qOamngh93us1GyBo5lMkIwMr2do.jpg',
+        },
+        name: 'Andor',
+        next_episode_to_air: null,
+        networks: [
+          {
+            id: 2739,
+            logo_path: '/1edZOYAfoyZyZ3rklNSiUpXX30Q.png',
+            name: 'Disney+',
+            origin_country: '',
+          },
+        ],
+        number_of_episodes: 24,
+        number_of_seasons: 2,
+        origin_country: ['US'],
+        original_language: 'en',
+        original_name: 'Andor',
+        overview:
+          'In an era filled with danger, deception and intrigue, Cassian Andor will discover the difference he can make in the struggle against the tyrannical Galactic Empire. He embarks on a path that is destined to turn him into a rebel hero.',
+        popularity: 49.4203,
+        poster_path: '/khZqmwHQicTYoS7Flreb9EddFZC.jpg',
+        production_companies: [
+          {
+            id: 1,
+            logo_path: '/tlVSws0RvvtPBwViUyOFAO0vcQS.png',
+            name: 'Lucasfilm Ltd.',
+            origin_country: 'US',
+          },
+        ],
+        production_countries: [{ iso_3166_1: 'US', name: 'United States of America' }],
+        seasons: [
+          {
+            air_date: '2024-04-30',
+            episode_count: 5,
+            id: 426329,
+            name: 'Specials',
+            overview: '',
+            poster_path: '/xZmE5h4k8wLRXW1UcSa5C5Q3l.jpg',
+            season_number: 0,
+            vote_average: 0,
+          },
+          {
+            air_date: '2022-09-21',
+            episode_count: 12,
+            id: 112257,
+            name: 'Season 1',
+            overview: '',
+            poster_path: '/59SVNwLfoMnZPPB6ukW6dlPxAdI.jpg',
+            season_number: 1,
+            vote_average: 8.1,
+          },
+          {
+            air_date: '2025-04-22',
+            episode_count: 12,
+            id: 427323,
+            name: 'Season 2',
+            overview:
+              'In season 2, Cassian Andor transforms from soldier to leader to hero on the way to his epic destiny. His story has activated an ever-widening ensemble of allies and enemies. These relationships will intensify as the horizon of galactic war draws near.Everyone will be tested and, as the stakes rise, the betrayals, sacrifices, and conflicting agendas will become profound. Who will live to see their dream realized? Who will realize what that dream cost?',
+            poster_path: '/ugkhd9olFiJwDgO3tK1ZrPxUdxQ.jpg',
+            season_number: 2,
+            vote_average: 8.1,
+          },
+        ],
+        spoken_languages: [{ english_name: 'English', iso_639_1: 'en', name: 'English' }],
+        status: 'Ended',
+        tagline: 'The Rebellion begins.',
+        type: 'Scripted',
+        vote_average: 8.285,
+        vote_count: 1958,
+      }),
+    });
+    const res = await request(app).get('/api/tv/83867');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      id: 83867,
+      name: 'Andor',
+      overview:
+        'In an era filled with danger, deception and intrigue, Cassian Andor will discover the difference he can make in the struggle against the tyrannical Galactic Empire. He embarks on a path that is destined to turn him into a rebel hero.',
+      first_air_date: '2022-09-21',
+      poster_path: '/khZqmwHQicTYoS7Flreb9EddFZC.jpg',
+      status: 'Ended',
+      genres: [
+        {
+          id: 10765,
+          name: 'Sci-Fi & Fantasy',
+        },
+        {
+          id: 10759,
+          name: 'Action & Adventure',
+        },
+        {
+          id: 18,
+          name: 'Drama',
+        },
+      ],
+    });
+  });
+});
+
+describe('Get show by id with missing api key', () => {
+  it('Handles a missing API key', async () => {
+    delete process.env.TMDB_API_KEY;
+    const res = await request(app).get('/api/tv/83867');
+
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('Get show by id when no tmdb response', () => {
+  it('Handles a missing API key', async () => {
+    const res = await request(app).get('/api/tv/83867');
+
+    expect(res.status).toBe(502);
+  });
+});
+
+describe('Get movie by tv id', () => {
+  it('Handles an invalid tv id', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: async () => ({
+        success: false,
+        status_code: 6,
+        status_message: 'Invalid id: The pre-requisite id is invalid or not found.',
+      }),
+    });
+    const res = await request(app).get('/api/tv/_');
+
+    expect(res.status).toBe(404);
+  });
+});

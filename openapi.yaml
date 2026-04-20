@@ -39,7 +39,7 @@ paths:
                   status:
                     type: string
                     example: 'healthy'
-  /api/movie/{movie_id}:
+  /api/movies/{movie_id}:
     get:
       tags: [Movies]
       summary: Movie Details
@@ -164,6 +164,16 @@ paths:
                       type: string
                     poster_path:
                       type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
@@ -185,8 +195,9 @@ paths:
           required: false
           schema:
             type: string
-            default: 'week'
-            enum: ['day', 'week']
+            enum: [day, week]
+            default: week
+          description: The time frame for the trending movies.
         - name: language
           in: query
           required: false
@@ -214,6 +225,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
@@ -490,8 +519,9 @@ paths:
           required: false
           schema:
             type: string
-            default: 'week'
-            enum: ['day', 'week']
+            enum: [day, week]
+            default: week
+          description: The time frame for the trending TV shows.
         - name: language
           in: query
           required: false
@@ -519,6 +549,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
@@ -575,6 +623,24 @@ paths:
                       type: string
                     poster_path:
                       type: string
+                    backdrop_path:
+                      type: string
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                    original_language:
+                      type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: TMDB_API_KEY is not configured
         '502':
           description: Failed to reach TMDB API
           content:
