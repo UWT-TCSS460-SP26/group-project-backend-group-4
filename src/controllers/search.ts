@@ -28,7 +28,6 @@ type TmdbMovieSearchResult = {
   id: number;
   title: string;
   release_date: string;
-  adult?: boolean;
   poster_path: string | null;
 };
 
@@ -36,12 +35,7 @@ type TmdbTVSearchResult = {
   id: number;
   name: string;
   first_air_date: string;
-  adult?: boolean;
   poster_path: string | null;
-};
-
-type TmdbSearchResponse<T> = {
-  results?: T[];
 };
 
 export const searchTV = async (request: Request, response: Response) => {
@@ -110,9 +104,9 @@ export const searchMovies = async (request: Request, response: Response) => {
 
 export const queryMovies = async (request: Request, response: Response) => {
   const query = request.query.q as string;
+  const page = request.query.page ? Number(request.query.page) : 1;
+  const limit = request.query.limit ? Number(request.query.limit) : 20;
   const apiKey = process.env.TMDB_API_KEY;
-  const page = response.locals.page ?? 1;
-  const limit = response.locals.limit ?? 20;
 
   try {
     const result = await fetch(
@@ -127,22 +121,17 @@ export const queryMovies = async (request: Request, response: Response) => {
       return;
     }
 
-    const rawResults = Array.isArray(data.results)
-      ? ((data as TmdbSearchResponse<TmdbMovieSearchResult>).results ?? [])
-      : [];
-    const results = (rawResults as TmdbMovieSearchResult[])
+    const results = (Array.isArray(data.results) ? (data.results as TmdbMovieSearchResult[]) : [])
       .map((item) => ({
         id: item.id,
         title: item.title,
         release_date: item.release_date,
-        adult: item.adult,
         poster_path: item.poster_path,
       }))
       .slice(0, limit);
 
     response.json({
       page,
-      limit,
       results,
     });
   } catch (_error) {
@@ -152,9 +141,9 @@ export const queryMovies = async (request: Request, response: Response) => {
 
 export const queryTV = async (request: Request, response: Response) => {
   const query = request.query.q as string;
+  const page = request.query.page ? Number(request.query.page) : 1;
+  const limit = request.query.limit ? Number(request.query.limit) : 20;
   const apiKey = process.env.TMDB_API_KEY;
-  const page = response.locals.page ?? 1;
-  const limit = response.locals.limit ?? 20;
 
   try {
     const result = await fetch(
@@ -169,22 +158,17 @@ export const queryTV = async (request: Request, response: Response) => {
       return;
     }
 
-    const rawResults = Array.isArray(data.results)
-      ? ((data as TmdbSearchResponse<TmdbTVSearchResult>).results ?? [])
-      : [];
-    const results = (rawResults as TmdbTVSearchResult[])
+    const results = (Array.isArray(data.results) ? (data.results as TmdbTVSearchResult[]) : [])
       .map((item) => ({
         id: item.id,
         title: item.name,
         release_date: item.first_air_date,
-        adult: item.adult,
         poster_path: item.poster_path,
       }))
       .slice(0, limit);
 
     response.json({
       page,
-      limit,
       results,
     });
   } catch (_error) {

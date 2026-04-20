@@ -39,23 +39,11 @@ export const requireSeriesId = (request: Request, response: Response, next: Next
 };
 
 /**
- *  Validates that 'movie_name' is present as a query param and is a string.
+ *  Validates that 'q' is present as a query param and is a string.
  */
-export const requireMovieName = (request: Request, response: Response, next: NextFunction) => {
-  const movie_name = request.query.q;
-  if (!movie_name || typeof movie_name !== 'string') {
-    response.status(400).json({ error: 'q is required and must be a string' });
-    return;
-  }
-  next();
-};
-
-/**
- * Validates that 'series_name' is present as a query param and is a string.
- */
-export const requireSeriesName = (request: Request, response: Response, next: NextFunction) => {
-  const series_name = request.query.q;
-  if (!series_name || typeof series_name !== 'string') {
+export const requireTitleName = (request: Request, response: Response, next: NextFunction) => {
+  const q = request.query.q;
+  if (!q || typeof q !== 'string') {
     response.status(400).json({ error: 'q is required and must be a string' });
     return;
   }
@@ -83,7 +71,6 @@ export const validateSearchPagination = (
     if (!Number.isFinite(page) || page <= 0 || !Number.isInteger(page) || page > 1000) {
       errors.push('page must be an integer between 1 and 1000');
     }
-    response.locals.page = page;
   }
 
   if (limitRaw !== undefined) {
@@ -92,6 +79,8 @@ export const validateSearchPagination = (
       errors.push('limit must be an integer between 1 and 50');
     }
     response.locals.limit = limit;
+  } else {
+    response.locals.limit = 20; // Default limit
   }
 
   if (errors.length > 0) {
