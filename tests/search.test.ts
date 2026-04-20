@@ -1,16 +1,13 @@
 import request from 'supertest';
 import { app } from '../src/app';
 
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
 beforeAll(() => {
   process.env.NODE_ENV = 'test';
 });
 
 beforeEach(() => {
-  jest.clearAllMocks();
   process.env.TMDB_API_KEY = 'test_api_key';
+  global.fetch = jest.fn();
 });
 
 afterEach(() => {
@@ -283,7 +280,7 @@ describe('Search Router', () => {
     };
 
     it('should return search results for valid query', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponsep1,
       });
@@ -389,7 +386,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, page, and limit parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponsep1,
       });
@@ -467,7 +464,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, and page parameters, and no limit parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponsep1,
       });
@@ -573,7 +570,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, and limit parameters, no page parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponsep1,
       });
@@ -715,7 +712,7 @@ describe('Search Router', () => {
     });
 
     it('should return 404 when TMDB returns not found', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 404,
         json: async () => ({ status_message: 'Not found' }),
@@ -728,7 +725,7 @@ describe('Search Router', () => {
     });
 
     it('should return 502 when TMDB API fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
       const res = await request(app).get('/api/movies/search').query({ q: 'test' });
 
@@ -1431,7 +1428,7 @@ describe('Search Router', () => {
       total_results: 141,
     };
     it('should return search results for valid query', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponseP1,
       });
@@ -1567,7 +1564,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, page, and limit parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponseP2,
       });
@@ -1603,7 +1600,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, and page parameters, and no limit parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponseP2,
       });
@@ -1739,7 +1736,7 @@ describe('Search Router', () => {
     });
 
     it('should return search results for valid query, and limit parameters, no page parameters', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponseP1,
       });
@@ -1861,7 +1858,7 @@ describe('Search Router', () => {
     });
 
     it('should return 404 when TMDB returns not found', async () => {
-      mockFetch.mockResolvedValueOnce({
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 404,
         json: async () => ({ status_message: 'Not found' }),
@@ -1874,7 +1871,7 @@ describe('Search Router', () => {
     });
 
     it('should return 502 when TMDB API fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
       const res = await request(app).get('/api/tv/search').query({ q: 'test' });
 

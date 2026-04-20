@@ -17,7 +17,7 @@ router.use(requireEnvVar('TMDB_API_KEY'));
 router.get('/api/movies/search', requireTitleName, validateSearchPagination, searchMovies);
 router.get('/api/tv/search', requireTitleName, validateSearchPagination, searchShows);
 
-router.get('/api/movie/:movie_id', requireMovieId, getMovie);
+router.get('/api/movies/:movie_id', requireMovieId, getMovie);
 router.get('/api/tv/:series_id', requireSeriesId, getSeries);
 
 export { router as searchRouter };
