@@ -24,6 +24,20 @@ type TmdbTVResponse = {
   message?: string;
 };
 
+type TmdbMovieSearchResult = {
+  id: number;
+  title: string;
+  release_date: string;
+  poster_path: string | null;
+};
+
+type TmdbTVSearchResult = {
+  id: number;
+  name: string;
+  first_air_date: string;
+  poster_path: string | null;
+};
+
 export const searchTV = async (request: Request, response: Response) => {
   const series_id = request.params.series_id;
   const apiKey = process.env.TMDB_API_KEY;
@@ -83,6 +97,80 @@ export const searchMovies = async (request: Request, response: Response) => {
     };
 
     response.json(movies_details);
+  } catch (_error) {
+    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  }
+};
+
+export const queryMovies = async (request: Request, response: Response) => {
+  const query = request.query.q as string;
+  const page = request.query.page ? Number(request.query.page) : 1;
+  const limit = request.query.limit ? Number(request.query.limit) : 20;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  try {
+    const result = await fetch(
+      `${BASE_URL}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&page=${page}`
+    );
+    const data = (await result.json()) as Record<string, unknown>;
+
+    if (!result.ok) {
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
+      return;
+    }
+
+    const results = (Array.isArray(data.results) ? (data.results as TmdbMovieSearchResult[]) : [])
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        release_date: item.release_date,
+        poster_path: item.poster_path,
+      }))
+      .slice(0, limit);
+
+    response.json({
+      page,
+      results,
+    });
+  } catch (_error) {
+    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  }
+};
+
+export const queryTV = async (request: Request, response: Response) => {
+  const query = request.query.q as string;
+  const page = request.query.page ? Number(request.query.page) : 1;
+  const limit = request.query.limit ? Number(request.query.limit) : 20;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  try {
+    const result = await fetch(
+      `${BASE_URL}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}&page=${page}`
+    );
+    const data = (await result.json()) as Record<string, unknown>;
+
+    if (!result.ok) {
+      response
+        .status(result.status)
+        .json({ error: data.message || 'The resource you requested could not be found' });
+      return;
+    }
+
+    const results = (Array.isArray(data.results) ? (data.results as TmdbTVSearchResult[]) : [])
+      .map((item) => ({
+        id: item.id,
+        title: item.name,
+        release_date: item.first_air_date,
+        poster_path: item.poster_path,
+      }))
+      .slice(0, limit);
+
+    response.json({
+      page,
+      results,
+    });
   } catch (_error) {
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
