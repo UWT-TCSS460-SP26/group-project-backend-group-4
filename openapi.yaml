@@ -253,6 +253,182 @@ paths:
                   error:
                     type: string
                     example: Failed to reach the TMDB API
+  /api/movies/search:
+    get:
+      tags: [Movies]
+      summary: Search Movies
+      description: Search movies by title.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search term for movie titles.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 1000
+          description: Page number for TMDB pagination.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 50
+          description: Maximum number of results returned in this response.
+      responses:
+        '200':
+          description: Successfully retrieved movie search results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 20
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                        adult:
+                          type: boolean
+                        poster_path:
+                          type: string
+        '400':
+          description: Invalid search query or pagination parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              examples:
+                missingQuery:
+                  summary: Missing required q parameter
+                  value:
+                    error: q is required and must be a string
+                invalidPagination:
+                  summary: Invalid page or limit values
+                  value:
+                    error: Validation failed
+                    details: page must be an integer between 1 and 1000
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
+  /api/tv/search:
+    get:
+      tags: [TV Shows]
+      summary: Search TV Shows
+      description: Search TV shows by title.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search term for TV show titles.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 1000
+          description: Page number for TMDB pagination.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 50
+          description: Maximum number of results returned in this response.
+      responses:
+        '200':
+          description: Successfully retrieved TV search results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 20
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        release_date:
+                          type: string
+                        adult:
+                          type: boolean
+                        poster_path:
+                          type: string
+        '400':
+          description: Invalid search query or pagination parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              examples:
+                missingQuery:
+                  summary: Missing required q parameter
+                  value:
+                    error: q is required and must be a string
+                invalidPagination:
+                  summary: Invalid page or limit values
+                  value:
+                    error: Validation failed
+                    details: page must be an integer between 1 and 1000
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to reach the TMDB API
   /api/tv/{series_id}:
     get:
       tags: [TV Shows]

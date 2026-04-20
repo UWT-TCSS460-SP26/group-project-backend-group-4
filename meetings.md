@@ -171,3 +171,40 @@ Deleting the hello route "As a team, we want to remove the example /hello route 
 ### Nathan
 
 Setup heartbeat endpoint
+
+## Week 3
+
+### Meeting Date: 4/14/2026
+
+### Meeting Time: 12:30 - 1:30
+
+### Present: All members
+
+## Introduction
+
+### Everyone has their own development api key
+
+### Decide on how to split sprint 1 into tasks
+
+## Tasks
+
+### Nathan
+
+- Popular results endpoints
+
+### Joshua
+
+- search endpoints
+
+### Oisin
+
+- details endpoints
+
+### Phelan
+
+- testing
+
+## wrapping it up
+
+- Do not touch production branch
+- use v3 TMDB API
