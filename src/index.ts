@@ -4,6 +4,10 @@ import { app } from './app';
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const isProd = process.env.NODE_ENV === 'production';
 
+if (process.env.DATABASE_URL === undefined) {
+  throw new Error('DATABASE_URL is not defined in your .env');
+}
+
 app.listen(PORT, (err: Error | undefined) => {
   if (err) {
     console.error(`Error starting server: ${err}`);
