@@ -48,6 +48,7 @@ model Media {
 
   @@unique([tmdbId, type])
   @@index([tmdbId])
+  @@map("media")
 }
 
 model Review {
