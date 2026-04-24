@@ -17,6 +17,8 @@ servers:
 tags:
   - name: General
     description: General-purpose routes
+  - name: Authentication
+    description: Routes for user authentication
   - name: Movies
     description: Routes used with Movies
   - name: TV Shows
@@ -39,6 +41,64 @@ paths:
                   status:
                     type: string
                     example: 'healthy'
+  /auth/dev-login:
+    post:
+      tags: [Authentication]
+      summary: Dev Login
+      description: |
+        **TEMPORARY — Sprint 2 only.**
+        Accepts a username, find-or-creates a user row with role='user', and returns a signed JWT.
+        This endpoint does NOT validate a password. It is a local-development stand-in for the real Auth-Squared integration coming in Sprint 3.
+        **DO NOT deploy this router to a public URL.**
+
+        Admin accounts must be seeded separately — this endpoint only creates regular users. To log in as an admin, create the user via your seed script and then POST the same username here.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username]
+              properties:
+                username:
+                  type: string
+                  example: alice
+                email:
+                  type: string
+                  format: email
+                  example: alice@example.test
+                  description: Optional; defaults to <username>@dev.local
+      responses:
+        '200':
+          description: Successfully logged in and returned a JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Missing or invalid username
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: username is required
+        '500':
+          description: Server configuration error (e.g. JWT_SECRET missing)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: JWT_SECRET is not configured
   /api/movies/{movie_id}:
     get:
       tags: [Movies]
