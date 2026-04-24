@@ -59,13 +59,13 @@ router.post('/dev-login', async (request: Request, response: Response): Promise<
     create: {
       username,
       email: email ?? `${username}@dev.local`,
-      role: 'user',
+      role: 'USER',
     },
   });
 
   const token = jwt.sign(
     {
-      sub: user.id,
+      sub: user.userId,
       email: user.email,
       role: user.role,
     },
