@@ -817,11 +817,29 @@ paths:
                   enum: [MOVIE, TV_SHOW]
                 score:
                   type: integer
+                minimum: 1
+                maximum: 5
       responses:
         '201':
           description: Rating successfully created
         '400':
-          description: Validation failed
+          description: Validation failed (e.g., invalid media type or score out of bounds)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                invalidType:
+                  summary: Invalid media type
+                  value:
+                    message: Invalid media type
+                invalidScore:
+                  summary: Score out of bounds
+                  value:
+                    message: Invalid rating score. Please provide a score between 1 and 5.
         '401':
           description: Missing or invalid Token
         '409':
@@ -862,9 +880,21 @@ paths:
               properties:
                 score:
                   type: integer
+                  minimum: 1
+                  maximum: 5
       responses:
         '200':
           description: Rating updated successfully
+        '400':
+          description: Validation failed (e.g., score out of bounds)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid rating score. Please provide a score between 1 and 5.
         '401':
           description: Missing or invalid Token
         '403':
