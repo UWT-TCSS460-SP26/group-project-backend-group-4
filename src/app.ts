@@ -17,8 +17,6 @@ const app = express();
 app.use(logger);
 app.use(cors());
 app.use(express.json());
-app.use(reviewRouter);
-app.use('/auth', devAuthRouter);
 
 // OpenAPI documentation
 const specFile = fs.readFileSync('./openapi.yaml', 'utf8');
@@ -34,6 +32,7 @@ app.use(popularRouter);
 app.use(featuredRouter);
 app.use(searchRouter);
 app.use(ratingsRouter);
+app.use(reviewRouter);
 app.use('/auth', devAuthRouter);
 
 // 404 handler — must be after all routes
