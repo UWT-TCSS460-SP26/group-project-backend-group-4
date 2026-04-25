@@ -5,13 +5,13 @@ services:
     container_name: postgres
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: "tcss460_user"
+      POSTGRES_USER: 'tcss460_user'
       POSTGRES_PASSWORD: CHANGE_ME
-      POSTGRES_DB: "tcss460_db"
+      POSTGRES_DB: 'tcss460_db'
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
     restart: unless-stopped
 
 volumes:
