@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
+import { parseIdOrRespond, getUserIdOrRespond } from '../middleware/validation';
 
 // ====== Validation & Parsing Helpers ========
 const isValidReviewType = (type: unknown): type is MediaType =>
@@ -9,24 +10,6 @@ const isValidReviewType = (type: unknown): type is MediaType =>
 const parsePositiveInt = (value: unknown): number | null => {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-};
-
-const getUserIdOrRespond = (req: Request, res: Response): number | null => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({ message: 'Unauthorized' });
-    return null;
-  }
-  return userId;
-};
-
-const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
-  const parsed = parsePositiveInt(value);
-  if (!parsed) {
-    res.status(400).json({ message });
     return null;
   }
   return parsed;
@@ -79,7 +62,8 @@ const updateMediaReviewCount = async (tx: Prisma.TransactionClient, mediaId: num
 //======= Reviews: Create =====
 export const createReview = async (req: Request, res: Response) => {
   const { tmdbId, type, title, body } = req.body;
-  const userId = getUserIdOrRespond(req, res);
+  const userId =
+    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
   if (!userId) {
     return;
   }
@@ -209,7 +193,10 @@ export const getReviews = async (req: Request, res: Response) => {
 
 // ======== Reviews: Get By ID =======
 export const getReviewById = async (req: Request, res: Response) => {
-  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  const id =
+    typeof res.locals.id === 'number'
+      ? res.locals.id
+      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
   if (!id) {
     return;
   }
@@ -240,13 +227,17 @@ export const getReviewById = async (req: Request, res: Response) => {
 
 // ==== Reviews: Update ======
 export const updateReview = async (req: Request, res: Response) => {
-  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  const id =
+    typeof res.locals.id === 'number'
+      ? res.locals.id
+      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
   const { title, body } = req.body;
   if (!id) {
     return;
   }
 
-  const userId = getUserIdOrRespond(req, res);
+  const userId =
+    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
   if (!userId) {
     return;
   }
@@ -289,12 +280,16 @@ export const updateReview = async (req: Request, res: Response) => {
 
 // ====== Reviews: Delete ======
 export const deleteReview = async (req: Request, res: Response) => {
-  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  const id =
+    typeof res.locals.id === 'number'
+      ? res.locals.id
+      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
   if (!id) {
     return;
   }
 
-  const userId = getUserIdOrRespond(req, res);
+  const userId =
+    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
   const role = req.user?.role;
 
   if (!userId) {

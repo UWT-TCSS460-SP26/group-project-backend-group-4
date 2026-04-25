@@ -7,13 +7,14 @@ import {
   deleteReview,
 } from '../controllers/reviews';
 import { requireAuth } from '../middleware/requireAuth';
+import { requireUserId, requireValidIdParam } from '../middleware/validation';
 
 const router = Router();
 
-router.get('/reviews', getReviews);
-router.get('/reviews/:id', getReviewById);
-router.post('/reviews', requireAuth, createReview);
-router.put('/reviews/:id', requireAuth, updateReview);
-router.delete('/reviews/:id', requireAuth, deleteReview);
+router.get('/api/reviews', getReviews);
+router.get('/api/reviews/:id', requireValidIdParam(), getReviewById);
+router.post('/api/reviews', requireAuth, requireUserId, createReview);
+router.put('/api/reviews/:id', requireAuth, requireUserId, requireValidIdParam(), updateReview);
+router.delete('/api/reviews/:id', requireAuth, requireUserId, requireValidIdParam(), deleteReview);
 
 export { router as reviewRouter };

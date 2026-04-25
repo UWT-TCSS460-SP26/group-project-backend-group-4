@@ -1,5 +1,51 @@
 import { Request, Response, NextFunction } from 'express';
 
+const parsePositiveInt = (value: unknown): number | null => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+};
+
+export const getUserIdOrRespond = (req: Request, res: Response): number | null => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return null;
+  }
+  return userId;
+};
+
+export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
+  const parsed = parsePositiveInt(value);
+  if (!parsed) {
+    res.status(400).json({ message });
+    return null;
+  }
+  return parsed;
+};
+
+export const requireUserId = (req: Request, res: Response, next: NextFunction) => {
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
+  res.locals.userId = userId;
+  next();
+};
+
+export const requireValidIdParam = (paramName = 'id', message = 'Invalid review id') => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const id = parseIdOrRespond(req.params[paramName], res, message);
+    if (!id) {
+      return;
+    }
+    res.locals[paramName] = id;
+    next();
+  };
+};
+
 /**
  * Validates that a required environment variable is set.
  * Returns a middleware function that checks for the given key in process.env.
