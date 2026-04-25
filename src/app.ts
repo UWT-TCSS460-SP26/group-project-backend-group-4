@@ -5,8 +5,10 @@ import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 import { statusRouter } from './routes/status';
 import { searchRouter } from './routes/search';
+import { reviewRouter } from './routes/reviews';
 import { logger } from './middleware/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
+import devAuthRouter from './routes/devAuth';
 
 const app = express();
 
@@ -14,6 +16,8 @@ const app = express();
 app.use(logger);
 app.use(cors());
 app.use(express.json());
+app.use(reviewRouter);
+app.use('/auth', devAuthRouter);
 
 // OpenAPI documentation
 const specFile = fs.readFileSync('./openapi.yaml', 'utf8');
