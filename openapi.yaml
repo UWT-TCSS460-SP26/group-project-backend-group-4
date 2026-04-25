@@ -651,3 +651,188 @@ paths:
                   error:
                     type: string
                     example: Failed to reach the TMDB API
+  /ratings:
+    get:
+      tags: [Ratings]
+      summary: List Ratings
+      description: Retrieve a paginated list of ratings. Filterable by user, media, or TMDB ID and type.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: mediaId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: tmdbId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [MOVIE, TV_SHOW]
+      responses:
+        '200':
+          description: A paginated list of ratings.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        score:
+                          type: integer
+                        userId:
+                          type: integer
+                        mediaId:
+                          type: integer
+                        user:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                        media:
+                          type: object
+                          properties:
+                            tmdbId:
+                              type: integer
+                            type:
+                              type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '500':
+          description: Internal Server Error
+    post:
+      tags: [Ratings]
+      summary: Create Rating
+      description: Submit a new rating. If the media doesn't exist, it will be resolved and created automatically.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tmdbId, type, score]
+              properties:
+                tmdbId:
+                  type: integer
+                type:
+                  type: string
+                  enum: [MOVIE, TV_SHOW]
+                score:
+                  type: integer
+      responses:
+        '201':
+          description: Rating successfully created
+        '400':
+          description: Validation failed
+        '401':
+          description: Missing or invalid Token
+        '409':
+          description: Conflict - User has already rated this specific media
+        '500':
+          description: Internal Server Error
+  /ratings/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The primary key of the rating
+    get:
+      tags: [Ratings]
+      summary: Get Rating by ID
+      responses:
+        '200':
+          description: Successfully retrieved the rating
+        '404':
+          description: Record not found
+        '500':
+          description: Internal Server Error
+    put:
+      tags: [Ratings]
+      summary: Update Rating
+      description: Update an existing rating score. Requires the authenticated user to be the owner of the record.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score:
+                  type: integer
+      responses:
+        '200':
+          description: Rating updated successfully
+        '401':
+          description: Missing or invalid Token
+        '403':
+          description: Not authorized to modify this record
+        '404':
+          description: Record not found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags: [Ratings]
+      summary: Delete Rating
+      description: Delete a rating. Requires the authenticated user to be the owner of the record or have the ADMIN role.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Rating deleted successfully
+        '401':
+          description: Missing or invalid Token
+        '403':
+          description: Not authorized to modify this record
+        '404':
+          description: Record not found
+        '500':
+          description: Internal Server Error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
