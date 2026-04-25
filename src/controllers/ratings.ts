@@ -9,6 +9,12 @@ export const createRating = async (req: Request, res: Response) => {
 
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized' });
+  } else if (type !== 'MOVIE' && type !== 'TV_SHOW') {
+    return res.status(400).json({ message: 'Invalid media type' });
+  } else if (!Number.isInteger(score) || score < 1 || score > 5) {
+    return res
+      .status(400)
+      .json({ message: 'Invalid rating score. Please provide a score between 1 and 5.' });
   }
 
   try {
@@ -162,7 +168,12 @@ export const updateRating = async (req: Request, res: Response) => {
 
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized' });
+  } else if (!Number.isInteger(score) || score < 1 || score > 5) {
+    return res
+      .status(400)
+      .json({ message: 'Invalid rating score. Please provide a score between 1 and 5.' });
   }
+
   try {
     // Find the rating first so we know which mediaId to update!
     const existingRating = await prisma.rating.findUnique({
