@@ -1,234 +1,328 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { Prisma, MediaType } from '../generated/prisma/client';
 
-const ALLOWED_SORT_FIELDS = ['id', 'title', 'createdAt', 'updatedAt'];
-const DEFAULT_LIMIT = 25;
-const MAX_LIMIT = 100;
+// ====== Validation & Parsing Helpers ========
+const isValidReviewType = (type: unknown): type is MediaType =>
+  type === 'MOVIE' || type === 'TV_SHOW';
 
-type MediaType = 'movie' | 'tv';
+const parsePositiveInt = (value: unknown): number | null => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+};
 
-const isValidMediaType = (value: unknown): value is MediaType =>
-  value === 'movie' || value === 'tv';
-const isPrismaKnownRequestError = (error: unknown): error is { code: string } =>
-  typeof error === 'object' &&
-  error !== null &&
-  'code' in error &&
-  typeof (error as { code: unknown }).code === 'string';
+const getUserIdOrRespond = (req: Request, res: Response): number | null => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return null;
+  }
+  return userId;
+};
 
-export const getReviews = async (request: Request, response: Response) => {
-  const page = Math.max(1, Number(request.query.page) || 1);
-  const limit = Math.min(MAX_LIMIT, Math.max(1, Number(request.query.limit) || DEFAULT_LIMIT));
-  const skip = (page - 1) * limit;
+const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
+  const parsed = parsePositiveInt(value);
+  if (!parsed) {
+    res.status(400).json({ message });
+    return null;
+  }
+  return parsed;
+};
 
-  const sort = ALLOWED_SORT_FIELDS.includes(String(request.query.sort))
-    ? String(request.query.sort)
-    : 'createdAt';
-  const order = request.query.order === 'asc' ? 'asc' : 'desc';
+const normalizeTitle = (title: unknown): string | null => {
+  if (typeof title !== 'string') {
+    return null;
+  }
+  const trimmed = title.trim();
+  return trimmed || null;
+};
 
-  const tmdbIdRaw = request.query.tmdbId;
-  const tmdbId = tmdbIdRaw !== undefined ? Number(tmdbIdRaw) : undefined;
-  const userId = request.query.userId ? Number(request.query.userId) : undefined;
-  const mediaType = request.query.mediaType;
-  const q = typeof request.query.q === 'string' ? request.query.q.trim() : '';
+// ======= Media Resolution Helpers =======
+const resolveOrCreateMedia = async (tmdbId: number, type: MediaType) => {
+  const existingMedia = await prisma.media.findUnique({
+    where: { tmdbId_type: { tmdbId, type } },
+  });
 
-  if (tmdbIdRaw === undefined) {
-    response.status(400).json({ error: 'tmdbId query param is required' });
+  if (existingMedia) {
+    return existingMedia;
+  }
+
+  return prisma.media.create({
+    data: {
+      tmdbId,
+      type,
+      avgRating: 0,
+      totalRatings: 0,
+      totalReviews: 0,
+    },
+  });
+};
+
+// ====== Aggregate Update Helpers =======
+const updateMediaReviewCount = async (tx: Prisma.TransactionClient, mediaId: number) => {
+  const aggregations = await tx.review.aggregate({
+    where: { mediaId },
+    _count: { id: true },
+  });
+
+  await tx.media.update({
+    where: { id: mediaId },
+    data: {
+      totalReviews: aggregations._count.id,
+    },
+  });
+};
+
+//======= Reviews: Create =====
+export const createReview = async (req: Request, res: Response) => {
+  const { tmdbId, type, title, body } = req.body;
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
     return;
   }
 
-  if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
-    response.status(400).json({ error: 'tmdbId must be a positive integer' });
-    return;
+  if (!Number.isInteger(tmdbId)) {
+    return res.status(400).json({ message: 'Invalid tmdbId' });
   }
-
-  if (mediaType !== undefined && !isValidMediaType(mediaType)) {
-    response.status(400).json({ error: 'Invalid mediaType. Expected "movie" or "tv"' });
-    return;
+  if (!isValidReviewType(type)) {
+    return res.status(400).json({ message: 'Invalid media type' });
   }
-
-  const where = {
-    tmdbId,
-    ...(userId ? { userId } : {}),
-    ...(mediaType ? { mediaType } : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: 'insensitive' as const } },
-            { body: { contains: q, mode: 'insensitive' as const } },
-          ],
-        }
-      : {}),
-  };
+  if (typeof body !== 'string' || !body.trim()) {
+    return res.status(400).json({ message: 'Review body is required.' });
+  }
+  if (title !== undefined && typeof title !== 'string') {
+    return res.status(400).json({ message: 'Invalid review title.' });
+  }
 
   try {
+    const media = await resolveOrCreateMedia(tmdbId, type);
+
+    const existingReview = await prisma.review.findUnique({
+      where: {
+        userId_mediaId: {
+          userId,
+          mediaId: media.id,
+        },
+      },
+    });
+
+    if (existingReview) {
+      return res.status(409).json({ message: 'User has already reviewed this media.' });
+    }
+
+    const newReview = await prisma.$transaction(async (tx) => {
+      const review = await tx.review.create({
+        data: {
+          userId,
+          mediaId: media.id,
+          title: normalizeTitle(title),
+          body: body.trim(),
+        },
+      });
+
+      await updateMediaReviewCount(tx, media.id);
+      return review;
+    });
+
+    return res.status(201).json(newReview);
+  } catch (error) {
+    console.error('Error creating review:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// ======= Reviews: Get All =======
+export const getReviews = async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 20);
+    const skip = (page - 1) * limit;
+
+    const { userId, mediaId, tmdbId, type } = req.query;
+    const where: Prisma.ReviewWhereInput = {};
+
+    if (userId) {
+      const parsedUserId = parsePositiveInt(userId);
+      if (!parsedUserId) {
+        return res.status(400).json({ message: 'Invalid userId' });
+      }
+      where.userId = parsedUserId;
+    }
+
+    if (mediaId) {
+      const parsedMediaId = parsePositiveInt(mediaId);
+      if (!parsedMediaId) {
+        return res.status(400).json({ message: 'Invalid mediaId' });
+      }
+      where.mediaId = parsedMediaId;
+    } else if (tmdbId && type) {
+      const parsedTmdbId = parsePositiveInt(tmdbId);
+      if (!parsedTmdbId) {
+        return res.status(400).json({ message: 'Invalid tmdbId' });
+      }
+      if (!isValidReviewType(type)) {
+        return res.status(400).json({ message: 'Invalid media type' });
+      }
+      where.media = {
+        tmdbId: parsedTmdbId,
+        type,
+      };
+    } else if (tmdbId || type) {
+      return res.status(400).json({ message: 'Both tmdbId and type are required together.' });
+    }
+
     const [reviews, total] = await Promise.all([
       prisma.review.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { [sort]: order },
-        include: { user: { select: { id: true, username: true } } },
+        include: {
+          user: {
+            select: { username: true },
+          },
+          media: {
+            select: { tmdbId: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.review.count({ where }),
     ]);
 
-    const totalPages = Math.ceil(total / limit);
-
-    response.json({
+    return res.json({
       data: reviews,
-      pagination: { page, limit, total, totalPages },
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
-  } catch (_error) {
-    response.status(500).json({ error: 'Failed to retrieve reviews' });
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const getReviewById = async (request: Request, response: Response) => {
-  const id = Number(request.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    response.status(400).json({ error: 'Invalid review id' });
+// ======== Reviews: Get By ID =======
+export const getReviewById = async (req: Request, res: Response) => {
+  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  if (!id) {
     return;
   }
 
   try {
     const review = await prisma.review.findUnique({
       where: { id },
-      include: { user: { select: { id: true, username: true } } },
+      include: {
+        user: {
+          select: { username: true },
+        },
+        media: {
+          select: { tmdbId: true, type: true },
+        },
+      },
     });
 
     if (!review) {
-      response.status(404).json({ error: 'Review not found' });
-      return;
+      return res.status(404).json({ message: 'Review not found' });
     }
 
-    response.json({ data: review });
-  } catch (_error) {
-    response.status(500).json({ error: 'Failed to retrieve review' });
-  }
-};
-
-export const createReview = async (request: Request, response: Response) => {
-  const { tmdbId, mediaType, title, body } = request.body;
-  const userId = request.user!.sub;
-
-  if (!tmdbId || !Number.isInteger(Number(tmdbId))) {
-    response.status(400).json({ error: 'tmdbId must be an integer' });
-    return;
-  }
-
-  if (!isValidMediaType(mediaType)) {
-    response.status(400).json({ error: 'Invalid mediaType. Expected "movie" or "tv"' });
-    return;
-  }
-
-  if (typeof title !== 'string' || !title.trim()) {
-    response.status(400).json({ error: 'title is required' });
-    return;
-  }
-
-  if (typeof body !== 'string' || !body.trim()) {
-    response.status(400).json({ error: 'body is required' });
-    return;
-  }
-
-  try {
-    const review = await prisma.review.create({
-      data: {
-        userId,
-        tmdbId: Number(tmdbId),
-        mediaType,
-        title: title.trim(),
-        body: body.trim(),
-      },
-      include: { user: { select: { id: true, username: true } } },
-    });
-
-    response.status(201).json({ data: review });
+    return res.json(review);
   } catch (error) {
-    if (isPrismaKnownRequestError(error) && error.code === 'P2003') {
-      response.status(400).json({ error: 'Author not found' });
-      return;
-    }
-    response.status(500).json({ error: 'Failed to create review' });
+    console.error('Error fetching review:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const updateReview = async (request: Request, response: Response) => {
-  const id = Number(request.params.id);
-  const { tmdbId, mediaType, title, body } = request.body;
-  const { sub: userId, role } = request.user!;
-
-  if (!Number.isInteger(id) || id <= 0) {
-    response.status(400).json({ error: 'Invalid review id' });
+// ==== Reviews: Update ======
+export const updateReview = async (req: Request, res: Response) => {
+  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  const { title, body } = req.body;
+  if (!id) {
     return;
   }
 
-  if (mediaType !== undefined && !isValidMediaType(mediaType)) {
-    response.status(400).json({ error: 'Invalid mediaType. Expected "movie" or "tv"' });
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
     return;
+  }
+
+  if (title !== undefined && typeof title !== 'string') {
+    return res.status(400).json({ message: 'Invalid review title.' });
+  }
+  if (body !== undefined && (typeof body !== 'string' || !body.trim())) {
+    return res.status(400).json({ message: 'Invalid review body.' });
+  }
+  if (title === undefined && body === undefined) {
+    return res.status(400).json({ message: 'No fields provided to update.' });
   }
 
   try {
-    const existing = await prisma.review.findUnique({
+    const existingReview = await prisma.review.findUnique({
       where: { id },
-      select: { userId: true },
     });
-    if (!existing) {
-      response.status(404).json({ error: 'Review not found' });
-      return;
-    }
-    if (role !== 'admin' && existing.userId !== userId) {
-      response.status(403).json({ error: 'You can only update your own reviews' });
-      return;
+
+    if (!existingReview) {
+      return res.status(404).json({ message: 'Review not found' });
+    } else if (existingReview.userId !== userId) {
+      return res.status(403).json({ message: 'Unauthorized to update this review' });
     }
 
-    const review = await prisma.review.update({
+    const updatedReview = await prisma.review.update({
       where: { id },
       data: {
-        ...(tmdbId !== undefined ? { tmdbId: Number(tmdbId) } : {}),
-        ...(mediaType !== undefined ? { mediaType } : {}),
-        ...(title !== undefined ? { title: String(title).trim() } : {}),
-        ...(body !== undefined ? { body: String(body).trim() } : {}),
+        ...(title !== undefined ? { title: normalizeTitle(title) } : {}),
+        ...(body !== undefined ? { body: body.trim() } : {}),
       },
-      include: { user: { select: { id: true, username: true } } },
     });
 
-    response.json({ data: review });
-  } catch (_error) {
-    response.status(500).json({ error: 'Failed to update review' });
+    return res.json(updatedReview);
+  } catch (error) {
+    console.error('Error updating review:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const deleteReview = async (request: Request, response: Response) => {
-  const id = Number(request.params.id);
-  const { sub: userId, role } = request.user!;
+// ====== Reviews: Delete ======
+export const deleteReview = async (req: Request, res: Response) => {
+  const id = parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  if (!id) {
+    return;
+  }
 
-  if (!Number.isInteger(id) || id <= 0) {
-    response.status(400).json({ error: 'Invalid review id' });
+  const userId = getUserIdOrRespond(req, res);
+  const role = req.user?.role;
+
+  if (!userId) {
     return;
   }
 
   try {
-    const existing = await prisma.review.findUnique({
-      where: { id },
-      select: { userId: true },
-    });
-    if (!existing) {
-      response.status(404).json({ error: 'Review not found' });
-      return;
-    }
-    if (role !== 'admin' && existing.userId !== userId) {
-      response.status(403).json({ error: 'You can only delete your own reviews' });
-      return;
-    }
-
-    await prisma.review.delete({
+    const reviewToDelete = await prisma.review.findUnique({
       where: { id },
     });
 
-    response.json({ data: { message: 'Review deleted successfully' } });
-  } catch (_error) {
-    response.status(500).json({ error: 'Failed to delete review' });
+    if (!reviewToDelete) {
+      return res.status(404).json({ message: 'Review not found' });
+    } else if (reviewToDelete.userId !== userId && role !== 'ADMIN' && role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized to delete this review' });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.review.delete({
+        where: { id },
+      });
+
+      await updateMediaReviewCount(tx, reviewToDelete.mediaId);
+    });
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
