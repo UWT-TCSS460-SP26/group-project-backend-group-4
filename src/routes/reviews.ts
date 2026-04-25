@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getReviews, getReviewById, createReview, updateReview, deleteReview } from '../controllers/reviews';
+import {
+  getReviews,
+  getReviewById,
+  createReview,
+  updateReview,
+  deleteReview,
+} from '../controllers/reviews';
 import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();

@@ -7,7 +7,8 @@ const MAX_LIMIT = 100;
 
 type MediaType = 'movie' | 'tv';
 
-const isValidMediaType = (value: unknown): value is MediaType => value === 'movie' || value === 'tv';
+const isValidMediaType = (value: unknown): value is MediaType =>
+  value === 'movie' || value === 'tv';
 const isPrismaKnownRequestError = (error: unknown): error is { code: string } =>
   typeof error === 'object' &&
   error !== null &&
@@ -231,4 +232,3 @@ export const deleteReview = async (request: Request, response: Response) => {
     response.status(500).json({ error: 'Failed to delete review' });
   }
 };
-
