@@ -7,6 +7,8 @@ import { statusRouter } from './routes/status';
 import { searchRouter } from './routes/search';
 import { logger } from './middleware/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
+import { ratingsRouter } from './routes/ratings';
+import devAuthRouter from './routes/devAuth';
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.use(statusRouter);
 app.use(popularRouter);
 app.use(featuredRouter);
 app.use(searchRouter);
+app.use(ratingsRouter);
+app.use('/auth', devAuthRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {

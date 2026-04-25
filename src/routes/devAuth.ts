@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 
-const router = Router();
+const devAuthRouter = Router();
 
 /**
  * POST /auth/dev-login
@@ -40,14 +40,14 @@ const router = Router();
  * regular users. To log in as an admin, create the user via your seed
  * script and then POST the same username here.
  */
-router.post('/dev-login', async (request: Request, response: Response): Promise<void> => {
+devAuthRouter.post('/dev-login', async (request: Request, response: Response): Promise<void> => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     response.status(500).json({ error: 'JWT_SECRET is not configured' });
     return;
   }
 
-  const { username, email } = request.body as { username?: string; email?: string };
+  const { username, email } = (request.body || {}) as { username?: string; email?: string };
   if (!username || typeof username !== 'string') {
     response.status(400).json({ error: 'username is required' });
     return;
@@ -59,13 +59,13 @@ router.post('/dev-login', async (request: Request, response: Response): Promise<
     create: {
       username,
       email: email ?? `${username}@dev.local`,
-      role: 'user',
+      role: 'USER',
     },
   });
 
   const token = jwt.sign(
     {
-      sub: user.id,
+      sub: user.userId,
       email: user.email,
       role: user.role,
     },
@@ -76,4 +76,4 @@ router.post('/dev-login', async (request: Request, response: Response): Promise<
   response.json({ token });
 });
 
-export default router;
+export default devAuthRouter;
