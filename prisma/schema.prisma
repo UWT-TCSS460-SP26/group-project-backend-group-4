@@ -13,38 +13,73 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  userId    Int      @id @default(autoincrement()) @map("id")
   username  String   @unique
   email     String   @unique
-  role      Role     @default(user)
+  role      Role     @default(USER)
   createdAt DateTime @default(now()) @db.Timestamptz()
   reviews   Review[]
-}
+  ratings   Rating[]
 
-model Review {
-  id        Int       @id @default(autoincrement())
-  userId    Int 
-  tmdbId    Int
-  mediaType MediaType //Movie or TV
-  title     String
-  body      String
-  createdAt DateTime  @default(now()) @db.Timestamptz()
-  updatedAt DateTime  @updatedAt @db.Timestamptz()
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([tmdbId])
-  @@index([userId])
-
-  @@map("reviews")
-}
-
-enum MediaType {
-  movie
-  tv
+  @@map("users")
 }
 
 enum Role {
-  user
-  admin
+  USER  @map("user")
+  ADMIN @map("admin")
+}
+
+enum MediaType {
+  TV_SHOW @map("tv_show")
+  MOVIE   @map("movie")
+}
+
+model Media {
+  id     Int       @id @default(autoincrement())
+  tmdbId Int
+  type   MediaType
+
+  reviews Review[]
+  ratings Rating[]
+
+  avgRating    Float
+  totalRatings Int   @default(0)
+  totalReviews Int   @default(0)
+
+  @@unique([tmdbId, type])
+  @@index([tmdbId])
+  @@map("media")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  title String?
+  body  String
+
+  user    User  @relation(fields: [userId], references: [userId])
+  userId  Int
+  media   Media @relation(fields: [mediaId], references: [id])
+  mediaId Int
+
+  @@unique([userId, mediaId])
+  @@map("reviews")
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  score Int
+
+  user    User  @relation(fields: [userId], references: [userId])
+  userId  Int
+  media   Media @relation(fields: [mediaId], references: [id])
+  mediaId Int
+
+  @@unique([userId, mediaId])
+  @@map("ratings")
 }

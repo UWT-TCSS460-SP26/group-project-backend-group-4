@@ -32,6 +32,7 @@ app.use(statusRouter);
 app.use(popularRouter);
 app.use(featuredRouter);
 app.use(searchRouter);
+app.use(devAuthRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
