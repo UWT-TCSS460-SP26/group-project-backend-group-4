@@ -285,7 +285,7 @@ describe('Search Router', () => {
         json: async () => mockResponsep1,
       });
 
-      const res = await request(app).get('/api/movies/search').query({ q: 'cars 2' });
+      const res = await request(app).get('/api/movies/search').query({ title: 'cars 2' });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -393,7 +393,7 @@ describe('Search Router', () => {
 
       const res = await request(app)
         .get('/api/movies/search')
-        .query({ q: 'cars 2', page: 1, limit: 10 });
+        .query({ title: 'cars 2', page: 1, limit: 10 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -469,7 +469,7 @@ describe('Search Router', () => {
         json: async () => mockResponsep1,
       });
 
-      const res = await request(app).get('/api/movies/search').query({ q: 'cars 2', page: 1 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'cars 2', page: 1 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -575,7 +575,7 @@ describe('Search Router', () => {
         json: async () => mockResponsep1,
       });
 
-      const res = await request(app).get('/api/movies/search').query({ q: 'cars 2', limit: 5 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'cars 2', limit: 5 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -615,17 +615,17 @@ describe('Search Router', () => {
       });
     });
 
-    it('should return 400 for missing q parameter', async () => {
+    it('should return 400 for missing title parameter', async () => {
       const res = await request(app).get('/api/movies/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toBe('q is required and must be a string');
+      expect(res.body.error).toBe('title is required and must be a string');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
       const res = await request(app)
         .get('/api/movies/search')
-        .query({ q: 'test', page: 'invalid' });
+        .query({ title: 'test', page: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -634,7 +634,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a page parameter less than 1', async () => {
-      const res = await request(app).get('/api/movies/search').query({ q: 'test', page: 0 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'test', page: 0 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -643,7 +643,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a page parameter greater than 1000', async () => {
-      const res = await request(app).get('/api/movies/search').query({ q: 'test', page: 1001 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'test', page: 1001 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -652,7 +652,9 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for invalid limit parameter(not a number)', async () => {
-      const res = await request(app).get('/api/movies/search').query({ q: 'test', limit: 'test' });
+      const res = await request(app)
+        .get('/api/movies/search')
+        .query({ title: 'test', limit: 'test' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -661,7 +663,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a limit parameter less than 1', async () => {
-      const res = await request(app).get('/api/movies/search').query({ q: 'test', limit: 0 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'test', limit: 0 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -670,7 +672,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a limit parameter greater than 50', async () => {
-      const res = await request(app).get('/api/movies/search').query({ q: 'test', limit: 51 });
+      const res = await request(app).get('/api/movies/search').query({ title: 'test', limit: 51 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -681,7 +683,7 @@ describe('Search Router', () => {
     it('should return 400 for invalid page and limit parameters', async () => {
       const res = await request(app)
         .get('/api/movies/search')
-        .query({ q: 'test', page: 'invalid', limit: 'invalid' });
+        .query({ title: 'test', page: 'invalid', limit: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -692,7 +694,7 @@ describe('Search Router', () => {
     it('should return 400 for invalid page, but valid limit parameter', async () => {
       const res = await request(app)
         .get('/api/movies/search')
-        .query({ q: 'test', page: 'invalid', limit: 20 });
+        .query({ title: 'test', page: 'invalid', limit: 20 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -703,7 +705,7 @@ describe('Search Router', () => {
     it('should return 400 for valid page, but invalid limit parameter', async () => {
       const res = await request(app)
         .get('/api/movies/search')
-        .query({ q: 'test', page: 1, limit: 'invalid' });
+        .query({ title: 'test', page: 1, limit: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -718,7 +720,7 @@ describe('Search Router', () => {
         json: async () => ({ status_message: 'Not found' }),
       });
 
-      const res = await request(app).get('/api/movies/search').query({ q: 'nonexistent' });
+      const res = await request(app).get('/api/movies/search').query({ title: 'nonexistent' });
 
       expect(res.status).toBe(404);
       expect(res.body.error).toBe('The resource you requested could not be found');
@@ -727,7 +729,7 @@ describe('Search Router', () => {
     it('should return 502 when TMDB API fails', async () => {
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-      const res = await request(app).get('/api/movies/search').query({ q: 'test' });
+      const res = await request(app).get('/api/movies/search').query({ title: 'test' });
 
       expect(res.status).toBe(502);
       expect(res.body.error).toBe('Failed to reach the TMDB API');
@@ -1433,7 +1435,7 @@ describe('Search Router', () => {
         json: async () => mockResponseP1,
       });
 
-      const res = await request(app).get('/api/tv/search').query({ q: 'marvel' });
+      const res = await request(app).get('/api/tv/search').query({ title: 'marvel' });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -1571,7 +1573,7 @@ describe('Search Router', () => {
 
       const res = await request(app)
         .get('/api/tv/search')
-        .query({ q: 'marvel', page: 2, limit: 3 });
+        .query({ title: 'marvel', page: 2, limit: 3 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -1605,7 +1607,7 @@ describe('Search Router', () => {
         json: async () => mockResponseP2,
       });
 
-      const res = await request(app).get('/api/tv/search').query({ q: 'marvel', page: 2 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'marvel', page: 2 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -1741,7 +1743,7 @@ describe('Search Router', () => {
         json: async () => mockResponseP1,
       });
 
-      const res = await request(app).get('/api/tv/search').query({ q: 'marvel', limit: 2 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'marvel', limit: 2 });
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -1763,15 +1765,17 @@ describe('Search Router', () => {
       });
     });
 
-    it('should return 400 for missing q parameter', async () => {
+    it('should return 400 for missing title parameter', async () => {
       const res = await request(app).get('/api/tv/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toBe('q is required and must be a string');
+      expect(res.body.error).toBe('title is required and must be a string');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', page: 'invalid' });
+      const res = await request(app)
+        .get('/api/tv/search')
+        .query({ title: 'test', page: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1780,7 +1784,9 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for invalid limit parameter(not a number)', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', limit: 'invalid' });
+      const res = await request(app)
+        .get('/api/tv/search')
+        .query({ title: 'test', limit: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1789,7 +1795,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a page parameter less than 1', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', page: 0 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'test', page: 0 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1798,7 +1804,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a page parameter greater than 1000', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', page: 1001 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'test', page: 1001 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1807,7 +1813,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a limit parameter less than 1', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', limit: 0 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'test', limit: 0 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1816,7 +1822,7 @@ describe('Search Router', () => {
     });
 
     it('should return 400 for a limit parameter greater than 50', async () => {
-      const res = await request(app).get('/api/tv/search').query({ q: 'test', limit: 51 });
+      const res = await request(app).get('/api/tv/search').query({ title: 'test', limit: 51 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1827,7 +1833,7 @@ describe('Search Router', () => {
     it('should return 400 for invalid page and limit parameters', async () => {
       const res = await request(app)
         .get('/api/tv/search')
-        .query({ q: 'test', page: 'invalid', limit: 'invalid' });
+        .query({ title: 'test', page: 'invalid', limit: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1838,7 +1844,7 @@ describe('Search Router', () => {
     it('should return 400 for invalid page, but valid limit parameter', async () => {
       const res = await request(app)
         .get('/api/tv/search')
-        .query({ q: 'test', page: 'invalid', limit: 20 });
+        .query({ title: 'test', page: 'invalid', limit: 20 });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1849,7 +1855,7 @@ describe('Search Router', () => {
     it('should return 400 for valid page, but invalid limit parameter', async () => {
       const res = await request(app)
         .get('/api/tv/search')
-        .query({ q: 'test', page: 1, limit: 'invalid' });
+        .query({ title: 'test', page: 1, limit: 'invalid' });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toContain('Validation failed');
@@ -1864,7 +1870,7 @@ describe('Search Router', () => {
         json: async () => ({ status_message: 'Not found' }),
       });
 
-      const res = await request(app).get('/api/tv/search').query({ q: 'nonexistent' });
+      const res = await request(app).get('/api/tv/search').query({ title: 'nonexistent' });
 
       expect(res.status).toBe(404);
       expect(res.body.error).toBe('The resource you requested could not be found');
@@ -1873,7 +1879,7 @@ describe('Search Router', () => {
     it('should return 502 when TMDB API fails', async () => {
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-      const res = await request(app).get('/api/tv/search').query({ q: 'test' });
+      const res = await request(app).get('/api/tv/search').query({ title: 'test' });
 
       expect(res.status).toBe(502);
       expect(res.body.error).toBe('Failed to reach the TMDB API');

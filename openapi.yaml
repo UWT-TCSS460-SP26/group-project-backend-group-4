@@ -345,7 +345,7 @@ paths:
       summary: Search Movies
       description: Search movies by title.
       parameters:
-        - name: q
+        - name: title
           in: query
           required: true
           schema:
@@ -380,9 +380,6 @@ paths:
                   page:
                     type: integer
                     example: 1
-                  limit:
-                    type: integer
-                    example: 20
                   results:
                     type: array
                     items:
@@ -414,9 +411,9 @@ paths:
                     type: string
               examples:
                 missingQuery:
-                  summary: Missing required q parameter
+                  summary: Missing required title parameter
                   value:
-                    error: q is required and must be a string
+                    error: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:
@@ -448,7 +445,7 @@ paths:
       summary: Search TV Shows
       description: Search TV shows by title.
       parameters:
-        - name: q
+        - name: title
           in: query
           required: true
           schema:
@@ -483,9 +480,6 @@ paths:
                   page:
                     type: integer
                     example: 1
-                  limit:
-                    type: integer
-                    example: 20
                   results:
                     type: array
                     items:
@@ -517,9 +511,9 @@ paths:
                     type: string
               examples:
                 missingQuery:
-                  summary: Missing required q parameter
+                  summary: Missing required title parameter
                   value:
-                    error: q is required and must be a string
+                    error: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:

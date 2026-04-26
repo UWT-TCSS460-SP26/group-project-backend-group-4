@@ -85,12 +85,12 @@ export const requireSeriesId = (request: Request, response: Response, next: Next
 };
 
 /**
- *  Validates that 'q' is present as a query param and is a string.
+ *  Validates that 'title' is present as a query param and is a string.
  */
 export const requireTitleName = (request: Request, response: Response, next: NextFunction) => {
-  const q = request.query.q;
-  if (!q || typeof q !== 'string') {
-    response.status(400).json({ error: 'q is required and must be a string' });
+  const title = request.query.title;
+  if (!title || typeof title !== 'string') {
+    response.status(400).json({ error: 'title is required and must be a string' });
     return;
   }
   next();
