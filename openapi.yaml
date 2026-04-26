@@ -218,14 +218,30 @@ paths:
                   properties:
                     id:
                       type: number
+                      example: 1226863
                     title:
                       type: string
+                      example: The Super Mario Galaxy Movie
                     overview:
                       type: string
+                      example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
                     release_date:
                       type: string
+                      example: '2026-04-01'
                     poster_path:
                       type: string
+                      example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
+                    backdrop_path:
+                      type: string
+                      example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
+                    genre_ids:
+                      type: array
+                      items:
+                        type: integer
+                      example: [10751, 35, 12, 14, 16]
+                    original_language:
+                      type: string
+                      example: en
         '500':
           description: Internal Server Error
           content:
@@ -279,22 +295,30 @@ paths:
                   properties:
                     id:
                       type: number
+                      example: 1226863
                     title:
                       type: string
+                      example: The Super Mario Galaxy Movie
                     overview:
                       type: string
+                      example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
                     release_date:
                       type: string
+                      example: '2026-04-01'
                     poster_path:
                       type: string
+                      example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
                     backdrop_path:
                       type: string
+                      example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
                     genre_ids:
                       type: array
                       items:
                         type: integer
+                      example: [10751, 35, 12, 14, 16]
                     original_language:
                       type: string
+                      example: en
         '500':
           description: Internal Server Error
           content:
@@ -363,12 +387,19 @@ paths:
                       properties:
                         id:
                           type: number
+                          example: 49013
                         title:
                           type: string
+                          example: Cars 2
                         release_date:
                           type: string
+                          example: '2011-06-11'
+                        adult:
+                          type: boolean
+                          example: false
                         poster_path:
                           type: string
+                          example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
         '400':
           description: Invalid search query or pagination parameters.
           content:
@@ -388,6 +419,16 @@ paths:
                   value:
                     error: Validation failed
                     details: page must be an integer between 1 and 1000
+        '404':
+          description: Search results not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The resource you requested could not be found
         '502':
           description: Failed to reach TMDB API
           content:
@@ -446,12 +487,19 @@ paths:
                       properties:
                         id:
                           type: number
+                          example: 1403
                         title:
                           type: string
+                          example: Marvel's Agents of S.H.I.E.L.D.
                         release_date:
                           type: string
+                          example: '2013-09-24'
+                        adult:
+                          type: boolean
+                          example: false
                         poster_path:
                           type: string
+                          example: /gHUCCMy1vvj58tzE3dZqeC9SXus.jpg
         '400':
           description: Invalid search query or pagination parameters.
           content:
@@ -471,6 +519,16 @@ paths:
                   value:
                     error: Validation failed
                     details: page must be an integer between 1 and 1000
+        '404':
+          description: Search results not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The resource you requested could not be found
         '502':
           description: Failed to reach TMDB API
           content:
@@ -593,22 +651,30 @@ paths:
                   properties:
                     id:
                       type: number
+                      example: 76479
                     name:
                       type: string
+                      example: The Boys
                     overview:
                       type: string
+                      example: A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
                     first_air_date:
                       type: string
+                      example: '2019-07-25'
                     poster_path:
                       type: string
+                      example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
                     backdrop_path:
                       type: string
+                      example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
                     genre_ids:
                       type: array
                       items:
                         type: integer
+                      example: [10765, 10759]
                     original_language:
                       type: string
+                      example: en
         '500':
           description: Internal Server Error
           content:
@@ -667,22 +733,30 @@ paths:
                   properties:
                     id:
                       type: number
+                      example: 76479
                     name:
                       type: string
+                      example: The Boys
                     overview:
                       type: string
+                      example: A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
                     first_air_date:
                       type: string
+                      example: '2019-07-25'
                     poster_path:
                       type: string
+                      example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
                     backdrop_path:
                       type: string
+                      example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
                     genre_ids:
                       type: array
                       items:
                         type: integer
+                      example: [10765, 10759]
                     original_language:
                       type: string
+                      example: en
         '500':
           description: Internal Server Error
           content:
@@ -1196,37 +1270,56 @@ paths:
                       properties:
                         id:
                           type: integer
+                          example: 1
                         score:
                           type: integer
+                          example: 5
                         userId:
                           type: integer
+                          example: 42
                         mediaId:
                           type: integer
+                          example: 105
                         user:
                           type: object
                           properties:
                             username:
                               type: string
+                              example: moviecritic99
                         media:
                           type: object
                           properties:
                             tmdbId:
                               type: integer
+                              example: 550
                             type:
                               type: string
+                              example: MOVIE
                   pagination:
                     type: object
                     properties:
                       page:
                         type: integer
+                        example: 1
                       limit:
                         type: integer
+                        example: 20
                       total:
                         type: integer
+                        example: 100
                       totalPages:
                         type: integer
+                        example: 5
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
     post:
       tags: [Ratings]
       summary: Create Rating
@@ -1243,16 +1336,36 @@ paths:
               properties:
                 tmdbId:
                   type: integer
+                  example: 550
                 type:
                   type: string
                   enum: [MOVIE, TV_SHOW]
+                  example: MOVIE
                 score:
                   type: integer
-                minimum: 1
-                maximum: 5
+                  example: 5
+                  minimum: 1
+                  maximum: 5
       responses:
         '201':
           description: Rating successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  score:
+                    type: integer
+                    example: 5
+                  userId:
+                    type: integer
+                    example: 42
+                  mediaId:
+                    type: integer
+                    example: 105
         '400':
           description: Validation failed (e.g., invalid media type or score out of bounds)
           content:
@@ -1273,10 +1386,34 @@ paths:
                     message: Invalid rating score. Please provide a score between 1 and 5.
         '401':
           description: Missing or invalid Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Missing or invalid Token
         '409':
           description: Conflict - User has already rated this specific media
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User has already rated this specific media
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
   /api/ratings/{id}:
     parameters:
       - name: id
@@ -1291,10 +1428,43 @@ paths:
       responses:
         '200':
           description: Successfully retrieved the rating
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  score:
+                    type: integer
+                    example: 5
+                  userId:
+                    type: integer
+                    example: 42
+                  mediaId:
+                    type: integer
+                    example: 105
         '404':
           description: Record not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Record not found
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
     put:
       tags: [Ratings]
       summary: Update Rating
@@ -1316,6 +1486,23 @@ paths:
       responses:
         '200':
           description: Rating updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  score:
+                    type: integer
+                    example: 4
+                  userId:
+                    type: integer
+                    example: 42
+                  mediaId:
+                    type: integer
+                    example: 105
         '400':
           description: Validation failed (e.g., score out of bounds)
           content:
@@ -1328,12 +1515,44 @@ paths:
                     example: Invalid rating score. Please provide a score between 1 and 5.
         '401':
           description: Missing or invalid Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Missing or invalid Token
         '403':
           description: Not authorized to modify this record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Not authorized to modify this record
         '404':
           description: Record not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Record not found
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
     delete:
       tags: [Ratings]
       summary: Delete Rating
@@ -1345,12 +1564,44 @@ paths:
           description: Rating deleted successfully
         '401':
           description: Missing or invalid Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Missing or invalid Token
         '403':
           description: Not authorized to modify this record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Not authorized to modify this record
         '404':
           description: Record not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Record not found
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
 components:
   securitySchemes:
     bearerAuth:
