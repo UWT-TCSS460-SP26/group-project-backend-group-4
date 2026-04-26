@@ -208,3 +208,53 @@ Setup heartbeat endpoint
 
 - Do not touch production branch
 - use v3 TMDB API
+
+## Week 4
+
+### Meeting Date: 4/21/2026
+
+### Meeting Time: 12:30 - 1:20
+
+### Present: All members
+
+## Tasks
+
+### Nathan
+
+- Ratings support create, read (single + list), update, delete
+- Public GET endpoints return ratings for a given TMDB identifier
+- OpenAPI Docs
+- Writes and admin actions are gated by requireAuth and appropriate role checks
+
+### Joshua
+
+- Automated tests cover success and error cases for every new endpoint
+- Write authenticated tests for every write path (create, update, delete) in both modules.
+- Verify dev-login route mints a JWT that passes requireAuth and role checks.
+
+### Oisin
+
+- Reviews support create, read (single + list), update, delete
+- Public GET endpoints return reviews for a given TMDB identifier
+- OpenAPI Docs
+- Writes and admin actions are gated by requireAuth and appropriate role checks
+
+### Phelan
+
+- Prisma schema defines users, ratings, and reviews — no movies or TV tables
+- Initial migration is committed to the repository under prisma/migrations/
+- Seed script creates at least one admin account
+- /auth/dev-login is mounted and mints working JWTs
+
+## Setup
+
+- After pulling, install…
+- Npx prisma generate to generate actual client
+- Everyone get a postgres database setup
+
+## Other
+
+- Admins have hard delete
+- Everyone create a pr, phelan will merge once he reviewed it
+- Josh update api doc for endpoints from last week
+- Finish endpoints by friday
