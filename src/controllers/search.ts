@@ -103,7 +103,7 @@ export const getMovie = async (request: Request, response: Response) => {
 };
 
 export const searchMovies = async (request: Request, response: Response) => {
-  const query = request.query.q as string;
+  const query = request.query.title as string;
   const page = request.query.page ? Number(request.query.page) : 1;
   const limit = request.query.limit ? Number(request.query.limit) : 20;
   const apiKey = process.env.TMDB_API_KEY;
@@ -140,7 +140,7 @@ export const searchMovies = async (request: Request, response: Response) => {
 };
 
 export const searchShows = async (request: Request, response: Response) => {
-  const query = request.query.q as string;
+  const query = request.query.title as string;
   const page = request.query.page ? Number(request.query.page) : 1;
   const limit = request.query.limit ? Number(request.query.limit) : 20;
   const apiKey = process.env.TMDB_API_KEY;
