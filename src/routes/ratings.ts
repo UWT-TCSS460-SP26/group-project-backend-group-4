@@ -10,10 +10,10 @@ import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();
 
-router.get('/ratings', getRatings);
-router.get('/ratings/:id', getRatingById);
-router.post('/ratings', requireAuth, createRating);
-router.put('/ratings/:id', requireAuth, updateRating);
-router.delete('/ratings/:id', requireAuth, deleteRating);
+router.get('/api/ratings', getRatings);
+router.get('/api/ratings/:id', getRatingById);
+router.post('/api/ratings', requireAuth, createRating);
+router.put('/api/ratings/:id', requireAuth, updateRating);
+router.delete('/api/ratings/:id', requireAuth, deleteRating);
 
 export { router as ratingsRouter };

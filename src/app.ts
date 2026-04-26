@@ -5,6 +5,7 @@ import YAML from 'yaml';
 import { apiReference } from '@scalar/express-api-reference';
 import { statusRouter } from './routes/status';
 import { searchRouter } from './routes/search';
+import { reviewRouter } from './routes/reviews';
 import { logger } from './middleware/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
 import { ratingsRouter } from './routes/ratings';
@@ -31,6 +32,7 @@ app.use(popularRouter);
 app.use(featuredRouter);
 app.use(searchRouter);
 app.use(ratingsRouter);
+app.use(reviewRouter);
 app.use('/auth', devAuthRouter);
 
 // 404 handler — must be after all routes

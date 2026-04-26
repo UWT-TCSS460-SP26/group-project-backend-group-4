@@ -23,6 +23,8 @@ tags:
     description: Routes used with Movies
   - name: TV Shows
     description: Routes used with TV Shows
+  - name: Reviews
+    description: Routes used with persisted user reviews
 
 paths:
   /heartbeat:
@@ -701,7 +703,446 @@ paths:
                   error:
                     type: string
                     example: Failed to reach the TMDB API
-  /ratings:
+  /api/reviews:
+    get:
+      tags: [Reviews]
+      summary: List Reviews
+      description: Returns paginated reviews with optional filters.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+          description: Number of reviews per page.
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Filter by author user id.
+        - name: mediaId
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Filter by persisted media id.
+        - name: tmdbId
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Filter by TMDB id. Must be provided with `type`.
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [MOVIE, TV_SHOW]
+          description: Media type for `tmdbId` filter. Must be provided with `tmdbId`.
+      responses:
+        '200':
+          description: Reviews retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        userId:
+                          type: integer
+                        mediaId:
+                          type: integer
+                        title:
+                          type: string
+                          nullable: true
+                        body:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        user:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                        media:
+                          type: object
+                          properties:
+                            tmdbId:
+                              type: integer
+                            type:
+                              type: string
+                              enum: [MOVIE, TV_SHOW]
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '400':
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    post:
+      tags: [Reviews]
+      summary: Create Review
+      description: Creates a review for the authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tmdbId, type, body]
+              properties:
+                tmdbId:
+                  type: integer
+                  minimum: 1
+                type:
+                  type: string
+                  enum: [MOVIE, TV_SHOW]
+                title:
+                  type: string
+                body:
+                  type: string
+      responses:
+        '201':
+          description: Review created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  userId:
+                    type: integer
+                  mediaId:
+                    type: integer
+                  title:
+                    type: string
+                    nullable: true
+                  body:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '409':
+          description: User already reviewed this media.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Failed to create review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/reviews/{id}:
+    get:
+      tags: [Reviews]
+      summary: Get Review By ID
+      description: Returns one review by review identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Review retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  userId:
+                    type: integer
+                  mediaId:
+                    type: integer
+                  title:
+                    type: string
+                    nullable: true
+                  body:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+                  user:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                  media:
+                    type: object
+                    properties:
+                      tmdbId:
+                        type: integer
+                      type:
+                        type: string
+                        enum: [MOVIE, TV_SHOW]
+        '400':
+          description: Invalid review id.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Review not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    put:
+      tags: [Reviews]
+      summary: Update Review
+      description: Updates a review owned by the authenticated requester.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                body:
+                  type: string
+      responses:
+        '200':
+          description: Review updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  userId:
+                    type: integer
+                  mediaId:
+                    type: integer
+                  title:
+                    type: string
+                    nullable: true
+                  body:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Not allowed to modify this review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Review not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Failed to update review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      tags: [Reviews]
+      summary: Delete Review
+      description: Deletes a review owned by the requester, or by an admin.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Review deleted successfully. No content returned.
+        '400':
+          description: Invalid review id.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Not allowed to delete this review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Review not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Failed to delete review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/ratings:
     get:
       tags: [Ratings]
       summary: List Ratings
@@ -836,7 +1277,7 @@ paths:
           description: Conflict - User has already rated this specific media
         '500':
           description: Internal Server Error
-  /ratings/{id}:
+  /api/ratings/{id}:
     parameters:
       - name: id
         in: path
