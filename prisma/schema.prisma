@@ -16,12 +16,22 @@ model User {
   userId    Int      @id @default(autoincrement()) @map("id")
   username  String   @unique
   email     String   @unique
+  subjectId String   @unique
   role      Role     @default(USER)
   createdAt DateTime @default(now()) @db.Timestamptz()
   reviews   Review[]
   ratings   Rating[]
 
   @@map("users")
+}
+
+model Issue {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz()
+
+  title   String
+  body    String
+  contact String
 }
 
 enum Role {
