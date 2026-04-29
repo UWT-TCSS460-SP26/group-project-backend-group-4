@@ -1251,12 +1251,14 @@ paths:
           required: false
           schema:
             type: integer
+          description: Filter by TMDB id. Must be provided with `type`.
         - name: type
           in: query
           required: false
           schema:
             type: string
             enum: [MOVIE, TV_SHOW]
+          description: Media type for `tmdbId` filter. Must be provided with `tmdbId`.
       responses:
         '200':
           description: A paginated list of ratings.
@@ -1312,6 +1314,20 @@ paths:
                       totalPages:
                         type: integer
                         example: 5
+        '400':
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                missingTmdbIdOrType:
+                  summary: Missing tmdbId or type
+                  value:
+                    message: Both tmdbId and type are required together.
         '500':
           description: Internal Server Error
           content:
@@ -1378,6 +1394,10 @@ paths:
                   message:
                     type: string
               examples:
+                invalidTmdbId:
+                  summary: Invalid tmdbId
+                  value:
+                    message: Invalid tmdbId
                 invalidType:
                   summary: Invalid media type
                   value:
@@ -1405,7 +1425,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User has already rated this specific media
+                    example: User has already rated this media.
         '500':
           description: Internal Server Error
           content:
@@ -1447,6 +1467,16 @@ paths:
                   mediaId:
                     type: integer
                     example: 105
+        '400':
+          description: Invalid rating ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid rating ID
         '404':
           description: Record not found
           content:
@@ -1456,7 +1486,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Record not found
+                    example: Rating not found
         '500':
           description: Internal Server Error
           content:
@@ -1514,7 +1544,15 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Invalid rating score. Please provide a score between 1 and 5.
+              examples:
+                invalidScore:
+                  summary: Score out of bounds
+                  value:
+                    message: Invalid rating score. Please provide a score between 1 and 5.
+                invalidId:
+                  summary: Invalid rating ID
+                  value:
+                    message: Invalid rating ID
         '401':
           description: Missing or invalid Token
           content:
@@ -1534,7 +1572,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Not authorized to modify this record
+                    example: Unauthorized to update this rating
         '404':
           description: Record not found
           content:
@@ -1544,7 +1582,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Record not found
+                    example: Rating not found
         '500':
           description: Internal Server Error
           content:
@@ -1564,6 +1602,16 @@ paths:
       responses:
         '204':
           description: Rating deleted successfully
+        '400':
+          description: Invalid rating ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid rating ID
         '401':
           description: Missing or invalid Token
           content:
@@ -1583,7 +1631,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Not authorized to modify this record
+                    example: Unauthorized to delete this rating
         '404':
           description: Record not found
           content:
@@ -1593,7 +1641,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Record not found
+                    example: Rating not found
         '500':
           description: Internal Server Error
           content:
