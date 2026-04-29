@@ -400,6 +400,26 @@ describe('Ratings API', () => {
       expect(response.body.data).toHaveLength(0);
     });
 
+    it('should return 400 if tmdbId is provided without type', async () => {
+      const response = await request(app).get('/api/ratings').query({ tmdbId: 123 });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Both tmdbId and type are required together');
+    });
+
+    it('should return 400 if type is provided without tmdbId', async () => {
+      const response = await request(app).get('/api/ratings').query({ type: 'MOVIE' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Both tmdbId and type are required together');
+    });
+
+    it('should return 400 if type is invalid', async () => {
+      const response = await request(app)
+        .get('/api/ratings')
+        .query({ tmdbId: 123, type: 'INVALID' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid media type');
+    });
+
     // ========== COMBINED PARAMETER TESTS ==========
     it('should prioritize mediaId over tmdbId + type when all are provided', async () => {
       mockRating.findMany.mockResolvedValue([createRatingRecord({ mediaId: 5, score: 3 })]);

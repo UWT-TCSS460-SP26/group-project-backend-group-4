@@ -370,14 +370,14 @@ describe('Reviews API', () => {
       const response = await request(app).get('/api/reviews').query({ tmdbId: 550 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together.');
+      expect(response.body.message).toBe('Both tmdbId and type are required together');
     });
 
     it('should return 400 for type without tmdbId', async () => {
       const response = await request(app).get('/api/reviews').query({ type: 'MOVIE' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together.');
+      expect(response.body.message).toBe('Both tmdbId and type are required together');
     });
 
     it('should return 400 for invalid tmdbId (non-numeric)', async () => {

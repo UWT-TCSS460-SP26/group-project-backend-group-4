@@ -155,7 +155,7 @@ export const getReviews = async (req: Request, res: Response) => {
         type,
       };
     } else if (tmdbId || type) {
-      return res.status(400).json({ message: 'Both tmdbId and type are required together.' });
+      return res.status(400).json({ message: 'Both tmdbId and type are required together' });
     }
 
     const [reviews, total] = await Promise.all([

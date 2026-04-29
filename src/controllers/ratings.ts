@@ -90,6 +90,11 @@ export const getRatings = async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const { userId, mediaId, tmdbId, type } = req.query;
+
+    if ((tmdbId && !type) || (!tmdbId && type)) {
+      return res.status(400).json({ message: 'Both tmdbId and type are required together' });
+    }
+
     const where: Prisma.RatingWhereInput = {};
 
     if (userId) {
@@ -98,7 +103,10 @@ export const getRatings = async (req: Request, res: Response) => {
 
     if (mediaId) {
       where.mediaId = Number(mediaId);
-    } else if (tmdbId && type && (type === 'MOVIE' || type === 'TV_SHOW')) {
+    } else if (tmdbId && type) {
+      if (type !== 'MOVIE' && type !== 'TV_SHOW') {
+        return res.status(400).json({ message: 'Invalid media type' });
+      }
       // Filter by the related Media's properties
       where.media = {
         tmdbId: Number(tmdbId),
