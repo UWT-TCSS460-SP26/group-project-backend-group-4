@@ -5,6 +5,9 @@
   - Added the required column `subjectId` to the `users` table without a default value. This is not possible if the table is not empty.
 
 */
+-- CreateEnum
+CREATE TYPE "IssueStatus" AS ENUM ('open', 'in_progress', 'resolved', 'wont_fix');
+
 -- AlterTable
 ALTER TABLE "users" ADD COLUMN     "subjectId" TEXT NOT NULL;
 
@@ -15,6 +18,8 @@ CREATE TABLE "Issue" (
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "contact" TEXT NOT NULL,
+    "status" "IssueStatus" NOT NULL DEFAULT 'open',
+    "deleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Issue_pkey" PRIMARY KEY ("id")
 );

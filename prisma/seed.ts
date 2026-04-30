@@ -14,6 +14,7 @@ async function main() {
       email: 'admin@localhost',
       username: 'admin',
       role: 'ADMIN',
+      subjectId: 'local_admin',
     },
   });
 }

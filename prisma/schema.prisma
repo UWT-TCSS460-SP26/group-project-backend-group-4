@@ -32,6 +32,15 @@ model Issue {
   title   String
   body    String
   contact String
+  status  IssueStatus @default(OPEN)
+  deleted Boolean     @default(false)
+}
+
+enum IssueStatus {
+  OPEN        @map("open")
+  IN_PROGRESS @map("in_progress")
+  RESOLVED    @map("resolved")
+  WONT_FIX    @map("wont_fix")
 }
 
 enum Role {
