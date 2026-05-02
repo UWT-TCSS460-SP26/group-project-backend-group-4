@@ -1781,6 +1781,9 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        Auth²-issued JWT. Obtain a token from `https://tcss-460-iam.onrender.com`.
+        **Audience:** `group-4-api`
   schemas:
     ErrorResponse:
       type: object
