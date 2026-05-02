@@ -85,7 +85,7 @@ export const getSeries = async (request: Request, response: Response) => {
     return;
   }
 
-  let media: MediaWithReviews | null = null;
+  let media: MediaWithReviews | null;
   try {
     //Our DB data
     media = await prisma.media.findUnique({
