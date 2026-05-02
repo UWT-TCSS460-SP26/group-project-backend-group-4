@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express';
 import { expressjwt, type Request as JwtRequest } from 'express-jwt';
-import jwksRsa from 'jwks-rsa';
+import JwksRsa from 'jwks-rsa';
 
 export const ROLE_HIERARCHY = [
   'User',
@@ -8,7 +8,6 @@ export const ROLE_HIERARCHY = [
   'Admin',
   'SuperAdmin',
   'Owner',
-  'Josh',
 ] as const;
 export type Role = (typeof ROLE_HIERARCHY)[number];
 
@@ -42,7 +41,7 @@ if (!issuer || !audience) {
 }
 
 const verifyJwt = expressjwt({
-  secret: jwksRsa.expressJwtSecret({
+  secret: JwksRsa.expressJwtSecret({
     jwksUri: `${issuer}/.well-known/jwks.json`,
     cache: true,
     cacheMaxAge: 10 * 60 * 1000,
