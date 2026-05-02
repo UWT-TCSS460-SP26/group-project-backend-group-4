@@ -1,5 +1,4 @@
 import request from 'supertest';
-import { prisma } from '../src/lib/prisma';
 import { app } from '../src/app';
 
 jest.mock('../src/lib/prisma', () => ({
