@@ -159,7 +159,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: movie_id is required
         '404':
@@ -169,7 +169,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found.
         '502':
@@ -179,7 +179,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/popular:
@@ -251,7 +251,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -261,7 +261,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/featured:
@@ -328,7 +328,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -338,7 +338,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/search:
@@ -409,17 +409,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
               examples:
                 missingQuery:
                   summary: Missing required title parameter
                   value:
-                    error: title is required and must be a string
+                    message: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:
-                    error: Validation failed
+                    message: Validation failed
                     details: page must be an integer between 1 and 1000
         '404':
           description: Search results not found
@@ -428,7 +428,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found
         '502':
@@ -438,7 +438,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/search:
@@ -509,17 +509,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
               examples:
                 missingQuery:
                   summary: Missing required title parameter
                   value:
-                    error: title is required and must be a string
+                    message: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:
-                    error: Validation failed
+                    message: Validation failed
                     details: page must be an integer between 1 and 1000
         '404':
           description: Search results not found
@@ -528,7 +528,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found
         '502':
@@ -538,7 +538,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/{series_id}:
@@ -597,7 +597,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: series_id is required
         '404':
@@ -607,7 +607,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found.
         '502':
@@ -617,7 +617,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/featured:
@@ -684,7 +684,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -694,7 +694,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/popular:
@@ -766,7 +766,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -776,7 +776,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/reviews:
@@ -1693,13 +1693,13 @@ paths:
               properties:
                 title:
                   type: string
-                  example: "Broken search"
+                  example: 'Broken search'
                 body:
                   type: string
-                  example: "The search functionality is not working for movies with special characters."
+                  example: 'The search functionality is not working for movies with special characters.'
                 contact:
                   type: string
-                  example: "alice@example.com"
+                  example: 'alice@example.com'
       responses:
         '201':
           description: Issue created successfully.
@@ -1710,7 +1710,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Issue created"
+                    example: 'Issue created'
                   issue:
                     $ref: '#/components/schemas/Issue'
         '400':
@@ -1720,7 +1720,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Validation failed
                   details:
@@ -1773,7 +1773,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Validation failed
                   details:
@@ -1836,7 +1836,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Issue updated"
+                    example: 'Issue updated'
                   newIssue:
                     $ref: '#/components/schemas/Issue'
         '400':
@@ -1846,7 +1846,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Validation failed
                   details:
@@ -1893,13 +1893,13 @@ components:
           example: 1
         title:
           type: string
-          example: "Broken search"
+          example: 'Broken search'
         body:
           type: string
-          example: "Search fails for movies with special characters."
+          example: 'Search fails for movies with special characters.'
         contact:
           type: string
-          example: "user@example.com"
+          example: 'user@example.com'
         status:
           $ref: '#/components/schemas/IssueStatus'
         createdAt:

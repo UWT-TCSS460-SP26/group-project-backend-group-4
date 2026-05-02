@@ -631,7 +631,7 @@ describe('Ratings API', () => {
       const response = await request(app).post('/api/ratings').send(ratingData);
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 400 for invalid score', async () => {
@@ -720,7 +720,7 @@ describe('Ratings API', () => {
       const response = await request(app).put('/api/ratings/1').send(updateData);
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 403 for updating others rating as regular user', async () => {
@@ -806,7 +806,7 @@ describe('Ratings API', () => {
       const response = await request(app).delete('/api/ratings/1');
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 404 for non-existent rating', async () => {

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { loggerUtil as logger } from '../utils/logger';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -50,7 +51,7 @@ export const getSeries = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'The resource you requested could not be found' });
+        .json({ message: data.message || 'The resource you requested could not be found' });
       return;
     }
 
@@ -65,8 +66,9 @@ export const getSeries = async (request: Request, response: Response) => {
     };
 
     response.json(tv_details);
-  } catch (_error) {
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  } catch (error) {
+    logger.error('Error fetching TV details:', error);
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };
 
@@ -82,7 +84,7 @@ export const getMovie = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'The resource you requested could not be found' });
+        .json({ message: data.message || 'The resource you requested could not be found' });
       return;
     }
 
@@ -97,8 +99,9 @@ export const getMovie = async (request: Request, response: Response) => {
     };
 
     response.json(movies_details);
-  } catch (_error) {
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  } catch (error) {
+    logger.error('Error fetching movie details:', error);
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };
 
@@ -117,7 +120,7 @@ export const searchMovies = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'The resource you requested could not be found' });
+        .json({ message: data.message || 'The resource you requested could not be found' });
       return;
     }
 
@@ -134,8 +137,9 @@ export const searchMovies = async (request: Request, response: Response) => {
       page,
       results,
     });
-  } catch (_error) {
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  } catch (error) {
+    logger.error('Error fetching movie details:', error);
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };
 
@@ -154,7 +158,7 @@ export const searchShows = async (request: Request, response: Response) => {
     if (!result.ok) {
       response
         .status(result.status)
-        .json({ error: data.message || 'The resource you requested could not be found' });
+        .json({ message: data.message || 'The resource you requested could not be found' });
       return;
     }
 
@@ -171,7 +175,8 @@ export const searchShows = async (request: Request, response: Response) => {
       page,
       results,
     });
-  } catch (_error) {
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+  } catch (error) {
+    logger.error('Error fetching TV details:', error);
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };

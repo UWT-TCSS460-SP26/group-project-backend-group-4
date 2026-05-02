@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { loggerUtil as logger } from '../utils/logger';
 
 const BASE_URL = 'https://api.themoviedb.org/3/discover';
 
@@ -40,7 +41,7 @@ export const getPopularMovies = async (request: Request, response: Response) => 
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
+      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
       return;
     }
 
@@ -59,8 +60,8 @@ export const getPopularMovies = async (request: Request, response: Response) => 
       }))
     );
   } catch (error) {
-    console.error('Error fetching popular movies:', error);
-    response.status(502).json({ error: 'Failed to fetch popular content' });
+    logger.error('Error fetching popular movies:', error);
+    response.status(502).json({ message: 'Failed to fetch popular content' });
   }
 };
 
@@ -79,7 +80,7 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
+      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
       return;
     }
 
@@ -98,7 +99,7 @@ export const getPopularTVShows = async (request: Request, response: Response) =>
       }))
     );
   } catch (error) {
-    console.error('Error fetching popular TV shows:', error);
-    response.status(502).json({ error: 'Failed to fetch popular content' });
+    logger.error('Error fetching popular TV shows:', error);
+    response.status(502).json({ message: 'Failed to fetch popular content' });
   }
 };

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { loggerUtil as logger } from '../utils/logger';
 
 export async function getIssue(req: Request, res: Response) {
   const { id } = req.params;
@@ -21,7 +22,7 @@ export async function getIssue(req: Request, res: Response) {
       });
       res.status(200).json({ issues });
     } catch (error) {
-      console.error(`Error getting issues: ${error}`);
+      logger.error(`Error getting issues: `, error);
       res.status(500).json({ message: 'Internal Server Error' });
       return;
     }
@@ -43,7 +44,7 @@ export async function getIssue(req: Request, res: Response) {
       }
       res.status(200).json({ issue });
     } catch (error) {
-      console.error(`Error getting issues: ${error}`);
+      logger.error(`Error getting issues: `, error);
       res.status(500).json({ message: 'Internal Server Error' });
       return;
     }
@@ -65,8 +66,7 @@ export async function createIssue(req: Request, res: Response) {
     });
     res.status(201).json({ message: 'Issue created', issue });
   } catch (error) {
-    console.error(`Error creating issue: ${error}`);
-
+    logger.error(`Error creating issue: `, error);
     res.status(500).json({ message: 'Internal Server Error' });
     return;
   }
@@ -103,8 +103,7 @@ export async function updateIssue(req: Request, res: Response) {
     });
     res.status(200).json({ message: 'Issue updated', newIssue });
   } catch (error) {
-    console.error(`Error updating issue: ${error}`);
-
+    logger.error(`Error updating issue: `, error);
     res.status(500).json({ message: 'Internal Server Error' });
     return;
   }
