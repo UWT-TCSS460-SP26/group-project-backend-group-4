@@ -148,11 +148,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/movies/popular:
     get:
       tags: [Movies]
@@ -216,25 +212,17 @@ paths:
                       type: string
                       example: en
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: TMDB_API_KEY is not configured
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/movies/featured:
     get:
       tags: [Movies]
@@ -293,25 +281,17 @@ paths:
                       type: string
                       example: en
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: TMDB_API_KEY is not configured
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/movies/search:
     get:
       tags: [Movies]
@@ -404,11 +384,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/tv/search:
     get:
       tags: [TV Shows]
@@ -501,11 +477,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/tv/{series_id}:
     get:
       tags: [TV Shows]
@@ -611,11 +583,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/tv/featured:
     get:
       tags: [TV Shows]
@@ -674,25 +642,17 @@ paths:
                       type: string
                       example: en
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: TMDB_API_KEY is not configured
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/tv/popular:
     get:
       tags: [TV Shows]
@@ -756,25 +716,17 @@ paths:
                       type: string
                       example: en
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: TMDB_API_KEY is not configured
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to reach the TMDB API
+                $ref: '#/components/schemas/ErrorResponse'
   /api/reviews:
     get:
       tags: [Reviews]
@@ -889,14 +841,11 @@ paths:
                   message:
                     type: string
         '500':
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags: [Reviews]
       summary: Create Review
@@ -974,14 +923,11 @@ paths:
                   message:
                     type: string
         '500':
-          description: Failed to create review.
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
   /api/reviews/{id}:
     get:
       tags: [Reviews]
@@ -1051,14 +997,11 @@ paths:
                   message:
                     type: string
         '500':
-          description: Internal server error.
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags: [Reviews]
       summary: Update Review
@@ -1145,14 +1088,11 @@ paths:
                   message:
                     type: string
         '500':
-          description: Failed to update review.
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags: [Reviews]
       summary: Delete Review
@@ -1206,14 +1146,11 @@ paths:
                   message:
                     type: string
         '500':
-          description: Failed to delete review.
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
   /api/ratings:
     get:
       tags: [Ratings]
@@ -1325,15 +1262,11 @@ paths:
                   value:
                     message: Both tmdbId and type are required together.
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags: [Ratings]
       summary: Create Rating
@@ -1423,15 +1356,11 @@ paths:
                     type: string
                     example: User has already rated this media.
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
   /api/ratings/{id}:
     parameters:
       - name: id
@@ -1484,15 +1413,11 @@ paths:
                     type: string
                     example: Rating not found
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags: [Ratings]
       summary: Update Rating
@@ -1580,15 +1505,11 @@ paths:
                     type: string
                     example: Rating not found
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags: [Ratings]
       summary: Delete Rating
@@ -1639,15 +1560,11 @@ paths:
                     type: string
                     example: Rating not found
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
   /issues:
     get:
       tags: [Issues]
@@ -1666,15 +1583,11 @@ paths:
                     items:
                       $ref: '#/components/schemas/Issue'
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags: [Issues]
       summary: Create Issue
@@ -1731,15 +1644,11 @@ paths:
                           type: string
                           example: Required
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
   /issues/{id}:
     parameters:
       - name: id
@@ -1794,15 +1703,11 @@ paths:
                     type: string
                     example: Issue not found
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags: [Issues]
       summary: Update Issue
@@ -1865,15 +1770,11 @@ paths:
                     type: string
                     example: Issue not found
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Internal Server Error
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -1881,6 +1782,11 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
     Issue:
       type: object
       properties:
