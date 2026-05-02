@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
 import { resolveLocalUser } from '../auth/resolveLocalUser';
 import { hasRoleAtLeast } from '../middleware/requireAuth';
-import { parseIdOrRespond, getUserIdOrRespond } from '../middleware/validation';
+import { parseIdOrRespond } from '../middleware/validation';
 import { loggerUtil as logger } from '../utils/logger';
 
 // ====== Validation & Parsing Helpers ========

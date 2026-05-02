@@ -99,7 +99,7 @@ export const getSeries = async (request: Request, response: Response) => {
           orderBy: { createdAt: 'desc' },
           take: 5,
           include: {
-            user: { select: {username: true} },
+            user: { select: { username: true } },
           },
         },
       },
@@ -109,27 +109,35 @@ export const getSeries = async (request: Request, response: Response) => {
   }
 
   response.json({
-      ...tv_details, // <-- TMDB metadata, \/ DB data
-      community: media
-        ? {
+    ...tv_details, // <-- TMDB metadata, \/ DB data
+    community: media
+      ? {
           avgRating: media.avgRating,
           totalRatings: media.totalRatings,
           totalReviews: media.totalReviews,
-          recentReviews: media.reviews.map((r: { id: number; title: string | null; body: string; createdAt: Date; user: { username: string } }) => ({
-            id: r.id,
-            title: r.title,
-            body: r.body,
-            author: r.user.username,
-            createdAt: r.createdAt,
-          })),
+          recentReviews: media.reviews.map(
+            (r: {
+              id: number;
+              title: string | null;
+              body: string;
+              createdAt: Date;
+              user: { username: string };
+            }) => ({
+              id: r.id,
+              title: r.title,
+              body: r.body,
+              author: r.user.username,
+              createdAt: r.createdAt,
+            })
+          ),
         }
-        : {
+      : {
           avgRating: null,
           totalRatings: 0,
           totalReviews: 0,
           recentReviews: [],
         },
-    });
+  });
 };
 
 export const getMovie = async (request: Request, response: Response) => {
@@ -164,7 +172,7 @@ export const getMovie = async (request: Request, response: Response) => {
     return;
   }
 
-  let media: MediaWithReviews | null = null;
+  let media: MediaWithReviews | null;
   try {
     //Our DB data
     media = await prisma.media.findUnique({
@@ -179,7 +187,7 @@ export const getMovie = async (request: Request, response: Response) => {
           orderBy: { createdAt: 'desc' },
           take: 5,
           include: {
-            user: { select: {username: true} },
+            user: { select: { username: true } },
           },
         },
       },
@@ -189,28 +197,36 @@ export const getMovie = async (request: Request, response: Response) => {
     return;
   }
 
-  response.json( { 
-      ...movies_details, // <-- TMDB metadata, \/ DB data
-      community: media
-        ? {
+  response.json({
+    ...movies_details, // <-- TMDB metadata, \/ DB data
+    community: media
+      ? {
           avgRating: media.avgRating,
           totalRatings: media.totalRatings,
           totalReviews: media.totalReviews,
-          recentReviews: media.reviews.map((r: { id: number; title: string | null; body: string; createdAt: Date; user: { username: string } }) => ({
-            id: r.id,
-            title: r.title,
-            body: r.body,
-            author: r.user.username,
-            createdAt: r.createdAt,
-          })),
+          recentReviews: media.reviews.map(
+            (r: {
+              id: number;
+              title: string | null;
+              body: string;
+              createdAt: Date;
+              user: { username: string };
+            }) => ({
+              id: r.id,
+              title: r.title,
+              body: r.body,
+              author: r.user.username,
+              createdAt: r.createdAt,
+            })
+          ),
         }
-        : {
+      : {
           avgRating: null,
           totalRatings: 0,
           totalReviews: 0,
           recentReviews: [],
         },
-    });
+  });
 };
 
 export const searchMovies = async (request: Request, response: Response) => {

@@ -2,13 +2,7 @@ import { Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } 
 import { expressjwt, type Request as JwtRequest } from 'express-jwt';
 import JwksRsa from 'jwks-rsa';
 
-export const ROLE_HIERARCHY = [
-  'User',
-  'Moderator',
-  'Admin',
-  'SuperAdmin',
-  'Owner',
-] as const;
+export const ROLE_HIERARCHY = ['User', 'Moderator', 'Admin', 'SuperAdmin', 'Owner'] as const;
 export type Role = (typeof ROLE_HIERARCHY)[number];
 
 export interface AuthenticatedUser {

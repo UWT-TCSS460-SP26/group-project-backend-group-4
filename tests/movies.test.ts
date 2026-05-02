@@ -122,7 +122,7 @@ describe('Get movie by id', () => {
         recentReviews: [],
         totalRatings: 0,
         totalReviews: 0,
-      }
+      },
     });
   });
 });
