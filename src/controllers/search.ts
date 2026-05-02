@@ -107,7 +107,8 @@ export const getSeries = async (request: Request, response: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching movie details:', error);
-    response.status(503).json({ message: 'Interal server error' });
+    response.status(500).json({ message: 'Internal server error' });
+    return;
   }
 
   response.json({
@@ -196,8 +197,8 @@ export const getMovie = async (request: Request, response: Response) => {
       },
     });
   } catch (error) {
-    logger.error(`Failed to fetch from the database: ${error}`);
-    response.status(503).json({ message: 'Internal server error' });
+    logger.error('Failed to fetch from the database:', error);
+    response.status(500).json({ message: 'Internal server error' });
     return;
   }
 

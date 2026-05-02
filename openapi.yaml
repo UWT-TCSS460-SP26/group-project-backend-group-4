@@ -143,6 +143,12 @@ paths:
                   message:
                     type: string
                     example: The resource you requested could not be found.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
@@ -379,6 +385,12 @@ paths:
                   message:
                     type: string
                     example: The resource you requested could not be found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
@@ -472,6 +484,12 @@ paths:
                   message:
                     type: string
                     example: The resource you requested could not be found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
@@ -578,6 +596,12 @@ paths:
                   message:
                     type: string
                     example: The resource you requested could not be found.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '502':
           description: Failed to reach TMDB API
           content:
