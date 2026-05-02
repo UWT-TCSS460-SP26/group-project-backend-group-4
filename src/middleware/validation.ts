@@ -73,7 +73,7 @@ export const getUserIdOrRespond = (req: Request, res: Response): number | null =
     res.status(401).json({ message: 'Unauthorized' });
     return null;
   }
-  return userId;
+  return Number(userId);
 };
 
 export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
