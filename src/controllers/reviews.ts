@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
-import { parseIdOrRespond, getUserIdOrRespond } from '../middleware/validation';
+import { parseIdOrRespond } from '../middleware/validation';
+import { resolveLocalUser } from '../auth/resolveLocalUser';
+import { hasRoleAtLeast } from '../middleware/requireAuth';
 
 // ====== Validation & Parsing Helpers ========
 const isValidReviewType = (type: unknown): type is MediaType =>
@@ -62,11 +64,6 @@ const updateMediaReviewCount = async (tx: Prisma.TransactionClient, mediaId: num
 //======= Reviews: Create =====
 export const createReview = async (req: Request, res: Response) => {
   const { tmdbId, type, title, body } = req.body;
-  const userId =
-    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
-  if (!userId) {
-    return;
-  }
 
   if (!Number.isInteger(tmdbId)) {
     return res.status(400).json({ message: 'Invalid tmdbId' });
@@ -82,12 +79,13 @@ export const createReview = async (req: Request, res: Response) => {
   }
 
   try {
+    const author = await resolveLocalUser(req);
     const media = await resolveOrCreateMedia(tmdbId, type);
 
     const existingReview = await prisma.review.findUnique({
       where: {
         userId_mediaId: {
-          userId,
+          userId: author.userId,
           mediaId: media.id,
         },
       },
@@ -100,7 +98,7 @@ export const createReview = async (req: Request, res: Response) => {
     const newReview = await prisma.$transaction(async (tx) => {
       const review = await tx.review.create({
         data: {
-          userId,
+          userId: author.userId,
           mediaId: media.id,
           title: normalizeTitle(title),
           body: body.trim(),
@@ -236,12 +234,6 @@ export const updateReview = async (req: Request, res: Response) => {
     return;
   }
 
-  const userId =
-    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
-  if (!userId) {
-    return;
-  }
-
   if (title !== undefined && typeof title !== 'string') {
     return res.status(400).json({ message: 'Invalid review title.' });
   }
@@ -253,14 +245,20 @@ export const updateReview = async (req: Request, res: Response) => {
   }
 
   try {
+    const author = await resolveLocalUser(req);
     const existingReview = await prisma.review.findUnique({
       where: { id },
     });
 
     if (!existingReview) {
       return res.status(404).json({ message: 'Review not found' });
-    } else if (existingReview.userId !== userId) {
-      return res.status(403).json({ message: 'Unauthorized to update this review' });
+    }
+
+    const isOwner = existingReview?.userId === author.userId;
+    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Owner');
+    if (!isOwner && !isPrivileged) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
     }
 
     const updatedReview = await prisma.review.update({
@@ -288,23 +286,20 @@ export const deleteReview = async (req: Request, res: Response) => {
     return;
   }
 
-  const userId =
-    typeof res.locals.userId === 'number' ? res.locals.userId : getUserIdOrRespond(req, res);
-  const role = req.user?.role;
-
-  if (!userId) {
-    return;
-  }
-
   try {
+    const author = await resolveLocalUser(req);
     const reviewToDelete = await prisma.review.findUnique({
       where: { id },
     });
 
     if (!reviewToDelete) {
       return res.status(404).json({ message: 'Review not found' });
-    } else if (reviewToDelete.userId !== userId && role !== 'ADMIN' && role !== 'admin') {
-      return res.status(403).json({ message: 'Unauthorized to delete this review' });
+    }
+
+    const isOwner = reviewToDelete?.userId === author.userId;
+    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
+    if (!isOwner && !isPrivileged) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
 
     await prisma.$transaction(async (tx) => {
