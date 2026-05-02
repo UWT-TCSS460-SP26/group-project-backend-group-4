@@ -1,14 +1,6 @@
 import request from 'supertest';
 import { app } from '../src/app';
 
-jest.mock('../src/lib/prisma', () => ({
-  prisma: {
-    media: {
-      findUnique: jest.fn(),
-    },
-  },
-}));
-
 beforeAll(() => {
   process.env.NODE_ENV = 'test';
 });
