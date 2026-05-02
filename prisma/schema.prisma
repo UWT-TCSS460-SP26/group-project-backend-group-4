@@ -28,6 +28,7 @@ model User {
 model Issue {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
 
   title   String
   body    String
