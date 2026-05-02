@@ -1,16 +1,15 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
+import { resolveLocalUser } from '../auth/resolveLocalUser';
+import { hasRoleAtLeast } from '../middleware/requireAuth';
 import { loggerUtil as logger } from '../utils/logger';
 
 // Create
 export const createRating = async (req: Request, res: Response) => {
   const { tmdbId, type, score } = req.body;
-  const userId = req.user?.sub;
 
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  } else if (!Number.isInteger(tmdbId)) {
+  if (!Number.isInteger(tmdbId)) {
     return res.status(400).json({ message: 'Invalid tmdbId' });
   } else if (type !== 'MOVIE' && type !== 'TV_SHOW') {
     return res.status(400).json({ message: 'Invalid media type' });
@@ -21,6 +20,8 @@ export const createRating = async (req: Request, res: Response) => {
   }
 
   try {
+    const author = await resolveLocalUser(req);
+
     // 1. Media Resolution: Find or create the media record
     let media = await prisma.media.findUnique({
       where: { tmdbId_type: { tmdbId, type } },
@@ -41,7 +42,7 @@ export const createRating = async (req: Request, res: Response) => {
     const existingRating = await prisma.rating.findUnique({
       where: {
         userId_mediaId: {
-          userId,
+          userId: author.userId,
           mediaId: media.id,
         },
       },
@@ -55,7 +56,7 @@ export const createRating = async (req: Request, res: Response) => {
     const newRating = await prisma.$transaction(async (tx) => {
       const rating = await tx.rating.create({
         data: {
-          userId,
+          userId: author.userId,
           mediaId: media.id,
           score,
         },
@@ -183,12 +184,9 @@ export const getRatingById = async (req: Request, res: Response) => {
 export const updateRating = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { score } = req.body;
-  const userId = req.user?.sub;
 
   if (!Number.isInteger(Number(id))) {
     return res.status(400).json({ message: 'Invalid rating ID' });
-  } else if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
   } else if (!Number.isInteger(score) || score < 1 || score > 5) {
     return res
       .status(400)
@@ -196,6 +194,8 @@ export const updateRating = async (req: Request, res: Response) => {
   }
 
   try {
+    const author = await resolveLocalUser(req);
+
     // Find the rating first so we know which mediaId to update!
     const existingRating = await prisma.rating.findUnique({
       where: { id: Number(id) },
@@ -204,8 +204,13 @@ export const updateRating = async (req: Request, res: Response) => {
     // Verify that the rating exists and that the user is authorized to update it
     if (!existingRating) {
       return res.status(404).json({ message: 'Rating not found' });
-    } else if (existingRating.userId !== userId) {
-      return res.status(403).json({ message: 'Unauthorized to update this rating' });
+    }
+
+    const isOwner = existingRating?.userId === author.userId;
+    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
+    if (!isOwner && !isPrivileged) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
     }
 
     // Update the rating and aggregate the media score (Wrapped in Transaction)
@@ -242,16 +247,14 @@ export const updateRating = async (req: Request, res: Response) => {
 // Delete
 export const deleteRating = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user?.sub;
-  const role = req.user?.role;
 
   if (!Number.isInteger(Number(id))) {
     return res.status(400).json({ message: 'Invalid rating ID' });
-  } else if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
+    const author = await resolveLocalUser(req);
+
     // Find the rating first so we know which mediaId to update!
     const ratingToDelete = await prisma.rating.findUnique({
       where: { id: Number(id) },
@@ -259,8 +262,13 @@ export const deleteRating = async (req: Request, res: Response) => {
 
     if (!ratingToDelete) {
       return res.status(404).json({ message: 'Rating not found' });
-    } else if (ratingToDelete.userId !== userId && role !== 'ADMIN') {
-      return res.status(403).json({ message: 'Unauthorized to delete this rating' });
+    }
+
+    const isOwner = ratingToDelete?.userId === author.userId;
+    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
+    if (!isOwner && !isPrivileged) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
     }
 
     // Delete the rating and aggregate the media score (Wrapped in Transaction)

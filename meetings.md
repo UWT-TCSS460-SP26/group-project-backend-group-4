@@ -258,3 +258,34 @@ Setup heartbeat endpoint
 - Everyone create a pr, phelan will merge once he reviewed it
 - Josh update api doc for endpoints from last week
 - Finish endpoints by friday
+
+## Week 5
+
+### Meeting Date: 4/28/2026
+
+### Meeting Time: 12:30 - 1:20 pm
+
+### Present: All members
+
+## Tasks
+
+### Nathan
+
+- Migrate tests that need auth to new stub pattern
+- Make sure that any time we return a 500 error code, WE LOG THE REASON WHY
+- Tests for /issues
+
+### Joshua
+
+- Implement role gating helpers
+- JWKS-based RS256 verification middleware in place; dev-login route, JWT_SECRET, and jsonwebtoken dep removed
+
+### Oisin
+
+- Tests for your routes
+- Enriched movie/show detail route returns TMDB metadata combined with your community's aggregate and recent reviews
+
+### Phelan
+
+- Create the db schema for issues (also the subjectId String @unique on User thing)
+- POST /issues accepts and persists bug reports; input validated; response shape documented
