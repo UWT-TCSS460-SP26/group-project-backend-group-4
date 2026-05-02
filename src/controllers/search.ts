@@ -65,7 +65,8 @@ export const getSeries = async (request: Request, response: Response) => {
     };
 
     response.json(tv_details);
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error fetching TV details:', error);
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
 };
@@ -97,7 +98,8 @@ export const getMovie = async (request: Request, response: Response) => {
     };
 
     response.json(movies_details);
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
 };
@@ -134,7 +136,8 @@ export const searchMovies = async (request: Request, response: Response) => {
       page,
       results,
     });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
 };
@@ -171,7 +174,8 @@ export const searchShows = async (request: Request, response: Response) => {
       page,
       results,
     });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error fetching TV details:', error);
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
 };
