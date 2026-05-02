@@ -49,7 +49,7 @@ jest.mock('../src/middleware/requireAuth', () => {
 
   const authenticate = (
     request: { headers: Record<string, string | string[] | undefined>; user?: StubUser },
-    response: any,
+    response: { status: (code: number) => { json: (body: unknown) => void } },
     next: () => void
   ): void => {
     const user = parseTestUser(request);
@@ -68,7 +68,7 @@ jest.mock('../src/middleware/requireAuth', () => {
       (role: Role) =>
       (
         request: { user?: StubUser },
-        response: any,
+        response: { status: (code: number) => { json: (body: unknown) => void } },
         next: () => void
       ): void => {
         if (!request.user) {
@@ -85,15 +85,17 @@ jest.mock('../src/middleware/requireAuth', () => {
       (minRole: Role) =>
       (
         request: { user?: StubUser },
-        response: any,
+        response: { status: (code: number) => { json: (body: unknown) => void } },
         next: () => void
       ): void => {
         if (!request.user) {
           response.status(401).json({ message: 'Missing or malformed Authorization header' });
           return;
         }
-        const userIdx = ROLE_HIERARCHY.findIndex(r => r.toUpperCase() === request.user!.role.toUpperCase());
-        const minIdx = ROLE_HIERARCHY.findIndex(r => r.toUpperCase() === minRole.toUpperCase());
+        const userIdx = ROLE_HIERARCHY.findIndex(
+          (r) => r.toUpperCase() === request.user!.role.toUpperCase()
+        );
+        const minIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === minRole.toUpperCase());
         if (userIdx < 0 || userIdx < minIdx) {
           response.status(403).json({ message: 'Insufficient permissions' });
           return;
@@ -102,8 +104,8 @@ jest.mock('../src/middleware/requireAuth', () => {
       },
     hasRoleAtLeast: (role: string | undefined, minRole: Role): boolean => {
       if (!role) return false;
-      const userIdx = ROLE_HIERARCHY.findIndex(r => r.toUpperCase() === role.toUpperCase());
-      const minIdx = ROLE_HIERARCHY.findIndex(r => r.toUpperCase() === minRole.toUpperCase());
+      const userIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === role.toUpperCase());
+      const minIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === minRole.toUpperCase());
       return userIdx >= 0 && userIdx >= minIdx;
     },
   };
