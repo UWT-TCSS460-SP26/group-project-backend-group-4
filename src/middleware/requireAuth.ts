@@ -115,7 +115,7 @@ export const requireRoleAtLeast = (minRole: Role): RequestHandler => {
   const minIdx = ROLE_HIERARCHY.indexOf(minRole);
   return (request: Request, response: Response, next: NextFunction): void => {
     if (!request.user) {
-      response.status(401).json({ error: 'Not authenticated' });
+      response.status(401).json({ message: 'Not authenticated' });
       return;
     }
     const userIdx = ROLE_HIERARCHY.indexOf(request.user.role);

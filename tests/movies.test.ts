@@ -1,5 +1,14 @@
 import request from 'supertest';
 import { app } from '../src/app';
+import { prisma } from '../src/lib/prisma';
+
+jest.mock('../src/lib/prisma', () => ({
+  prisma: {
+    media: {
+      findUnique: jest.fn(),
+    },
+  },
+}));
 
 beforeAll(() => {
   process.env.NODE_ENV = 'test';
@@ -108,6 +117,12 @@ describe('Get movie by id', () => {
           name: 'Thriller',
         },
       ],
+      community: {
+        avgRating: null,
+        recentReviews: [],
+        totalRatings: 0,
+        totalReviews: 0,
+      }
     });
   });
 });
@@ -143,5 +158,106 @@ describe('Get movie by invalid id', () => {
     const res = await request(app).get('/api/movies/_');
 
     expect(res.status).toBe(404);
+  });
+});
+
+// New round of tests
+describe('Detail Router', () => {
+  describe('GET /api/movies/:movie_id', () => {
+    const mockTmdbMovie = {
+      id: 550,
+      title: 'Fight Club',
+      overview: 'A depressed man forms an underground fight club.',
+      release_date: '1999-10-15',
+      poster_path: '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      budget: 63000000,
+      genres: [{ name: 'Drama' }],
+    };
+
+    const mockMedia = {
+      avgRating: 4.5,
+      totalRatings: 10,
+      totalReviews: 3,
+      reviews: [
+        {
+          id: 1,
+          title: 'Great film',
+          body: 'Loved it',
+          createdAt: new Date('2026-01-01'),
+          user: { username: 'alice' },
+        },
+      ],
+    };
+
+    it('should return enriched movie details with community data', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockTmdbMovie,
+      });
+      (prisma.media.findUnique as jest.Mock).mockResolvedValueOnce(mockMedia);
+
+      const res = await request(app).get('/api/movies/550');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({
+        id: 550,
+        title: 'Fight Club',
+        overview: 'A depressed man forms an underground fight club.',
+        release_date: '1999-10-15',
+        community: {
+          avgRating: 4.5,
+          totalRatings: 10,
+          totalReviews: 3,
+          recentReviews: [
+            {
+              id: 1,
+              title: 'Great film',
+              body: 'Loved it',
+              author: 'alice',
+            },
+          ],
+        },
+      });
+    });
+
+    it('should return community nulls when no ratings or reviews exist', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockTmdbMovie,
+      });
+      (prisma.media.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const res = await request(app).get('/api/movies/550');
+
+      expect(res.status).toBe(200);
+      expect(res.body.community).toEqual({
+        avgRating: null,
+        totalRatings: 0,
+        totalReviews: 0,
+        recentReviews: [],
+      });
+    });
+
+    it('should return 404 when TMDB returns not found', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => ({ message: 'Not found' }),
+      });
+
+      const res = await request(app).get('/api/movies/99999999');
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe('Not found');
+    });
+
+    it('should return 502 when TMDB API fails', async () => {
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+
+      const res = await request(app).get('/api/movies/550');
+
+      expect(res.status).toBe(502);
+      expect(res.body.error).toBe('Failed to reach the TMDB API');
+    });
   });
 });

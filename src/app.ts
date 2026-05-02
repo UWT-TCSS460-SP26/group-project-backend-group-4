@@ -9,6 +9,7 @@ import { reviewRouter } from './routes/reviews';
 import { logger } from './middleware/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
 import { ratingsRouter } from './routes/ratings';
+import issueRouter from './routes/issues';
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(featuredRouter);
 app.use(searchRouter);
 app.use(ratingsRouter);
 app.use(reviewRouter);
+app.use(issueRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {

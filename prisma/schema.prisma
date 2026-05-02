@@ -17,12 +17,32 @@ model User {
   subjectId String   @unique
   username  String   @unique
   email     String   @unique
+  subjectId String   @unique
   role      Role     @default(USER)
   createdAt DateTime @default(now()) @db.Timestamptz()
   reviews   Review[]
   ratings   Rating[]
 
   @@map("users")
+}
+
+model Issue {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  title   String
+  body    String
+  contact String
+  status  IssueStatus @default(OPEN)
+  deleted Boolean     @default(false)
+}
+
+enum IssueStatus {
+  OPEN        @map("open")
+  IN_PROGRESS @map("in_progress")
+  RESOLVED    @map("resolved")
+  WONT_FIX    @map("wont_fix")
 }
 
 enum Role {

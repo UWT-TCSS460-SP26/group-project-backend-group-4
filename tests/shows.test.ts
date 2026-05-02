@@ -1,5 +1,14 @@
 import request from 'supertest';
 import { app } from '../src/app';
+import { prisma } from '../src/lib/prisma';
+
+jest.mock('../src/lib/prisma', () => ({
+  prisma: {
+    media: {
+      findUnique: jest.fn(),
+    },
+  },
+}));
 
 beforeAll(() => {
   process.env.NODE_ENV = 'test';
@@ -154,6 +163,12 @@ describe('Get show by id', () => {
           name: 'Drama',
         },
       ],
+      community: {
+        avgRating: null,
+        recentReviews: [],
+        totalRatings: 0,
+        totalReviews: 0,
+      }
     });
   });
 });
@@ -191,3 +206,102 @@ describe('Get movie by tv id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// New round of tests
+describe('GET /api/tv/:series_id', () => {
+    const mockTmdbSeries = {
+      id: 1396,
+      name: 'Breaking Bad',
+      overview: 'A chemistry teacher turned drug manufacturer.',
+      first_air_date: '2008-01-20',
+      poster_path: '/ggFHVNu6YYI5L9pCfOacjizRGt.jpg',
+      status: 'Ended',
+      genres: [{ name: 'Drama' }],
+    };
+
+    const mockMedia = {
+      avgRating: 4.9,
+      totalRatings: 50,
+      totalReviews: 20,
+      reviews: [
+        {
+          id: 2,
+          title: 'Best show ever',
+          body: 'Incredible writing',
+          createdAt: new Date('2026-02-01'),
+          user: { username: 'bob' },
+        },
+      ],
+    };
+
+    it('should return enriched series details with community data', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockTmdbSeries,
+      });
+      (prisma.media.findUnique as jest.Mock).mockResolvedValueOnce(mockMedia);
+
+      const res = await request(app).get('/api/tv/1396');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({
+        id: 1396,
+        name: 'Breaking Bad',
+        status: 'Ended',
+        community: {
+          avgRating: 4.9,
+          totalRatings: 50,
+          totalReviews: 20,
+          recentReviews: [
+            {
+              id: 2,
+              title: 'Best show ever',
+              body: 'Incredible writing',
+              author: 'bob',
+            },
+          ],
+        },
+      });
+    });
+
+    it('should return community nulls when no ratings or reviews exist', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockTmdbSeries,
+      });
+      (prisma.media.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const res = await request(app).get('/api/tv/1396');
+
+      expect(res.status).toBe(200);
+      expect(res.body.community).toEqual({
+        avgRating: null,
+        totalRatings: 0,
+        totalReviews: 0,
+        recentReviews: [],
+      });
+    });
+
+    it('should return 404 when TMDB returns not found', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => ({ message: 'Not found' }),
+      });
+
+      const res = await request(app).get('/api/tv/99999999');
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe('Not found');
+    });
+
+    it('should return 502 when TMDB API fails', async () => {
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+
+      const res = await request(app).get('/api/tv/1396');
+
+      expect(res.status).toBe(502);
+      expect(res.body.error).toBe('Failed to reach the TMDB API');
+    });
+  });
+

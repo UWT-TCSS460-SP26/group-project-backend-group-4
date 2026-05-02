@@ -25,6 +25,8 @@ tags:
     description: Routes used with TV Shows
   - name: Reviews
     description: Routes used with persisted user reviews
+  - name: Issues
+    description: Routes for reporting and tracking issues
 
 paths:
   /heartbeat:
@@ -144,12 +146,43 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: number
-                          example: 18
                         name:
                           type: string
                           example: Drama
+                  community:
+                    type: object
+                    properties:
+                      avgRating:
+                        type: number
+                        nullable: true
+                        example: 4.2
+                      totalRatings:
+                        type: integer
+                        example: 128
+                      totalReviews:
+                        type: integer
+                        example: 34
+                      recentReviews:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 7
+                            title:
+                              type: string
+                              example: A modern classic
+                            body:
+                              type: string
+                              example: One of the best films ever made.
+                            author:
+                              type: string
+                              example: alice
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: '2024-11-01T12:34:56.000Z'
         '400':
           description: movie_id missing in route parameters
           content:
@@ -157,7 +190,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: movie_id is required
         '404':
@@ -167,7 +200,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found.
         '502':
@@ -177,7 +210,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/popular:
@@ -249,7 +282,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -259,7 +292,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/featured:
@@ -326,7 +359,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -336,7 +369,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/movies/search:
@@ -394,9 +427,6 @@ paths:
                         release_date:
                           type: string
                           example: '2011-06-11'
-                        adult:
-                          type: boolean
-                          example: false
                         poster_path:
                           type: string
                           example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
@@ -407,17 +437,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
               examples:
                 missingQuery:
                   summary: Missing required title parameter
                   value:
-                    error: title is required and must be a string
+                    message: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:
-                    error: Validation failed
+                    message: Validation failed
                     details: page must be an integer between 1 and 1000
         '404':
           description: Search results not found
@@ -426,7 +456,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found
         '502':
@@ -436,7 +466,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/search:
@@ -494,9 +524,6 @@ paths:
                         release_date:
                           type: string
                           example: '2013-09-24'
-                        adult:
-                          type: boolean
-                          example: false
                         poster_path:
                           type: string
                           example: /gHUCCMy1vvj58tzE3dZqeC9SXus.jpg
@@ -507,17 +534,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
               examples:
                 missingQuery:
                   summary: Missing required title parameter
                   value:
-                    error: title is required and must be a string
+                    message: title is required and must be a string
                 invalidPagination:
                   summary: Invalid page or limit values
                   value:
-                    error: Validation failed
+                    message: Validation failed
                     details: page must be an integer between 1 and 1000
         '404':
           description: Search results not found
@@ -526,7 +553,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found
         '502':
@@ -536,7 +563,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/{series_id}:
@@ -582,12 +609,43 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: number
-                          example: 18
                         name:
                           type: string
                           example: Drama
+                  community:
+                    type: object
+                    properties:
+                      avgRating:
+                        type: number
+                        nullable: true
+                        example: 4.7
+                      totalRatings:
+                        type: integer
+                        example: 512
+                      totalReviews:
+                        type: integer
+                        example: 98
+                      recentReviews:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: Absolute masterpiece
+                            body:
+                              type: string
+                              example: Best show on television.
+                            author:
+                              type: string
+                              example: bob
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: '2024-10-15T09:00:00.000Z'
         '400':
           description: series_id missing in route parameters
           content:
@@ -595,7 +653,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: series_id is required
         '404':
@@ -605,7 +663,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: The resource you requested could not be found.
         '502':
@@ -615,7 +673,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/featured:
@@ -682,7 +740,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -692,7 +750,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/tv/popular:
@@ -764,7 +822,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: TMDB_API_KEY is not configured
         '502':
@@ -774,7 +832,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
                     example: Failed to reach the TMDB API
   /api/reviews:
@@ -1650,9 +1708,263 @@ paths:
                   message:
                     type: string
                     example: Internal Server Error
+  /issues:
+    get:
+      tags: [Issues]
+      summary: List Issues
+      description: Returns the 10 most recent issues that have not been deleted.
+      responses:
+        '200':
+          description: A list of issues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  issues:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Issue'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+    post:
+      tags: [Issues]
+      summary: Create Issue
+      description: Creates a new issue for reporting a problem or suggestion.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body, contact]
+              properties:
+                title:
+                  type: string
+                  example: 'Broken search'
+                body:
+                  type: string
+                  example: 'The search functionality is not working for movies with special characters.'
+                contact:
+                  type: string
+                  example: 'alice@example.com'
+      responses:
+        '201':
+          description: Issue created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Issue created'
+                  issue:
+                    $ref: '#/components/schemas/Issue'
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: title
+                        message:
+                          type: string
+                          example: Required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+  /issues/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The ID of the issue.
+    get:
+      tags: [Issues]
+      summary: Get Issue by ID
+      description: Returns a single issue by its ID.
+      responses:
+        '200':
+          description: Issue retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  issue:
+                    $ref: '#/components/schemas/Issue'
+        '400':
+          description: Invalid ID parameter.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
+        '404':
+          description: Issue not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Issue not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+    put:
+      tags: [Issues]
+      summary: Update Issue
+      description: Updates an existing issue's details or status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                body:
+                  type: string
+                contact:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/IssueStatus'
+      responses:
+        '200':
+          description: Issue updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Issue updated'
+                  newIssue:
+                    $ref: '#/components/schemas/Issue'
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+        '404':
+          description: Issue not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Issue not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 'Broken search'
+        body:
+          type: string
+          example: 'Search fails for movies with special characters.'
+        contact:
+          type: string
+          example: 'user@example.com'
+        status:
+          $ref: '#/components/schemas/IssueStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    IssueStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, RESOLVED, WONT_FIX]
+      example: OPEN
