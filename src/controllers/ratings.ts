@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
+import { loggerUtil as logger } from '../utils/logger';
 
 // Create
 export const createRating = async (req: Request, res: Response) => {
@@ -80,7 +81,7 @@ export const createRating = async (req: Request, res: Response) => {
 
     res.status(201).json(newRating);
   } catch (error) {
-    console.error('Error creating rating:', error);
+    logger.error('Error creating rating:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -146,7 +147,7 @@ export const getRatings = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching ratings:', error);
+    logger.error('Error fetching ratings:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -173,7 +174,7 @@ export const getRatingById = async (req: Request, res: Response) => {
     }
     res.json(rating);
   } catch (error) {
-    console.error('Error fetching rating:', error);
+    logger.error('Error fetching rating:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -233,7 +234,7 @@ export const updateRating = async (req: Request, res: Response) => {
 
     res.json(updatedRating);
   } catch (error) {
-    console.error('Error updating rating:', error);
+    logger.error('Error updating rating:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -285,7 +286,7 @@ export const deleteRating = async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting rating:', error);
+    logger.error('Error deleting rating:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

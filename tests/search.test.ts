@@ -627,7 +627,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toBe('title is required and must be a string');
+      expect(res.body.message).toBe('title is required and must be a string');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
@@ -636,7 +636,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -645,7 +645,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'test', page: 0 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -654,7 +654,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'test', page: 1001 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -665,7 +665,7 @@ describe('Search Router', () => {
         .query({ title: 'test', limit: 'test' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -674,7 +674,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'test', limit: 0 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -683,7 +683,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'test', limit: 51 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -694,7 +694,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid', limit: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
     });
@@ -705,7 +705,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid', limit: 20 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -716,7 +716,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 1, limit: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
     });
@@ -731,7 +731,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'nonexistent' });
 
       expect(res.status).toBe(404);
-      expect(res.body.error).toBe('The resource you requested could not be found');
+      expect(res.body.message).toBe('The resource you requested could not be found');
     });
 
     it('should return 502 when TMDB API fails', async () => {
@@ -740,7 +740,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search').query({ title: 'test' });
 
       expect(res.status).toBe(502);
-      expect(res.body.error).toBe('Failed to reach the TMDB API');
+      expect(res.body.message).toBe('Failed to reach the TMDB API');
     });
   });
 
@@ -1777,7 +1777,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toBe('title is required and must be a string');
+      expect(res.body.message).toBe('title is required and must be a string');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
@@ -1786,7 +1786,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -1797,7 +1797,7 @@ describe('Search Router', () => {
         .query({ title: 'test', limit: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -1806,7 +1806,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'test', page: 0 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -1815,7 +1815,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'test', page: 1001 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -1824,7 +1824,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'test', limit: 0 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -1833,7 +1833,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'test', limit: 51 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
     });
@@ -1844,7 +1844,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid', limit: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
     });
@@ -1855,7 +1855,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 'invalid', limit: 20 });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
     });
@@ -1866,7 +1866,7 @@ describe('Search Router', () => {
         .query({ title: 'test', page: 1, limit: 'invalid' });
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toContain('Validation failed');
+      expect(res.body.message).toContain('Validation failed');
       expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
       expect(res.body.details).toContain('limit must be an integer between 1 and 50');
     });
@@ -1881,7 +1881,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'nonexistent' });
 
       expect(res.status).toBe(404);
-      expect(res.body.error).toBe('The resource you requested could not be found');
+      expect(res.body.message).toBe('The resource you requested could not be found');
     });
 
     it('should return 502 when TMDB API fails', async () => {
@@ -1890,7 +1890,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search').query({ title: 'test' });
 
       expect(res.status).toBe(502);
-      expect(res.body.error).toBe('Failed to reach the TMDB API');
+      expect(res.body.message).toBe('Failed to reach the TMDB API');
     });
   });
 });
