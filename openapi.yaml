@@ -144,12 +144,43 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: number
-                          example: 18
                         name:
                           type: string
                           example: Drama
+                  community:
+                    type: object
+                    properties:
+                      avgRating:
+                        type: number
+                        nullable: true
+                        example: 4.2
+                      totalRatings:
+                        type: integer
+                        example: 128
+                      totalReviews:
+                        type: integer
+                        example: 34
+                      recentReviews:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 7
+                            title:
+                              type: string
+                              example: A modern classic
+                            body:
+                              type: string
+                              example: One of the best films ever made.
+                            author:
+                              type: string
+                              example: alice
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: '2024-11-01T12:34:56.000Z'
         '400':
           description: movie_id missing in route parameters
           content:
@@ -394,9 +425,6 @@ paths:
                         release_date:
                           type: string
                           example: '2011-06-11'
-                        adult:
-                          type: boolean
-                          example: false
                         poster_path:
                           type: string
                           example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
@@ -494,9 +522,6 @@ paths:
                         release_date:
                           type: string
                           example: '2013-09-24'
-                        adult:
-                          type: boolean
-                          example: false
                         poster_path:
                           type: string
                           example: /gHUCCMy1vvj58tzE3dZqeC9SXus.jpg
@@ -582,12 +607,43 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: number
-                          example: 18
                         name:
                           type: string
                           example: Drama
+                  community:
+                    type: object
+                    properties:
+                      avgRating:
+                        type: number
+                        nullable: true
+                        example: 4.7
+                      totalRatings:
+                        type: integer
+                        example: 512
+                      totalReviews:
+                        type: integer
+                        example: 98
+                      recentReviews:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: Absolute masterpiece
+                            body:
+                              type: string
+                              example: Best show on television.
+                            author:
+                              type: string
+                              example: bob
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: '2024-10-15T09:00:00.000Z'
         '400':
           description: series_id missing in route parameters
           content:

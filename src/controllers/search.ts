@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import { MediaType } from '../generated/prisma/client';
+import { prisma } from '../lib/prisma';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -64,7 +66,47 @@ export const getSeries = async (request: Request, response: Response) => {
       genres: data.genres as Array<{ name: string }>,
     };
 
-    response.json(tv_details);
+    //Our DB data
+    const media = await prisma.media.findUnique({
+      where: {
+        tmdbId_type: {
+          tmdbId: Number(series_id),
+          type: MediaType.TV_SHOW,
+        },
+      },
+      include: {
+        reviews: {
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          include: {
+            user: { select: {username: true} },
+          },
+        },
+      },
+    });
+
+    response.json({
+      ...tv_details, // <-- TMDB metadata, \/ DB data
+      community: media
+        ? {
+          avgRating: media.avgRating,
+          totalRatings: media.totalRatings,
+          totalReviews: media.totalReviews,
+          recentReviews: media.reviews.map((r) => ({
+            id: r.id,
+            title: r.title,
+            body: r.body,
+            author: r.user.username,
+            createdAt: r.createdAt,
+          })),
+        }
+        : {
+          avgRating: null,
+          totalRatings: 0,
+          totalReviews: 0,
+          recentReviews: [],
+        },
+    });
   } catch (_error) {
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
@@ -96,7 +138,47 @@ export const getMovie = async (request: Request, response: Response) => {
       genres: data.genres as Array<{ name: string }>,
     };
 
-    response.json(movies_details);
+    //Our DB data
+    const media = await prisma.media.findUnique({
+      where: {
+        tmdbId_type: {
+          tmdbId: Number(movie_id),
+          type: MediaType.MOVIE,
+        },
+      },
+      include: {
+        reviews: {
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          include: {
+            user: { select: {username: true} },
+          },
+        },
+      },
+    });
+
+    response.json( { 
+      ...movies_details, // <-- TMDB metadata, \/ DB data
+      community: media
+        ? {
+          avgRating: media.avgRating,
+          totalRatings: media.totalRatings,
+          totalReviews: media.totalReviews,
+          recentReviews: media.reviews.map((r) => ({
+            id: r.id,
+            title: r.title,
+            body: r.body,
+            author: r.user.username,
+            createdAt: r.createdAt,
+          })),
+        }
+        : {
+          avgRating: null,
+          totalRatings: 0,
+          totalReviews: 0,
+          recentReviews: [],
+        },
+    });
   } catch (_error) {
     response.status(502).json({ error: 'Failed to reach the TMDB API' });
   }
