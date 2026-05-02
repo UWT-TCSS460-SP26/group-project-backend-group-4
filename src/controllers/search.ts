@@ -63,9 +63,10 @@ export const getSeries = async (request: Request, response: Response) => {
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response
-        .status(result.status)
-        .json({ message: data.message || 'The resource you requested could not be found' });
+      const errorMsg = data.message || 'The resource you requested could not be found';
+      response.status(result.status).json({
+        message: errorMsg,
+      });
       return;
     }
 
@@ -80,7 +81,7 @@ export const getSeries = async (request: Request, response: Response) => {
     };
   } catch (error) {
     logger.error('Error fetching TV details:', error);
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
     return;
   }
 
@@ -104,8 +105,9 @@ export const getSeries = async (request: Request, response: Response) => {
         },
       },
     });
-  } catch (_error) {
-    response.status(503).json({ error: 'Failed to reach the database' });
+  } catch (error) {
+    logger.error('Error fetching movie details:', error);
+    response.status(503).json({ message: 'Interal server error' });
   }
 
   response.json({
@@ -151,9 +153,10 @@ export const getMovie = async (request: Request, response: Response) => {
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response
-        .status(result.status)
-        .json({ message: data.message || 'The resource you requested could not be found' });
+      const errorMsg = data.message || 'The resource you requested could not be found';
+      response.status(result.status).json({
+        message: errorMsg,
+      });
       return;
     }
 
@@ -168,7 +171,7 @@ export const getMovie = async (request: Request, response: Response) => {
     };
   } catch (error) {
     logger.error('Error fetching movie details:', error);
-    response.status(502).json({ error: 'Failed to reach the TMDB API' });
+    response.status(502).json({ message: 'Failed to reach the TMDB API' });
     return;
   }
 
@@ -192,8 +195,9 @@ export const getMovie = async (request: Request, response: Response) => {
         },
       },
     });
-  } catch (_error) {
-    response.status(503).json({ error: 'Failed to reach the database' });
+  } catch (error) {
+    logger.error(`Failed to fetch from the database: ${error}`);
+    response.status(503).json({ message: 'Internal server error' });
     return;
   }
 
@@ -242,9 +246,10 @@ export const searchMovies = async (request: Request, response: Response) => {
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response
-        .status(result.status)
-        .json({ message: data.message || 'The resource you requested could not be found' });
+      const errorMsg = data.message || 'The resource you requested could not be found';
+      response.status(result.status).json({
+        message: errorMsg,
+      });
       return;
     }
 
@@ -262,7 +267,7 @@ export const searchMovies = async (request: Request, response: Response) => {
       results,
     });
   } catch (error) {
-    logger.error('Error fetching movie details:', error);
+    logger.error('Error fetching movie details: ', error);
     response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };
@@ -280,9 +285,10 @@ export const searchShows = async (request: Request, response: Response) => {
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response
-        .status(result.status)
-        .json({ message: data.message || 'The resource you requested could not be found' });
+      const errorMsg = data.message || 'The resource you requested could not be found';
+      response.status(result.status).json({
+        message: errorMsg,
+      });
       return;
     }
 
@@ -300,7 +306,7 @@ export const searchShows = async (request: Request, response: Response) => {
       results,
     });
   } catch (error) {
-    logger.error('Error fetching TV details:', error);
+    logger.error('Error fetching TV details: ', error);
     response.status(502).json({ message: 'Failed to reach the TMDB API' });
   }
 };

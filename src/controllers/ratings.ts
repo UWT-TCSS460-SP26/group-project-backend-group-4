@@ -209,7 +209,9 @@ export const updateRating = async (req: Request, res: Response) => {
     const isOwner = existingRating?.userId === author.userId;
     const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
     if (!isOwner && !isPrivileged) {
-      res.status(403).json({ error: 'Forbidden' });
+      res.status(403).json({
+        message: 'Unauthorized to update this rating',
+      });
       return;
     }
 
@@ -267,7 +269,9 @@ export const deleteRating = async (req: Request, res: Response) => {
     const isOwner = ratingToDelete?.userId === author.userId;
     const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
     if (!isOwner && !isPrivileged) {
-      res.status(403).json({ error: 'Forbidden' });
+      res.status(403).json({
+        message: 'Unauthorized to delete this rating',
+      });
       return;
     }
 

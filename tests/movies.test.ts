@@ -248,7 +248,7 @@ describe('Detail Router', () => {
       const res = await request(app).get('/api/movies/99999999');
 
       expect(res.status).toBe(404);
-      expect(res.body.error).toBe('Not found');
+      expect(res.body.message).toBe('Not found');
     });
 
     it('should return 502 when TMDB API fails', async () => {
@@ -257,7 +257,7 @@ describe('Detail Router', () => {
       const res = await request(app).get('/api/movies/550');
 
       expect(res.status).toBe(502);
-      expect(res.body.error).toBe('Failed to reach the TMDB API');
+      expect(res.body.message).toBe('Failed to reach the TMDB API');
     });
   });
 });

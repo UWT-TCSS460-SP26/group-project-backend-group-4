@@ -8,4 +8,5 @@ module.exports = {
   moduleNameMapper: {
     '^@scalar/express-api-reference$': '<rootDir>/tests/__mocks__/scalarMock.cjs',
   },
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
 };

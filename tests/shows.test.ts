@@ -292,7 +292,7 @@ describe('GET /api/tv/:series_id', () => {
     const res = await request(app).get('/api/tv/99999999');
 
     expect(res.status).toBe(404);
-    expect(res.body.error).toBe('Not found');
+    expect(res.body.message).toBe('Not found');
   });
 
   it('should return 502 when TMDB API fails', async () => {
@@ -301,6 +301,6 @@ describe('GET /api/tv/:series_id', () => {
     const res = await request(app).get('/api/tv/1396');
 
     expect(res.status).toBe(502);
-    expect(res.body.error).toBe('Failed to reach the TMDB API');
+    expect(res.body.message).toBe('Failed to reach the TMDB API');
   });
 });

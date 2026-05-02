@@ -258,7 +258,9 @@ export const updateReview = async (req: Request, res: Response) => {
     const isOwner = existingReview?.userId === author.userId;
     const isPrivileged = hasRoleAtLeast(req.user?.role, 'Owner');
     if (!isOwner && !isPrivileged) {
-      res.status(403).json({ error: 'Forbidden' });
+      res.status(403).json({
+        message: 'Unauthorized to update this review',
+      });
       return;
     }
 
@@ -300,7 +302,9 @@ export const deleteReview = async (req: Request, res: Response) => {
     const isOwner = reviewToDelete?.userId === author.userId;
     const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
     if (!isOwner && !isPrivileged) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({
+        message: 'Unauthorized to delete this review',
+      });
     }
 
     await prisma.$transaction(async (tx) => {
