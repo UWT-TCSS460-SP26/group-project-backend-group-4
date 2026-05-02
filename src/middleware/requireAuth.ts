@@ -35,13 +35,13 @@ export const requireAuth = (request: Request, response: Response, next: NextFunc
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    response.status(500).json({ error: 'JWT_SECRET is not configured' });
+    response.status(500).json({ message: 'JWT_SECRET is not configured' });
     return;
   }
 
   const header = request.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
-    response.status(401).json({ error: 'Missing or malformed Authorization header' });
+    response.status(401).json({ message: 'Missing or malformed Authorization header' });
     return;
   }
 
@@ -53,7 +53,7 @@ export const requireAuth = (request: Request, response: Response, next: NextFunc
     request.user = payload;
     next();
   } catch {
-    response.status(401).json({ error: 'Invalid or expired token' });
+    response.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 
@@ -65,11 +65,11 @@ export const requireAuth = (request: Request, response: Response, next: NextFunc
 export const requireRole = (role: string) => {
   return (request: Request, response: Response, next: NextFunction): void => {
     if (!request.user) {
-      response.status(401).json({ error: 'Not authenticated' });
+      response.status(401).json({ message: 'Not authenticated' });
       return;
     }
     if (request.user.role !== role) {
-      response.status(403).json({ error: 'Insufficient permissions' });
+      response.status(403).json({ message: 'Insufficient permissions' });
       return;
     }
     next();

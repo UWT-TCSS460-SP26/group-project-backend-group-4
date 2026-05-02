@@ -630,7 +630,7 @@ describe('Reviews API', () => {
       const response = await request(app).post('/api/reviews').send(reviewData);
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 400 for invalid tmdbId', async () => {
@@ -731,7 +731,7 @@ describe('Reviews API', () => {
       const response = await request(app).put('/api/reviews/1').send(updateData);
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 403 for updating others review as regular user', async () => {
@@ -827,7 +827,7 @@ describe('Reviews API', () => {
       const response = await request(app).delete('/api/reviews/1');
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBe('Missing or malformed Authorization header');
+      expect(response.body.message).toBe('Missing or malformed Authorization header');
     });
 
     it('should return 404 for non-existent review', async () => {

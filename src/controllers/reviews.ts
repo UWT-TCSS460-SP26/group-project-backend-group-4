@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
 import { parseIdOrRespond, getUserIdOrRespond } from '../middleware/validation';
+import { loggerUtil as logger } from '../utils/logger';
 
 // ====== Validation & Parsing Helpers ========
 const isValidReviewType = (type: unknown): type is MediaType =>
@@ -113,7 +114,7 @@ export const createReview = async (req: Request, res: Response) => {
 
     return res.status(201).json(newReview);
   } catch (error) {
-    console.error('Error creating review:', error);
+    logger.error('Error creating review:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -186,7 +187,7 @@ export const getReviews = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    logger.error('Error fetching reviews:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -220,7 +221,7 @@ export const getReviewById = async (req: Request, res: Response) => {
 
     return res.json(review);
   } catch (error) {
-    console.error('Error fetching review:', error);
+    logger.error('Error fetching review:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -273,7 +274,7 @@ export const updateReview = async (req: Request, res: Response) => {
 
     return res.json(updatedReview);
   } catch (error) {
-    console.error('Error updating review:', error);
+    logger.error('Error updating review:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -317,7 +318,7 @@ export const deleteReview = async (req: Request, res: Response) => {
 
     return res.status(204).send();
   } catch (error) {
-    console.error('Error deleting review:', error);
+    logger.error('Error deleting review:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

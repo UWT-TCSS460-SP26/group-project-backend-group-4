@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { loggerUtil as logger } from '../utils/logger';
 
 const BASE_URL = 'https://api.themoviedb.org/3/trending';
 
@@ -38,7 +39,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
+      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
       return;
     }
 
@@ -57,8 +58,8 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
       }))
     );
   } catch (error) {
-    console.error('Error fetching featured movies:', error);
-    response.status(502).json({ error: 'Failed to fetch featured content' });
+    logger.error('Error fetching featured movies:', error);
+    response.status(502).json({ message: 'Failed to fetch featured content' });
   }
 };
 
@@ -75,7 +76,7 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
     const data = (await result.json()) as Record<string, unknown>;
 
     if (!result.ok) {
-      response.status(result.status).json({ error: data.status_message || 'TMDB API error' });
+      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
       return;
     }
 
@@ -94,7 +95,7 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
       }))
     );
   } catch (error) {
-    console.error('Error fetching featured TV shows:', error);
-    response.status(502).json({ error: 'Failed to fetch featured content' });
+    logger.error('Error fetching featured TV shows:', error);
+    response.status(502).json({ message: 'Failed to fetch featured content' });
   }
 };

@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { loggerUtil } from '../utils/logger';
 
 export const logger = (request: Request, _response: Response, next: NextFunction) => {
-  if (process.env.NODE_ENV !== 'test') {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ${request.method} ${request.path}`);
-  }
+  const timestamp = new Date().toISOString();
+  loggerUtil.log(`[${timestamp}] ${request.method} ${request.path}`);
   next();
 };
