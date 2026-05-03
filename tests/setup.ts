@@ -1,6 +1,20 @@
 // Test environment — satisfy the requireAuth module's boot-time env check.
 process.env.AUTH_ISSUER = process.env.AUTH_ISSUER ?? 'https://test-issuer.local';
 process.env.API_AUDIENCE = process.env.API_AUDIENCE ?? 'backend-3-messages';
+import { Request, Response, NextFunction } from 'express';
+
+// Prevent 'jose' (ESM module) from crashing Jest by mocking the auth libraries.
+// Since we completely bypass real JWT validation in tests, we don't need them to load!
+jest.mock('jwks-rsa', () => ({
+  __esModule: true,
+  default: {
+    expressJwtSecret: jest.fn(),
+  },
+}));
+
+jest.mock('express-jwt', () => ({
+  expressjwt: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next()),
+}));
 
 // Stub the DB upsert helper so tests don't need a running Prisma connection.
 jest.mock('../src/auth/resolveLocalUser', () => ({
@@ -23,90 +37,52 @@ jest.mock('../src/auth/resolveLocalUser', () => ({
   }),
 }));
 
-// Middleware stub — bypasses JWKS network calls and trusts an
-// `x-test-user` header carrying the claim set the test wants to simulate.
+// 1. Stub the Logger Middleware
+jest.mock('../src/middleware/logger', () => ({
+  logger: (req: Request, res: Response, next: NextFunction) => next(),
+}));
+
+// 2. Stub the Logger Utility
+jest.mock('../src/utils/logger', () => ({
+  loggerUtil: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+    log: jest.fn(),
+  },
+}));
+
+// 3. Stub the Auth Middleware (which is an array in the real file!)
 jest.mock('../src/middleware/requireAuth', () => {
-  const ROLE_HIERARCHY = ['User', 'Moderator', 'Admin', 'SuperAdmin', 'Owner'] as const;
-  type Role = (typeof ROLE_HIERARCHY)[number];
-
-  interface StubUser {
-    sub: string;
-    email?: string;
-    role: Role;
-  }
-
-  const parseTestUser = (request: {
-    headers: Record<string, string | string[] | undefined>;
-  }): StubUser | undefined => {
-    const header = request.headers['x-test-user'];
-    if (!header || typeof header !== 'string') return undefined;
-    try {
-      return JSON.parse(header) as StubUser;
-    } catch {
-      return undefined;
-    }
-  };
-
-  const authenticate = (
-    request: { headers: Record<string, string | string[] | undefined>; user?: StubUser },
-    response: { status: (code: number) => { json: (body: unknown) => void } },
-    next: () => void
-  ): void => {
-    const user = parseTestUser(request);
-    if (!user) {
-      response.status(401).json({ message: 'Missing or malformed Authorization header' });
-      return;
-    }
-    request.user = user;
-    next();
-  };
+  // Import the real module so we don't have to duplicate the role-checking logic!
+  const originalModule = jest.requireActual('../src/middleware/requireAuth');
 
   return {
-    ROLE_HIERARCHY,
-    requireAuth: [authenticate],
-    requireRole:
-      (role: Role) =>
-      (
-        request: { user?: StubUser },
-        response: { status: (code: number) => { json: (body: unknown) => void } },
-        next: () => void
-      ): void => {
-        if (!request.user) {
-          response.status(401).json({ message: 'Missing or malformed Authorization header' });
+    __esModule: true,
+    ...originalModule, // Includes the real requireRole, requireRoleAtLeast, etc.
+
+    // We only override the actual token validation array
+    requireAuth: [
+      (req: Request, res: Response, next: NextFunction) => {
+        const testClaims = req.headers['x-test-user'] || req.headers['x-test-auth-claims'];
+        if (testClaims && typeof testClaims === 'string') {
+          req.user = JSON.parse(testClaims);
+        } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer {')) {
+          try {
+            req.user = JSON.parse(req.headers.authorization.replace('Bearer ', ''));
+          } catch (_e) {
+            // Ignore parse errors for fake payloads
+          }
+        }
+
+        if (!req.user) {
+          res.status(401).json({ message: 'Missing or malformed Authorization header' });
           return;
         }
-        if (request.user.role.toUpperCase() !== role.toUpperCase()) {
-          response.status(403).json({ message: 'Insufficient permissions' });
-          return;
-        }
+
         next();
       },
-    requireRoleAtLeast:
-      (minRole: Role) =>
-      (
-        request: { user?: StubUser },
-        response: { status: (code: number) => { json: (body: unknown) => void } },
-        next: () => void
-      ): void => {
-        if (!request.user) {
-          response.status(401).json({ message: 'Missing or malformed Authorization header' });
-          return;
-        }
-        const userIdx = ROLE_HIERARCHY.findIndex(
-          (r) => r.toUpperCase() === request.user!.role.toUpperCase()
-        );
-        const minIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === minRole.toUpperCase());
-        if (userIdx < 0 || userIdx < minIdx) {
-          response.status(403).json({ message: 'Insufficient permissions' });
-          return;
-        }
-        next();
-      },
-    hasRoleAtLeast: (role: string | undefined, minRole: Role): boolean => {
-      if (!role) return false;
-      const userIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === role.toUpperCase());
-      const minIdx = ROLE_HIERARCHY.findIndex((r) => r.toUpperCase() === minRole.toUpperCase());
-      return userIdx >= 0 && userIdx >= minIdx;
-    },
+    ],
   };
 });
