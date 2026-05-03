@@ -61,7 +61,7 @@ app.use(issueRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
-  response.status(404).json({ error: 'Route not found' });
+  response.status(404).json({ message: 'Route not found' });
 });
 
 // Global error handler — logs the full error server-side but never
