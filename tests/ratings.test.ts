@@ -56,7 +56,6 @@ const createMediaRecord = (overrides: Record<string, unknown> = {}) => ({
 
 beforeAll(async () => {
   process.env.NODE_ENV = 'test';
-  process.env.JWT_SECRET = 'test-jwt-secret';
   process.env.TMDB_API_KEY = 'test-tmdb-api-key';
 
   const importedApp = await import('../src/app');
@@ -612,7 +611,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .post('/api/ratings')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(ratingData);
 
       expect(response.status).toBe(201);
@@ -643,7 +642,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .post('/api/ratings')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(ratingData);
 
       expect(response.status).toBe(400);
@@ -661,7 +660,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .post('/api/ratings')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(ratingData);
 
       expect(response.status).toBe(400);
@@ -680,7 +679,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .post('/api/ratings')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(ratingData);
 
       expect(response.status).toBe(409);
@@ -704,7 +703,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .put('/api/ratings/1')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(updateData);
 
       expect(response.status).toBe(200);
@@ -732,7 +731,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .put('/api/ratings/2')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(updateData);
 
       expect(response.status).toBe(403);
@@ -748,7 +747,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .put('/api/ratings/999')
-        .set(authHeader({ sub: 1, role: 'USER' }))
+        .set(authHeader({ sub: 1, role: 'User' }))
         .send(updateData);
 
       expect(response.status).toBe(404);
@@ -768,27 +767,21 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .delete('/api/ratings/1')
-        .set(authHeader({ sub: 1, role: 'USER' }));
+        .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(response.status).toBe(204);
       expect(mockRating.delete).toHaveBeenCalledWith({ where: { id: 1 } });
     });
 
-    it('should allow admin to delete others rating', async () => {
-      mockRating.findUnique.mockResolvedValue(createRatingRecord({ id: 2, userId: 2, score: 4 }));
-      mockRating.delete.mockResolvedValue(createRatingRecord({ id: 2, userId: 2, score: 4 }));
-      mockRating.aggregate.mockResolvedValue({ _avg: { score: null }, _count: { score: 0 } });
-      mockMedia.update.mockResolvedValue(createMediaRecord());
-      mockTransaction.mockImplementation(async (callback: any) =>
-        callback({ rating: mockRating, media: mockMedia })
-      );
+    it('should return 403 when admin tries to delete others rating', async () => {
+      mockRating.findUnique.mockResolvedValue(createRatingRecord({ id: 2, userId: 3, score: 4 }));
 
       const response = await request(app)
         .delete('/api/ratings/2')
-        .set(authHeader({ sub: 2, role: 'ADMIN' }));
+        .set(authHeader({ sub: 2, role: 'Admin' }));
 
-      expect(response.status).toBe(204);
-      expect(mockRating.delete).toHaveBeenCalled();
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Unauthorized to delete this rating');
     });
 
     it('should return 403 for deleting others rating as regular user', async () => {
@@ -796,7 +789,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .delete('/api/ratings/2')
-        .set(authHeader({ sub: 1, role: 'USER' }));
+        .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Unauthorized to delete this rating');
@@ -814,7 +807,7 @@ describe('Ratings API', () => {
 
       const response = await request(app)
         .delete('/api/ratings/999')
-        .set(authHeader({ sub: 1, role: 'USER' }));
+        .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Rating not found');

@@ -17,7 +17,7 @@ model User {
   username  String   @unique
   email     String   @unique
   subjectId String   @unique
-  role      Role     @default(USER)
+  role      Role     @default(User)
   createdAt DateTime @default(now()) @db.Timestamptz()
   reviews   Review[]
   ratings   Rating[]
@@ -45,8 +45,11 @@ enum IssueStatus {
 }
 
 enum Role {
-  USER  @map("user")
-  ADMIN @map("admin")
+  User       @map("user")
+  Moderator  @map("moderator")
+  Admin      @map("admin")
+  SuperAdmin @map("super_admin")
+  Owner      @map("owner")
 }
 
 enum MediaType {

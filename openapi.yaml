@@ -23,6 +23,8 @@ tags:
     description: Routes used with TV Shows
   - name: Reviews
     description: Routes used with persisted user reviews
+  - name: Ratings
+    description: Routes used with persisted user ratings
   - name: Issues
     description: Routes for reporting and tracking issues
 
@@ -1029,7 +1031,7 @@ paths:
     put:
       tags: [Reviews]
       summary: Update Review
-      description: Updates a review owned by the authenticated requester.
+      description: Updates a review. Only the review owner can modify their own review.
       security:
         - bearerAuth: []
       parameters:
@@ -1120,7 +1122,7 @@ paths:
     delete:
       tags: [Reviews]
       summary: Delete Review
-      description: Deletes a review owned by the requester, or by an admin.
+      description: Deletes a review. The authenticated user must be the review owner, or have the Admin role or above (Admin, SuperAdmin, Owner).
       security:
         - bearerAuth: []
       parameters:
@@ -1445,7 +1447,7 @@ paths:
     put:
       tags: [Ratings]
       summary: Update Rating
-      description: Update an existing rating score. Requires the authenticated user to be the owner of the record.
+      description: Updates a rating. Only the rating owner can modify their own rating.
       security:
         - bearerAuth: []
       requestBody:
@@ -1537,7 +1539,7 @@ paths:
     delete:
       tags: [Ratings]
       summary: Delete Rating
-      description: Delete a rating. Requires the authenticated user to be the owner of the record or have the ADMIN role.
+      description: Deletes a rating. Only the rating owner can delete their own rating.
       security:
         - bearerAuth: []
       responses:

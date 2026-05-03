@@ -246,7 +246,7 @@ export const updateReview = async (req: Request, res: Response) => {
   }
 
   try {
-    const author = await resolveLocalUser(req);
+    const user = await resolveLocalUser(req);
     const existingReview = await prisma.review.findUnique({
       where: { id },
     });
@@ -255,9 +255,7 @@ export const updateReview = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    const isOwner = existingReview?.userId === author.userId;
-    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Owner');
-    if (!isOwner && !isPrivileged) {
+    if (existingReview?.userId !== user.userId) {
       res.status(403).json({
         message: 'Unauthorized to update this review',
       });

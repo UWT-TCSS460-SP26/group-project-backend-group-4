@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
 import { resolveLocalUser } from '../auth/resolveLocalUser';
-import { hasRoleAtLeast } from '../middleware/requireAuth';
 import { loggerUtil as logger } from '../utils/logger';
 
 // Create
@@ -194,7 +193,7 @@ export const updateRating = async (req: Request, res: Response) => {
   }
 
   try {
-    const author = await resolveLocalUser(req);
+    const user = await resolveLocalUser(req);
 
     // Find the rating first so we know which mediaId to update!
     const existingRating = await prisma.rating.findUnique({
@@ -206,9 +205,7 @@ export const updateRating = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Rating not found' });
     }
 
-    const isOwner = existingRating?.userId === author.userId;
-    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
-    if (!isOwner && !isPrivileged) {
+    if (existingRating?.userId !== user.userId) {
       res.status(403).json({
         message: 'Unauthorized to update this rating',
       });
@@ -255,7 +252,7 @@ export const deleteRating = async (req: Request, res: Response) => {
   }
 
   try {
-    const author = await resolveLocalUser(req);
+    const user = await resolveLocalUser(req);
 
     // Find the rating first so we know which mediaId to update!
     const ratingToDelete = await prisma.rating.findUnique({
@@ -266,9 +263,7 @@ export const deleteRating = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Rating not found' });
     }
 
-    const isOwner = ratingToDelete?.userId === author.userId;
-    const isPrivileged = hasRoleAtLeast(req.user?.role, 'Admin');
-    if (!isOwner && !isPrivileged) {
+    if (ratingToDelete?.userId !== user.userId) {
       res.status(403).json({
         message: 'Unauthorized to delete this rating',
       });

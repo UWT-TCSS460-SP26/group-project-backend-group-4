@@ -18,7 +18,6 @@ jest.mock('../src/lib/prisma', () => ({
 
 beforeAll(async () => {
   process.env.NODE_ENV = 'test';
-  process.env.JWT_SECRET = 'test-jwt-secret';
   process.env.TMDB_API_KEY = 'test-tmdb-api-key';
 
   const importedApp = await import('../src/app');
