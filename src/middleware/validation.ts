@@ -72,6 +72,16 @@ const updateReviewBodySchema = z
     path: ['body'],
   });
 
+const createRatingBodySchema = z.object({
+  tmdbId: z.number().int(),
+  type: z.enum(MediaType),
+  score: z.number().int().min(1).max(5),
+});
+
+const updateRatingBodySchema = z.object({
+  score: z.number().int().min(1).max(5),
+});
+
 // ---- Generic validation helpers ----
 
 function formatZodError(error: z.ZodError) {
@@ -126,6 +136,8 @@ export const validatePostIssueBody = validateBody(postIssueBodySchema);
 export const validatePutIssueBody = validateBody(putIssueUpdateSchema);
 export const validateCreateReviewBody = validateBody(createReviewBodySchema);
 export const validateUpdateReviewBody = validateBody(updateReviewBodySchema);
+export const validateCreateRatingBody = validateBody(createRatingBodySchema);
+export const validateUpdateRatingBody = validateBody(updateRatingBodySchema);
 
 export const validateIdParam = validateParams(idParamSchema);
 export const requireMovieId = validateParams(movieIdParamSchema);

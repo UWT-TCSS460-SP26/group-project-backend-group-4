@@ -7,13 +7,25 @@ import {
   deleteRating,
 } from '../controllers/ratings';
 import { requireAuth } from '../middleware/requireAuth';
+import {
+  validateIdParam,
+  validateGetReviewsQuery,
+  validateCreateRatingBody,
+  validateUpdateRatingBody,
+} from '../middleware/validation';
 
 const router = Router();
 
-router.get('/api/ratings', getRatings);
-router.get('/api/ratings/:id', getRatingById);
-router.post('/api/ratings', requireAuth, createRating);
-router.put('/api/ratings/:id', requireAuth, updateRating);
-router.delete('/api/ratings/:id', requireAuth, deleteRating);
+router.get('/api/ratings', validateGetReviewsQuery, getRatings);
+router.get('/api/ratings/:id', validateIdParam, getRatingById);
+router.post('/api/ratings', requireAuth, validateCreateRatingBody, createRating);
+router.put(
+  '/api/ratings/:id',
+  requireAuth,
+  validateIdParam,
+  validateUpdateRatingBody,
+  updateRating
+);
+router.delete('/api/ratings/:id', requireAuth, validateIdParam, deleteRating);
 
 export { router as ratingsRouter };

@@ -1360,7 +1360,7 @@ paths:
                         type: integer
                         example: 5
         '400':
-          description: Invalid query parameters.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1368,11 +1368,18 @@ paths:
                 properties:
                   message:
                     type: string
-              examples:
-                missingTmdbIdOrType:
-                  summary: Missing tmdbId or type
-                  value:
-                    message: Both tmdbId and type are required together.
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: page
+                        message:
+                          type: string
+                          example: Number must be greater than or equal to 1
         '500':
           description: Internal server error
           content:
@@ -1426,7 +1433,7 @@ paths:
                     type: integer
                     example: 105
         '400':
-          description: Validation failed (e.g., invalid media type or score out of bounds)
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1434,19 +1441,18 @@ paths:
                 properties:
                   message:
                     type: string
-              examples:
-                invalidTmdbId:
-                  summary: Invalid tmdbId
-                  value:
-                    message: Invalid tmdbId
-                invalidType:
-                  summary: Invalid media type
-                  value:
-                    message: Invalid media type
-                invalidScore:
-                  summary: Score out of bounds
-                  value:
-                    message: Invalid rating score. Please provide a score between 1 and 5.
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: score
+                        message:
+                          type: string
+                          example: Number must be less than or equal to 5
         '401':
           description: Missing or invalid Token
           content:
@@ -1505,7 +1511,7 @@ paths:
                     type: integer
                     example: 105
         '400':
-          description: Invalid rating ID
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1513,7 +1519,18 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Invalid rating ID
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
         '404':
           description: Record not found
           content:
@@ -1569,7 +1586,7 @@ paths:
                     type: integer
                     example: 105
         '400':
-          description: Validation failed (e.g., score out of bounds)
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1577,15 +1594,18 @@ paths:
                 properties:
                   message:
                     type: string
-              examples:
-                invalidScore:
-                  summary: Score out of bounds
-                  value:
-                    message: Invalid rating score. Please provide a score between 1 and 5.
-                invalidId:
-                  summary: Invalid rating ID
-                  value:
-                    message: Invalid rating ID
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: score
+                        message:
+                          type: string
+                          example: Number must be less than or equal to 5
         '401':
           description: Missing or invalid Token
           content:
@@ -1632,7 +1652,7 @@ paths:
         '204':
           description: Rating deleted successfully
         '400':
-          description: Invalid rating ID
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1640,7 +1660,18 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Invalid rating ID
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
         '401':
           description: Missing or invalid Token
           content:
