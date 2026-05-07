@@ -112,47 +112,36 @@ describe('Reviews API', () => {
       );
     });
 
-    it('should normalize page 0 to page 1', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for page 0', async () => {
       const response = await request(app).get('/api/reviews').query({ page: 0, limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
-      expect(mockReview.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
-    it('should normalize negative page to page 1', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for negative page', async () => {
       const response = await request(app).get('/api/reviews').query({ page: -5, limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
-      expect(mockReview.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
-    it('should treat limit 0 as invalid and use default limit 20', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for limit 0', async () => {
       const response = await request(app).get('/api/reviews').query({ limit: 0 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.limit).toBe(20);
-      expect(mockReview.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 20 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
-    it('should normalize negative limit to limit 1', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for negative limit', async () => {
       const response = await request(app).get('/api/reviews').query({ limit: -10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.limit).toBe(1);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
     it('should handle very large page numbers returning empty results', async () => {
@@ -166,24 +155,20 @@ describe('Reviews API', () => {
       expect(response.body.pagination.page).toBe(1000);
     });
 
-    it('should handle very large limit', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for very large limit', async () => {
       const response = await request(app).get('/api/reviews').query({ limit: 10000 });
 
-      expect(response.status).toBe(200);
-      expect(mockReview.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 10000 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
-    it('should handle non-integer page', async () => {
-      mockReview.findMany.mockResolvedValue([createReviewRecord()]);
-      mockReview.count.mockResolvedValue(1);
-
+    it('should return 400 for non-integer page', async () => {
       const response = await request(app).get('/api/reviews').query({ page: '1.5', limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
     // ========== QUERY BY USERID TESTS ==========
@@ -229,28 +214,32 @@ describe('Reviews API', () => {
       const response = await request(app).get('/api/reviews').query({ userId: 'invalid' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid userId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'userId')).toBe(true);
     });
 
     it('should return 400 for invalid userId (zero)', async () => {
       const response = await request(app).get('/api/reviews').query({ userId: 0 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid userId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'userId')).toBe(true);
     });
 
     it('should return 400 for invalid userId (negative)', async () => {
       const response = await request(app).get('/api/reviews').query({ userId: -1 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid userId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'userId')).toBe(true);
     });
 
     it('should return 400 for invalid userId (float)', async () => {
       const response = await request(app).get('/api/reviews').query({ userId: '5.5' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid userId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'userId')).toBe(true);
     });
 
     it('should return empty results for userId with no reviews', async () => {
@@ -306,14 +295,16 @@ describe('Reviews API', () => {
       const response = await request(app).get('/api/reviews').query({ mediaId: 'abc' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid mediaId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'mediaId')).toBe(true);
     });
 
     it('should return 400 for invalid mediaId (zero)', async () => {
       const response = await request(app).get('/api/reviews').query({ mediaId: 0 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid mediaId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'mediaId')).toBe(true);
     });
 
     it('should return empty results for mediaId with no reviews', async () => {
@@ -369,14 +360,16 @@ describe('Reviews API', () => {
       const response = await request(app).get('/api/reviews').query({ tmdbId: 550 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 for type without tmdbId', async () => {
       const response = await request(app).get('/api/reviews').query({ type: 'MOVIE' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 for invalid tmdbId (non-numeric)', async () => {
@@ -385,14 +378,16 @@ describe('Reviews API', () => {
         .query({ tmdbId: 'invalid', type: 'MOVIE' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid tmdbId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 for invalid tmdbId (zero)', async () => {
       const response = await request(app).get('/api/reviews').query({ tmdbId: 0, type: 'MOVIE' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid tmdbId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 for invalid type', async () => {
@@ -401,7 +396,8 @@ describe('Reviews API', () => {
         .query({ tmdbId: 550, type: 'INVALID' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid media type');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'type')).toBe(true);
     });
 
     it('should return empty results for tmdbId + type with no reviews', async () => {
@@ -647,7 +643,8 @@ describe('Reviews API', () => {
         .send(reviewData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid tmdbId');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 for invalid type', async () => {
@@ -663,7 +660,8 @@ describe('Reviews API', () => {
         .send(reviewData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid media type');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'type')).toBe(true);
     });
 
     it('should return 400 for missing body', async () => {
@@ -678,7 +676,8 @@ describe('Reviews API', () => {
         .send(reviewData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Review body is required.');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'body')).toBe(true);
     });
 
     it('should return 409 if user already reviewed', async () => {
@@ -762,7 +761,8 @@ describe('Reviews API', () => {
         .send(updateData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid review body.');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'body')).toBe(true);
     });
 
     it('should return 404 for non-existent review', async () => {

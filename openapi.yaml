@@ -884,7 +884,7 @@ paths:
                       totalPages:
                         type: integer
         '400':
-          description: Invalid query parameters.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -892,6 +892,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: page
+                        message:
+                          type: string
+                          example: Number must be greater than or equal to 1
         '500':
           description: Internal server error
           content:
@@ -948,7 +960,7 @@ paths:
                     type: string
                     format: date-time
         '400':
-          description: Validation error.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -956,6 +968,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: body
+                        message:
+                          type: string
+                          example: Required
         '401':
           description: Missing or invalid bearer token.
           content:
