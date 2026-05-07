@@ -27,7 +27,7 @@ const movieIdParamSchema = z.object({
 });
 
 const seriesIdParamSchema = z.object({
-  series_id: z.coerce.number().int().positive()
+  series_id: z.coerce.number().int().positive(),
 });
 
 const titleQuerySchema = z.object({
@@ -52,7 +52,7 @@ const getReviewsQuerySchema = z
     (data) =>
       (data.tmdbId === undefined && data.type === undefined) ||
       (data.tmdbId !== undefined && data.type !== undefined),
-    { message: 'Both tmdbId and type are required together', path: ['tmdbId'] },
+    { message: 'Both tmdbId and type are required together', path: ['tmdbId'] }
   );
 
 const createReviewBodySchema = z.object({
