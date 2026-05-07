@@ -146,11 +146,6 @@ export const requireTitleName = validateQuery(titleQuerySchema);
 export const validateSearchPagination = validateQuery(searchPaginationQuerySchema);
 export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
 
-export const requireValidIdParam = (paramName = 'id') => {
-  const schema = z.object({ [paramName]: z.coerce.number().int().positive() });
-  return validateParams(schema);
-};
-
 // ---- Utility exports (non-middleware) ----
 
 export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
@@ -160,24 +155,6 @@ export const parseIdOrRespond = (value: unknown, res: Response, message: string)
     return null;
   }
   return result.data;
-};
-
-export const getUserIdOrRespond = (req: Request, res: Response): number | null => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({ message: 'Unauthorized' });
-    return null;
-  }
-  return Number(userId);
-};
-
-export const requireUserId = (req: Request, res: Response, next: NextFunction) => {
-  const userId = getUserIdOrRespond(req, res);
-  if (!userId) {
-    return;
-  }
-  res.locals.userId = userId;
-  next();
 };
 
 export const requireEnvVar = (key: string) => {
