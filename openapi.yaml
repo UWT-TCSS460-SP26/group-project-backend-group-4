@@ -126,7 +126,7 @@ paths:
                               format: date-time
                               example: '2024-11-01T12:34:56.000Z'
         '400':
-          description: movie_id missing in route parameters
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -134,7 +134,18 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: movie_id is required
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: movie_id
+                        message:
+                          type: string
+                          example: Required
         '404':
           description: movie_id doesn't exist
           content:
@@ -359,7 +370,7 @@ paths:
                           type: string
                           example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
         '400':
-          description: Invalid search query or pagination parameters.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -367,16 +378,18 @@ paths:
                 properties:
                   message:
                     type: string
-              examples:
-                missingQuery:
-                  summary: Missing required title parameter
-                  value:
-                    message: title is required and must be a string
-                invalidPagination:
-                  summary: Invalid page or limit values
-                  value:
-                    message: Validation failed
-                    details: page must be an integer between 1 and 1000
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: title
+                        message:
+                          type: string
+                          example: Required
         '404':
           description: Search results not found
           content:
@@ -458,7 +471,7 @@ paths:
                           type: string
                           example: /gHUCCMy1vvj58tzE3dZqeC9SXus.jpg
         '400':
-          description: Invalid search query or pagination parameters.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -466,16 +479,18 @@ paths:
                 properties:
                   message:
                     type: string
-              examples:
-                missingQuery:
-                  summary: Missing required title parameter
-                  value:
-                    message: title is required and must be a string
-                invalidPagination:
-                  summary: Invalid page or limit values
-                  value:
-                    message: Validation failed
-                    details: page must be an integer between 1 and 1000
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: title
+                        message:
+                          type: string
+                          example: Required
         '404':
           description: Search results not found
           content:
@@ -579,7 +594,7 @@ paths:
                               format: date-time
                               example: '2024-10-15T09:00:00.000Z'
         '400':
-          description: series_id missing in route parameters
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -587,7 +602,18 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: series_id is required
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: series_id
+                        message:
+                          type: string
+                          example: Required
         '404':
           description: series_id doesn't exist
           content:
@@ -1005,7 +1031,7 @@ paths:
                         type: string
                         enum: [MOVIE, TV_SHOW]
         '400':
-          description: Invalid review id.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1013,6 +1039,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
         '404':
           description: Review not found.
           content:
@@ -1078,7 +1116,7 @@ paths:
                     type: string
                     format: date-time
         '400':
-          description: Validation error.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1086,6 +1124,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
         '401':
           description: Missing or invalid bearer token.
           content:
@@ -1136,7 +1186,7 @@ paths:
         '204':
           description: Review deleted successfully. No content returned.
         '400':
-          description: Invalid review id.
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -1144,6 +1194,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          example: id
+                        message:
+                          type: string
+                          example: Expected number, received string
         '401':
           description: Missing or invalid bearer token.
           content:

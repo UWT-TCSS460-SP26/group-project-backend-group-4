@@ -574,7 +574,9 @@ describe('Reviews API', () => {
       const response = await request(app).get('/api/reviews/invalid');
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid review id');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details).toBeDefined();
+      expect(response.body.details.some((d: any) => d.path === 'id')).toBe(true);
     });
 
     it('should return 404 for non-existent review', async () => {
