@@ -40,11 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: 'healthy'
+                $ref: '#/components/schemas/HeartbeatResponse'
   /api/movies/{movie_id}:
     get:
       tags: [Movies]
@@ -63,99 +59,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: number
-                    example: 550
-                  title:
-                    type: string
-                    example: Fight Club
-                  overview:
-                    type: string
-                    example: A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground \"fight clubs\" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion.
-                  release_date:
-                    type: string
-                    example: '1999-10-15'
-                  poster_path:
-                    type: string
-                    example: /jSziioSwPVrOy9Yow3XhWIBDjq1.jpg
-                  budget:
-                    type: number
-                    example: 63000000
-                  genres:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: Drama
-                  community:
-                    type: object
-                    properties:
-                      avgRating:
-                        type: number
-                        nullable: true
-                        example: 4.2
-                      totalRatings:
-                        type: integer
-                        example: 128
-                      totalReviews:
-                        type: integer
-                        example: 34
-                      recentReviews:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              example: 7
-                            title:
-                              type: string
-                              example: A modern classic
-                            body:
-                              type: string
-                              example: One of the best films ever made.
-                            author:
-                              type: string
-                              example: alice
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: '2024-11-01T12:34:56.000Z'
+                $ref: '#/components/schemas/MovieDetail'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: movie_id
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: movie_id doesn't exist
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The resource you requested could not be found.
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -202,34 +118,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 1226863
-                    title:
-                      type: string
-                      example: The Super Mario Galaxy Movie
-                    overview:
-                      type: string
-                      example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
-                    release_date:
-                      type: string
-                      example: '2026-04-01'
-                    poster_path:
-                      type: string
-                      example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
-                    backdrop_path:
-                      type: string
-                      example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10751, 35, 12, 14, 16]
-                    original_language:
-                      type: string
-                      example: en
+                  $ref: '#/components/schemas/MovieListItem'
         '500':
           description: Internal server error
           content:
@@ -271,34 +160,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 1226863
-                    title:
-                      type: string
-                      example: The Super Mario Galaxy Movie
-                    overview:
-                      type: string
-                      example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
-                    release_date:
-                      type: string
-                      example: '2026-04-01'
-                    poster_path:
-                      type: string
-                      example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
-                    backdrop_path:
-                      type: string
-                      example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10751, 35, 12, 14, 16]
-                    original_language:
-                      type: string
-                      example: en
+                  $ref: '#/components/schemas/MovieListItem'
         '500':
           description: Internal server error
           content:
@@ -347,59 +209,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  page:
-                    type: integer
-                    example: 1
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: number
-                          example: 49013
-                        title:
-                          type: string
-                          example: Cars 2
-                        release_date:
-                          type: string
-                          example: '2011-06-11'
-                        poster_path:
-                          type: string
-                          example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
+                $ref: '#/components/schemas/SearchResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: title
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Search results not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The resource you requested could not be found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -448,59 +270,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  page:
-                    type: integer
-                    example: 1
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: number
-                          example: 1403
-                        title:
-                          type: string
-                          example: Marvel's Agents of S.H.I.E.L.D.
-                        release_date:
-                          type: string
-                          example: '2013-09-24'
-                        poster_path:
-                          type: string
-                          example: /gHUCCMy1vvj58tzE3dZqeC9SXus.jpg
+                $ref: '#/components/schemas/SearchResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: title
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Search results not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The resource you requested could not be found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -531,99 +313,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: number
-                    example: 1396
-                  name:
-                    type: string
-                    example: Breaking Bad
-                  overview:
-                    type: string
-                    example: Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.
-                  first_air_date:
-                    type: string
-                    example: 2008-01-20
-                  poster_path:
-                    type: string
-                    example: /ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg
-                  status:
-                    type: string
-                    example: Ended
-                  genres:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: Drama
-                  community:
-                    type: object
-                    properties:
-                      avgRating:
-                        type: number
-                        nullable: true
-                        example: 4.7
-                      totalRatings:
-                        type: integer
-                        example: 512
-                      totalReviews:
-                        type: integer
-                        example: 98
-                      recentReviews:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              example: 12
-                            title:
-                              type: string
-                              example: Absolute masterpiece
-                            body:
-                              type: string
-                              example: Best show on television.
-                            author:
-                              type: string
-                              example: bob
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: '2024-10-15T09:00:00.000Z'
+                $ref: '#/components/schemas/TVShowDetail'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: series_id
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: series_id doesn't exist
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The resource you requested could not be found.
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -665,34 +367,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 76479
-                    name:
-                      type: string
-                      example: The Boys
-                    overview:
-                      type: string
-                      example: A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
-                    first_air_date:
-                      type: string
-                      example: '2019-07-25'
-                    poster_path:
-                      type: string
-                      example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
-                    backdrop_path:
-                      type: string
-                      example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10765, 10759]
-                    original_language:
-                      type: string
-                      example: en
+                  $ref: '#/components/schemas/TVShowListItem'
         '500':
           description: Internal server error
           content:
@@ -739,34 +414,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 76479
-                    name:
-                      type: string
-                      example: The Boys
-                    overview:
-                      type: string
-                      example: A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
-                    first_air_date:
-                      type: string
-                      example: '2019-07-25'
-                    poster_path:
-                      type: string
-                      example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
-                    backdrop_path:
-                      type: string
-                      example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10765, 10759]
-                    original_language:
-                      type: string
-                      example: en
+                  $ref: '#/components/schemas/TVShowListItem'
         '500':
           description: Internal server error
           content:
@@ -835,75 +483,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        userId:
-                          type: integer
-                        mediaId:
-                          type: integer
-                        title:
-                          type: string
-                          nullable: true
-                        body:
-                          type: string
-                        createdAt:
-                          type: string
-                          format: date-time
-                        updatedAt:
-                          type: string
-                          format: date-time
-                        user:
-                          type: object
-                          properties:
-                            username:
-                              type: string
-                        media:
-                          type: object
-                          properties:
-                            tmdbId:
-                              type: integer
-                            type:
-                              type: string
-                              enum: [MOVIE, TV_SHOW]
-                  pagination:
-                    type: object
-                    properties:
-                      page:
-                        type: integer
-                      limit:
-                        type: integer
-                      total:
-                        type: integer
-                      totalPages:
-                        type: integer
+                $ref: '#/components/schemas/ReviewListResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: page
-                        message:
-                          type: string
-                          example: Number must be greater than or equal to 1
+                $ref: '#/components/schemas/ValidationError'
         '500':
           description: Internal server error
           content:
@@ -940,64 +526,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  userId:
-                    type: integer
-                  mediaId:
-                    type: integer
-                  title:
-                    type: string
-                    nullable: true
-                  body:
-                    type: string
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
+                $ref: '#/components/schemas/ReviewResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: body
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid bearer token.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: User already reviewed this media.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1022,68 +569,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  userId:
-                    type: integer
-                  mediaId:
-                    type: integer
-                  title:
-                    type: string
-                    nullable: true
-                  body:
-                    type: string
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
-                  user:
-                    type: object
-                    properties:
-                      username:
-                        type: string
-                  media:
-                    type: object
-                    properties:
-                      tmdbId:
-                        type: integer
-                      type:
-                        type: string
-                        enum: [MOVIE, TV_SHOW]
+                $ref: '#/components/schemas/ReviewWithRelations'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Review not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1120,73 +618,31 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  userId:
-                    type: integer
-                  mediaId:
-                    type: integer
-                  title:
-                    type: string
-                    nullable: true
-                  body:
-                    type: string
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
+                $ref: '#/components/schemas/ReviewResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid bearer token.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Not allowed to modify this review.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Review not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1214,49 +670,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid bearer token.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Not allowed to delete this review.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Review not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1310,76 +742,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          example: 1
-                        score:
-                          type: integer
-                          example: 5
-                        userId:
-                          type: integer
-                          example: 42
-                        mediaId:
-                          type: integer
-                          example: 105
-                        user:
-                          type: object
-                          properties:
-                            username:
-                              type: string
-                              example: moviecritic99
-                        media:
-                          type: object
-                          properties:
-                            tmdbId:
-                              type: integer
-                              example: 550
-                            type:
-                              type: string
-                              example: MOVIE
-                  pagination:
-                    type: object
-                    properties:
-                      page:
-                        type: integer
-                        example: 1
-                      limit:
-                        type: integer
-                        example: 20
-                      total:
-                        type: integer
-                        example: 100
-                      totalPages:
-                        type: integer
-                        example: 5
+                $ref: '#/components/schemas/RatingListResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: page
-                        message:
-                          type: string
-                          example: Number must be greater than or equal to 1
+                $ref: '#/components/schemas/ValidationError'
         '500':
           description: Internal server error
           content:
@@ -1418,61 +787,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  score:
-                    type: integer
-                    example: 5
-                  userId:
-                    type: integer
-                    example: 42
-                  mediaId:
-                    type: integer
-                    example: 105
+                $ref: '#/components/schemas/RatingResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: score
-                        message:
-                          type: string
-                          example: Number must be less than or equal to 5
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid Token
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Missing or invalid Token
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Conflict - User has already rated this specific media
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User has already rated this media.
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1496,51 +829,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  score:
-                    type: integer
-                    example: 5
-                  userId:
-                    type: integer
-                    example: 42
-                  mediaId:
-                    type: integer
-                    example: 105
+                $ref: '#/components/schemas/RatingResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Record not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Rating not found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1571,71 +872,31 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  score:
-                    type: integer
-                    example: 4
-                  userId:
-                    type: integer
-                    example: 42
-                  mediaId:
-                    type: integer
-                    example: 105
+                $ref: '#/components/schemas/RatingResponse'
         '400':
           description: Validation failed
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: score
-                        message:
-                          type: string
-                          example: Number must be less than or equal to 5
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid Token
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Missing or invalid Token
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Not authorized to modify this record
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Unauthorized to update this rating
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Record not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Rating not found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1656,52 +917,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '401':
           description: Missing or invalid Token
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Missing or invalid Token
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Not authorized to modify this record
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Unauthorized to delete this rating
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Record not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Rating not found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1719,12 +953,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  issues:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Issue'
+                $ref: '#/components/schemas/IssueListResponse'
         '500':
           description: Internal server error
           content:
@@ -1758,34 +987,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Issue created'
-                  issue:
-                    $ref: '#/components/schemas/Issue'
+                $ref: '#/components/schemas/IssueCreateResponse'
         '400':
           description: Validation failed.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: title
-                        message:
-                          type: string
-                          example: Required
+                $ref: '#/components/schemas/ValidationError'
         '500':
           description: Internal server error
           content:
@@ -1810,41 +1018,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  issue:
-                    $ref: '#/components/schemas/Issue'
+                $ref: '#/components/schemas/IssueSingleResponse'
         '400':
           description: Invalid ID parameter.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                          example: id
-                        message:
-                          type: string
-                          example: Expected number, received string
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Issue not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Issue not found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1876,42 +1062,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Issue updated'
-                  newIssue:
-                    $ref: '#/components/schemas/Issue'
+                $ref: '#/components/schemas/IssueUpdateResponse'
         '400':
           description: Validation failed.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Validation failed
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        path:
-                          type: string
-                        message:
-                          type: string
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Issue not found.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Issue not found
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1933,6 +1096,327 @@ components:
       properties:
         message:
           type: string
+    HeartbeatResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'healthy'
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+              message:
+                type: string
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+    RecentReview:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CommunityBlock:
+      type: object
+      properties:
+        avgRating:
+          type: number
+          nullable: true
+        totalRatings:
+          type: integer
+        totalReviews:
+          type: integer
+        recentReviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentReview'
+    MovieDetail:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 550
+        title:
+          type: string
+          example: Fight Club
+        overview:
+          type: string
+          example: A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground "fight clubs" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion.
+        release_date:
+          type: string
+          example: '1999-10-15'
+        poster_path:
+          type: string
+          example: /jSziioSwPVrOy9Yow3XhWIBDjq1.jpg
+        budget:
+          type: number
+          example: 63000000
+        genres:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Drama
+        community:
+          $ref: '#/components/schemas/CommunityBlock'
+    MovieListItem:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1226863
+        title:
+          type: string
+          example: The Super Mario Galaxy Movie
+        overview:
+          type: string
+          example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
+        release_date:
+          type: string
+          example: '2026-04-01'
+        poster_path:
+          type: string
+          example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
+        backdrop_path:
+          type: string
+          example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
+        genre_ids:
+          type: array
+          items:
+            type: integer
+          example: [10751, 35, 12, 14, 16]
+        original_language:
+          type: string
+          example: en
+    MediaSearchItem:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 49013
+        title:
+          type: string
+          example: Cars 2
+        release_date:
+          type: string
+          example: '2011-06-11'
+        poster_path:
+          type: string
+          example: /okIz1HyxeVOMzYwwHUjH2pHi74I.jpg
+    SearchResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaSearchItem'
+    TVShowDetail:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1396
+        name:
+          type: string
+          example: Breaking Bad
+        overview:
+          type: string
+          example: Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.
+        first_air_date:
+          type: string
+          example: 2008-01-20
+        poster_path:
+          type: string
+          example: /ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg
+        status:
+          type: string
+          example: Ended
+        genres:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Drama
+        community:
+          $ref: '#/components/schemas/CommunityBlock'
+    TVShowListItem:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 76479
+        name:
+          type: string
+          example: The Boys
+        overview:
+          type: string
+          example: A group of vigilantes known informally as "The Boys" set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
+        first_air_date:
+          type: string
+          example: '2019-07-25'
+        poster_path:
+          type: string
+          example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
+        backdrop_path:
+          type: string
+          example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
+        genre_ids:
+          type: array
+          items:
+            type: integer
+          example: [10765, 10759]
+        original_language:
+          type: string
+          example: en
+    ReviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        mediaId:
+          type: integer
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ReviewWithRelations:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        mediaId:
+          type: integer
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        user:
+          type: object
+          properties:
+            username:
+              type: string
+        media:
+          type: object
+          properties:
+            tmdbId:
+              type: integer
+            type:
+              type: string
+              enum: [MOVIE, TV_SHOW]
+    ReviewListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewWithRelations'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    RatingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        score:
+          type: integer
+          example: 5
+        userId:
+          type: integer
+          example: 42
+        mediaId:
+          type: integer
+          example: 105
+    RatingWithRelations:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        score:
+          type: integer
+          example: 5
+        userId:
+          type: integer
+          example: 42
+        mediaId:
+          type: integer
+          example: 105
+        user:
+          type: object
+          properties:
+            username:
+              type: string
+              example: moviecritic99
+        media:
+          type: object
+          properties:
+            tmdbId:
+              type: integer
+              example: 550
+            type:
+              type: string
+              example: MOVIE
+    RatingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatingWithRelations'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
     Issue:
       type: object
       properties:
@@ -1960,3 +1444,31 @@ components:
       type: string
       enum: [OPEN, IN_PROGRESS, RESOLVED, WONT_FIX]
       example: OPEN
+    IssueListResponse:
+      type: object
+      properties:
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+    IssueSingleResponse:
+      type: object
+      properties:
+        issue:
+          $ref: '#/components/schemas/Issue'
+    IssueCreateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Issue created'
+        issue:
+          $ref: '#/components/schemas/Issue'
+    IssueUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Issue updated'
+        newIssue:
+          $ref: '#/components/schemas/Issue'
