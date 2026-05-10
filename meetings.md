@@ -289,3 +289,40 @@ Setup heartbeat endpoint
 
 - Create the db schema for issues (also the subjectId String @unique on User thing)
 - POST /issues accepts and persists bug reports; input validated; response shape documented
+
+## Week 6
+
+### Meeting Date: 5/5/2026
+
+### Meeting Time: 12:30 - 1:20 pm
+
+### Present: All members
+
+## Tasks
+
+### Nathan
+
+- Authenticated self-list routes (your team's chosen shape) return the caller's own reviews; no client-supplied user id is trusted
+- Combined route — community-ranked list (top-rated and/or most-reviewed) — live, public, with a SQL-side aggregate
+- Tests
+
+### Joshua
+
+- Admin-gated GET /issues (list) and GET /issues/:id (detail) live; pagination/filtering/sort behavior documented
+- Admin-gated PATCH /issues/:id walks reports through your status workflow; partial-vs-full body semantics documented
+- Admin-gated DELETE /issues/:id removes a report; response shape documented
+- Tests
+
+### Oisin
+
+- Combined route — user's rated items joined with TMDB metadata — live and authenticated against the sub claim
+- Authenticated self-list routes (your team's chosen shape) return the caller's own ratings; no client-supplied user id is trusted
+- Tests
+
+### Phelan
+
+- Tests
+- Security scheme in the spec names Auth² as the issuer and your audience name explicitly
+- Partner-facing README answers all six questions from the handoff story
+- OpenAPI spec at /api-docs covers every route in the API: schemas, realistic example payloads, documented error shapes for 400/401/403/404/500
+- CORS allowlist accepts your downstream partner's consumer-app origin (or their dev origin, with a documented env-var update path for production)
