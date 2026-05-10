@@ -12,7 +12,9 @@ import {
   validateGetReviewsQuery,
   validateCreateRatingBody,
   validateUpdateRatingBody,
+  requireEnvVar,
 } from '../middleware/validation';
+import { getUserRatings } from '../controllers/me';
 
 const router = Router();
 
@@ -27,5 +29,6 @@ router.put(
   updateRating
 );
 router.delete('/api/ratings/:id', requireAuth, validateIdParam, deleteRating);
+router.get('/api/ratings/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserRatings);
 
 export { router as ratingsRouter };

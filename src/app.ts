@@ -6,7 +6,6 @@ import { apiReference } from '@scalar/express-api-reference';
 import { statusRouter } from './routes/status';
 import { searchRouter } from './routes/search';
 import { reviewRouter } from './routes/reviews';
-import { meRouter } from './routes/me';
 import { logger } from './middleware/logger';
 import { loggerUtil as log } from './utils/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
@@ -59,7 +58,6 @@ app.use(searchRouter);
 app.use(ratingsRouter);
 app.use(reviewRouter);
 app.use(issueRouter);
-app.use(meRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {

@@ -6,16 +6,10 @@ const BASE_URL = 'https://api.themoviedb.org/3';
 
 //~~~~~~~~~~~~~~~~ DA TYPES ~~~~~~~~~~~~~~
 
-type Author = {
-  id: number;
-  username: string;
-};
-
 type RatingEntry = {
   id: number;
   score: number;
   createdAt: Date;
-  author: Author;
   media: {
     tmdbId: number;
     type: string;
@@ -28,7 +22,6 @@ type ReviewEntry = {
   title: string | null;
   body: string;
   createdAt: Date;
-  author: Author;
   media: {
     tmdbId: number;
     type: string;
@@ -41,7 +34,7 @@ type ReviewEntry = {
 // Helper - Gets titles from TMDB
 async function fetchTmdbTitle(
   tmdbId: number,
-  type: string,
+  type: 'MOVIE' | 'TV_SHOW',
   apiKey: string
 ): Promise<string | null> {
   try {
@@ -66,10 +59,11 @@ async function fetchTmdbTitle(
 
 // Helper - Builds a deduped title map for a list of media entries
 async function buildTitleMap(
-  entries: { media: { tmdbId: number; type: string } }[],
+  entries: { media: { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' } }[],
   apiKey: string
 ): Promise<Map<string, string | null>> {
-  const uniqueMedia = new Map<string, { tmdbId: number; type: string }>();
+  
+  const uniqueMedia = new Map<string, { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' }>();
   for (const entry of entries) {
     const key = `${entry.media.tmdbId}:${entry.media.type}`;
     if (!uniqueMedia.has(key)) {
@@ -78,15 +72,25 @@ async function buildTitleMap(
   }
 
   const titleMap = new Map<string, string | null>();
-  await Promise.all(
+  const results = await Promise.allSettled(
     Array.from(uniqueMedia.entries()).map(async ([key, { tmdbId, type }]) => {
       const title = await fetchTmdbTitle(tmdbId, type, apiKey);
-      titleMap.set(key, title);
+      return { key, title: title ?? 'Unknown Title' }; // null-safe: falls back if TMDB returns nothing
     })
   );
-
+  
+  // Whether or not the everything in the Promise.allSettled is settled
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      titleMap.set(result.value.key, result.value.title);
+    } else {
+      logger.error('Failed to resolve a TMDB title:', result.reason);
+    }
+  }
+ 
   return titleMap;
 }
+
 
 // Helper - Maps raw rating rows to RatingEntry shape
 function mapRatings(
@@ -95,13 +99,12 @@ function mapRatings(
     score: number;
     createdAt: Date;
     user: { userId: number; username: string | null };
-    media: { tmdbId: number; type: string };
+    media: { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' };
   }[],
   titleMap: Map<string, string | null>
 ): RatingEntry[] {
   return ratings.map((r) => ({
     ...r,
-    author: { id: r.user.userId, username: r.user.username ?? 'Username Not Found' },
     media: {
       ...r.media,
       title: titleMap.get(`${r.media.tmdbId}:${r.media.type}`) ?? null,
@@ -117,13 +120,12 @@ function mapReviews(
     body: string;
     createdAt: Date;
     user: { userId: number; username: string | null };
-    media: { tmdbId: number; type: string };
+    media: { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' };
   }[],
   titleMap: Map<string, string | null>
 ): ReviewEntry[] {
   return reviews.map((r) => ({
     ...r,
-    author: { id: r.user.userId, username: r.user.username ?? 'Username Not Found' },
     media: {
       ...r.media,
       title: titleMap.get(`${r.media.tmdbId}:${r.media.type}`) ?? null,
@@ -140,31 +142,29 @@ function parsePagination(req: Request): { page: number; limit: number; skip: num
 
 // ~~~~~~~~~~~~~~~~~ DA CONTROLLERS ~~~~~~~~~~~~~~
 
-export const userReviews = async (req: Request, res: Response) => {
+export const getUserReviews = async (req: Request, res: Response) => {
   const { limit, skip } = parsePagination(req);
   const apiKey = process.env.TMDB_API_KEY!;
   const subjectId = req.user?.sub;
 
   try {
     const user = await prisma.user.findUnique({ where: { subjectId } });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(401).json({ message: 'User not found, Unauthenticated error' });
 
-    const [reviews] = await prisma.$transaction([
-      prisma.review.findMany({
-        where: { userId: user.userId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          body: true,
-          createdAt: true,
-          user: { select: { userId: true, username: true } },
-          media: { select: { tmdbId: true, type: true } },
-        },
-      }),
-    ]);
+    const reviews = await prisma.review.findMany({
+      where: { userId: user.userId },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        createdAt: true,
+        user: { select: { userId: true, username: true } },
+        media: { select: { tmdbId: true, type: true } },
+      },
+    });
 
     const titleMap = await buildTitleMap(reviews, apiKey);
     return res.json({ reviews: mapReviews(reviews, titleMap) });
@@ -174,7 +174,7 @@ export const userReviews = async (req: Request, res: Response) => {
   }
 };
 
-export const userRatings = async (req: Request, res: Response) => {
+export const getUserRatings = async (req: Request, res: Response) => {
   const { limit, skip } = parsePagination(req);
   const apiKey = process.env.TMDB_API_KEY!;
   const subjectId = req.user?.sub;
@@ -183,21 +183,19 @@ export const userRatings = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({ where: { subjectId } });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const [ratings] = await prisma.$transaction([
-      prisma.rating.findMany({
-        where: { userId: user.userId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          score: true,
-          createdAt: true,
-          user: { select: { userId: true, username: true } },
-          media: { select: { tmdbId: true, type: true } },
+    const ratings = await prisma.rating.findMany({
+      where: { userId: user.userId },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        score: true,
+        createdAt: true,
+        user: { select: { userId: true, username: true } },
+        media: { select: { tmdbId: true, type: true } },
         },
-      }),
-    ]);
+    });
 
     const titleMap = await buildTitleMap(ratings, apiKey);
     return res.json({ ratings: mapRatings(ratings, titleMap) });
@@ -207,7 +205,7 @@ export const userRatings = async (req: Request, res: Response) => {
   }
 };
 
-export const userRatingsReviews = async (req: Request, res: Response) => {
+export const getUserRatingsReviews = async (req: Request, res: Response) => {
   const { limit, skip } = parsePagination(req);
   const apiKey = process.env.TMDB_API_KEY!;
   const subjectId = req.user?.sub;
