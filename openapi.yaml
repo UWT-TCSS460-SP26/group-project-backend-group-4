@@ -829,7 +829,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RatingResponse'
+                $ref: '#/components/schemas/RatingWithRelations'
         '400':
           description: Validation failed
           content:
@@ -1382,10 +1382,10 @@ components:
           type: string
           format: date-time
           example: '2024-11-01T12:34:56.000Z'
-        author:
+        user:
           type: object
           properties:
-            id:
+            userId:
               type: integer
               example: 42
             username:
@@ -1423,10 +1423,10 @@ components:
           type: string
           format: date-time
           example: '2024-11-01T12:34:56.000Z'
-        author:
+        user:
           type: object
           properties:
-            id:
+            userId:
               type: integer
               example: 42
             username:
@@ -1734,6 +1734,12 @@ components:
         mediaId:
           type: integer
           example: 105
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     RatingWithRelations:
       type: object
       properties:
@@ -1749,6 +1755,12 @@ components:
         mediaId:
           type: integer
           example: 105
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
         user:
           type: object
           properties:

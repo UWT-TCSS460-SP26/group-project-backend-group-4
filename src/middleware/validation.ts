@@ -67,7 +67,7 @@ const getReviewsQuerySchema = z
   );
 
 const createReviewBodySchema = z.object({
-  tmdbId: z.number().int(),
+  tmdbId: z.number().int().positive(),
   type: z.enum(MediaType),
   body: z.string().trim().min(1),
   title: z.string().optional(),
