@@ -149,6 +149,37 @@ describe('GET /api/movies/featured', () => {
     expect(response.body).toEqual([]);
   });
 
+  it('should handle TMDB non-OK HTTP responses by omitting the media', async () => {
+    (prisma.media.findMany as jest.Mock)
+      .mockResolvedValueOnce([{ id: 1 }])
+      .mockResolvedValueOnce([{ id: 1, tmdbId: 101 }]);
+
+    (prisma.rating.groupBy as jest.Mock).mockResolvedValue([
+      { mediaId: 1, _avg: { score: 4.5 }, _count: { score: 20 } },
+    ]);
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+    });
+
+    const response = await request(app).get('/api/movies/featured');
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  it('should handle missing media in database mapping gracefully', async () => {
+    (prisma.media.findMany as jest.Mock)
+      .mockResolvedValueOnce([{ id: 1 }])
+      .mockResolvedValueOnce([]); // Mock empty array for the secondary lookup
+
+    (prisma.review.groupBy as jest.Mock).mockResolvedValue([{ mediaId: 1, _count: { id: 10 } }]);
+
+    const response = await request(app).get('/api/movies/featured?sort=most-reviewed');
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
   it('should return 500 on database error', async () => {
     (prisma.media.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB Error'));
 

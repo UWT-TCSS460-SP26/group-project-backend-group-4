@@ -209,7 +209,7 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
     );
 
     const finalResults = enrichedTVShows.filter(Boolean);
-    response.status(200).json(finalResults);
+    return response.status(200).json(finalResults);
   } catch (error) {
     logger.error('Error retrieving featured TV shows:', error);
     response.status(500).json({ message: 'Internal server error' });

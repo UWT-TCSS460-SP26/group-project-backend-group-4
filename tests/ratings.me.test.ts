@@ -21,6 +21,7 @@ let app: Express;
 
 beforeAll(async () => {
   process.env.NODE_ENV = 'test';
+  process.env.TMDB_API_KEY = 'test-tmdb-api-key';
   const importedApp = await import('../src/app');
   app = importedApp.app;
 });
