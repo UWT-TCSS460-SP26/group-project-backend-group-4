@@ -808,6 +808,7 @@ paths:
             type: integer
             default: 20
             minimum: 1
+            maximum: 50
           description: Number of reviews per page.
         - name: userId
           in: query
@@ -1027,6 +1028,7 @@ paths:
             type: integer
             default: 1
             minimum: 1
+            maximum: 1000
           description: Page number.
         - name: limit
           in: query
@@ -1035,6 +1037,7 @@ paths:
             type: integer
             default: 20
             minimum: 1
+            maximum: 50
           description: Number of reviews per page.
       responses:
         '200':
@@ -1398,12 +1401,15 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
         - name: limit
           in: query
           required: false
           schema:
             type: integer
             default: 20
+            minimum: 1
+            maximum: 50
         - name: userId
           in: query
           required: false
@@ -1616,12 +1622,16 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
+            maximum: 1000
         - name: limit
           in: query
           required: false
           schema:
             type: integer
             default: 20
+            minimum: 1
+            maximum: 50
       responses:
         '200':
           description: Successfully retrieved personal ratings.
