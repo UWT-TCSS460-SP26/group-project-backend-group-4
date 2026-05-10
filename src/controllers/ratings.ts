@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
-import { Prisma, MediaType } from '../generated/prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { resolveLocalUser } from '../auth/resolveLocalUser';
 import { loggerUtil as logger } from '../utils/logger';
 
@@ -8,20 +8,9 @@ import { loggerUtil as logger } from '../utils/logger';
 export const createRating = async (req: Request, res: Response) => {
   const { tmdbId, type, score } = req.body;
 
-  if (!Number.isInteger(tmdbId)) {
-    return res.status(400).json({ message: 'Invalid tmdbId' });
-  } else if (type !== 'MOVIE' && type !== 'TV_SHOW') {
-    return res.status(400).json({ message: 'Invalid media type' });
-  } else if (!Number.isInteger(score) || score < 1 || score > 5) {
-    return res
-      .status(400)
-      .json({ message: 'Invalid rating score. Please provide a score between 1 and 5.' });
-  }
-
   try {
     const author = await resolveLocalUser(req);
 
-    // 1. Media Resolution: Find or create the media record
     let media = await prisma.media.findUnique({
       where: { tmdbId_type: { tmdbId, type } },
     });
@@ -37,7 +26,6 @@ export const createRating = async (req: Request, res: Response) => {
       });
     }
 
-    // 2. Constraint Check: If the user has already rated, 409 conflict
     const existingRating = await prisma.rating.findUnique({
       where: {
         userId_mediaId: {
@@ -51,7 +39,6 @@ export const createRating = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'User has already rated this media.' });
     }
 
-    // 3. Creation (Wrapped in Transaction)
     const newRating = await prisma.$transaction(async (tx) => {
       const rating = await tx.rating.create({
         data: {
@@ -61,7 +48,6 @@ export const createRating = async (req: Request, res: Response) => {
         },
       });
 
-      // 4. Aggregate Score Updates
       const aggregations = await tx.rating.aggregate({
         where: { mediaId: media.id },
         _avg: { score: true },
@@ -89,35 +75,19 @@ export const createRating = async (req: Request, res: Response) => {
 // Get all ratings
 export const getRatings = async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.max(1, parseInt(req.query.limit as string) || 20);
+    const { page, limit, userId, mediaId, tmdbId, type } = res.locals;
     const skip = (page - 1) * limit;
-
-    const { userId, mediaId, tmdbId, type } = req.query;
-
-    if ((tmdbId && !type) || (!tmdbId && type)) {
-      return res.status(400).json({ message: 'Both tmdbId and type are required together' });
-    }
 
     const where: Prisma.RatingWhereInput = {};
 
-    if (userId) {
-      where.userId = Number(userId);
+    if (userId !== undefined) {
+      where.userId = userId;
     }
 
-    if (mediaId) {
-      where.mediaId = Number(mediaId);
-    } else if (tmdbId && type) {
-      if (type !== 'MOVIE' && type !== 'TV_SHOW') {
-        return res.status(400).json({ message: 'Invalid media type' });
-      }
-      // Filter by the related Media's properties
-      where.media = {
-        tmdbId: Number(tmdbId),
-        type: type as MediaType,
-      };
-    } else if (tmdbId || type) {
-      return res.status(400).json({ message: 'Both tmdbId and type are required together.' });
+    if (mediaId !== undefined) {
+      where.mediaId = mediaId;
+    } else if (tmdbId !== undefined && type !== undefined) {
+      where.media = { tmdbId, type };
     }
 
     const [ratings, total] = await Promise.all([
@@ -154,15 +124,11 @@ export const getRatings = async (req: Request, res: Response) => {
 
 // Get by id
 export const getRatingById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  if (!Number.isInteger(Number(id))) {
-    return res.status(400).json({ message: 'Invalid rating ID' });
-  }
+  const id = res.locals.id;
 
   try {
     const rating = await prisma.rating.findUnique({
-      where: { id: Number(id) },
+      where: { id },
       include: {
         user: {
           select: { username: true },
@@ -181,26 +147,16 @@ export const getRatingById = async (req: Request, res: Response) => {
 
 // Update
 export const updateRating = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = res.locals.id;
   const { score } = req.body;
-
-  if (!Number.isInteger(Number(id))) {
-    return res.status(400).json({ message: 'Invalid rating ID' });
-  } else if (!Number.isInteger(score) || score < 1 || score > 5) {
-    return res
-      .status(400)
-      .json({ message: 'Invalid rating score. Please provide a score between 1 and 5.' });
-  }
 
   try {
     const user = await resolveLocalUser(req);
 
-    // Find the rating first so we know which mediaId to update!
     const existingRating = await prisma.rating.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
-    // Verify that the rating exists and that the user is authorized to update it
     if (!existingRating) {
       return res.status(404).json({ message: 'Rating not found' });
     }
@@ -212,10 +168,9 @@ export const updateRating = async (req: Request, res: Response) => {
       return;
     }
 
-    // Update the rating and aggregate the media score (Wrapped in Transaction)
     const updatedRating = await prisma.$transaction(async (tx) => {
       const rating = await tx.rating.update({
-        where: { id: Number(id) },
+        where: { id },
         data: { score },
       });
 
@@ -245,18 +200,13 @@ export const updateRating = async (req: Request, res: Response) => {
 
 // Delete
 export const deleteRating = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  if (!Number.isInteger(Number(id))) {
-    return res.status(400).json({ message: 'Invalid rating ID' });
-  }
+  const id = res.locals.id;
 
   try {
     const user = await resolveLocalUser(req);
 
-    // Find the rating first so we know which mediaId to update!
     const ratingToDelete = await prisma.rating.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!ratingToDelete) {
@@ -270,10 +220,9 @@ export const deleteRating = async (req: Request, res: Response) => {
       return;
     }
 
-    // Delete the rating and aggregate the media score (Wrapped in Transaction)
     await prisma.$transaction(async (tx) => {
       await tx.rating.delete({
-        where: { id: Number(id) },
+        where: { id },
       });
 
       const aggregations = await tx.rating.aggregate({
@@ -295,5 +244,55 @@ export const deleteRating = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error deleting rating:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Get All Personal Ratings
+export const getPersonalRatings = async (req: Request, res: Response) => {
+  try {
+    let localuser;
+    try {
+      localuser = await resolveLocalUser(req);
+    } catch (_err) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    if (!localuser) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const page = res.locals.page ? Number(res.locals.page) : 1;
+    const limit = res.locals.limit ? Number(res.locals.limit) : 20;
+    const skip = (page - 1) * limit;
+
+    const [ratings, total] = await Promise.all([
+      prisma.rating.findMany({
+        where: { userId: localuser.userId },
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: { username: true },
+          },
+          media: {
+            select: { tmdbId: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.rating.count({ where: { userId: localuser.userId } }),
+    ]);
+
+    return res.status(200).json({
+      data: ratings,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 0,
+      },
+    });
+  } catch (error) {
+    logger.error('Error fetching personal ratings:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };

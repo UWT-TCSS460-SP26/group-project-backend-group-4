@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import z, { ZodType } from 'zod';
-import { IssueStatus } from '../generated/prisma/enums';
+import { IssueStatus, MediaType } from '../generated/prisma/enums';
 import { loggerUtil as logger } from '../utils/logger';
+
+// ---- Zod Schemas ----
 
 const postIssueBodySchema = z.object({
   title: z.string().trim().min(1),
@@ -9,7 +11,7 @@ const postIssueBodySchema = z.object({
   contact: z.string().trim().min(1),
 });
 
-const putIssueUpdateSchema = z.object({
+const patchIssueSchema = z.object({
   title: z.string().trim().min(1).optional(),
   body: z.string().trim().min(1).optional(),
   contact: z.string().trim().min(1).optional(),
@@ -20,38 +22,97 @@ const idParamSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
-export const validatePostIssueBody = validateBody(postIssueBodySchema);
-export const validatePutIssueBody = validateBody(putIssueUpdateSchema);
+const movieIdParamSchema = z.object({
+  movie_id: z.coerce.number().int().positive(),
+});
 
-// Will store the validated id in `res.locals.id`, expects the query param to be named 'id'
-export function validateIdParam(req: Request, res: Response, next: NextFunction) {
-  const result = idParamSchema.safeParse(req.params);
-  if (!result.success) {
-    res.status(400).json({
-      message: 'Validation failed',
-      details: result.error.issues.map((i) => ({
-        path: i.path.join('.'),
-        message: i.message,
-      })),
-    });
-    return;
-  }
+const seriesIdParamSchema = z.object({
+  series_id: z.coerce.number().int().positive(),
+});
 
-  res.locals.id = result.data.id;
-  next();
+const titleQuerySchema = z.object({
+  title: z.string().min(1),
+});
+
+const searchPaginationQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(1000).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(50).optional().default(20),
+});
+
+const featuredSortQuerySchema = z.object({
+  sort: z.enum(['most-reviewed', 'top-rated']).optional().default('top-rated'),
+});
+const getIssuesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(1000).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+  status: z
+    .union([z.enum(IssueStatus), z.array(z.enum(IssueStatus))])
+    .transform((v) => (Array.isArray(v) ? v : [v]))
+    .optional(),
+  sortBy: z.enum(['createdAt', 'status', 'title']).optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+});
+
+const getReviewsQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).optional().default(1),
+    limit: z.coerce.number().int().min(1).max(50).optional().default(20),
+    userId: z.coerce.number().int().positive().optional(),
+    mediaId: z.coerce.number().int().positive().optional(),
+    tmdbId: z.coerce.number().int().positive().optional(),
+    type: z.enum(MediaType).optional(),
+  })
+  .refine(
+    (data) =>
+      (data.tmdbId === undefined && data.type === undefined) ||
+      (data.tmdbId !== undefined && data.type !== undefined),
+    { message: 'Both tmdbId and type are required together', path: ['tmdbId'] }
+  );
+
+const createReviewBodySchema = z.object({
+  tmdbId: z.number().int().positive(),
+  type: z.enum(MediaType),
+  body: z.string().trim().min(1),
+  title: z.string().optional(),
+});
+
+const updateReviewBodySchema = z
+  .object({
+    title: z.string().optional(),
+    body: z.string().trim().min(1).optional(),
+  })
+  .refine((data) => data.title !== undefined || data.body !== undefined, {
+    message: 'No fields provided to update',
+    path: ['body'],
+  });
+
+const createRatingBodySchema = z.object({
+  tmdbId: z.number().int(),
+  type: z.enum(MediaType),
+  score: z.number().int().min(1).max(5),
+});
+
+const updateRatingBodySchema = z.object({
+  score: z.number().int().min(1).max(5),
+});
+
+// ---- Generic validation helpers ----
+
+function formatZodError(error: z.ZodError) {
+  return {
+    message: 'Validation failed',
+    details: error.issues.map((i) => ({
+      path: i.path.join('.'),
+      message: i.message,
+    })),
+  };
 }
 
 function validateBody(schema: ZodType): RequestHandler {
   return (req, res, next) => {
     const result = schema.safeParse(req['body']);
     if (!result.success) {
-      res.status(400).json({
-        message: 'Validation failed',
-        details: result.error.issues.map((i) => ({
-          path: i.path.join('.'),
-          message: i.message,
-        })),
-      });
+      res.status(400).json(formatZodError(result.error));
       return;
     }
     req['body'] = result.data;
@@ -59,56 +120,50 @@ function validateBody(schema: ZodType): RequestHandler {
   };
 }
 
-const parsePositiveInt = (value: unknown): number | null => {
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-};
-
-export const getUserIdOrRespond = (req: Request, res: Response): number | null => {
-  const userId = req.user?.sub;
-  if (!userId) {
-    res.status(401).json({ message: 'Unauthorized' });
-    return null;
-  }
-  return Number(userId);
-};
-
-export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
-  const parsed = parsePositiveInt(value);
-  if (!parsed) {
-    res.status(400).json({ message });
-    return null;
-  }
-  return parsed;
-};
-
-export const requireUserId = (req: Request, res: Response, next: NextFunction) => {
-  const userId = getUserIdOrRespond(req, res);
-  if (!userId) {
-    return;
-  }
-  res.locals.userId = userId;
-  next();
-};
-
-export const requireValidIdParam = (paramName = 'id', message = 'Invalid review id') => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const id = parseIdOrRespond(req.params[paramName], res, message);
-    if (!id) {
+function validateParams(schema: ZodType): RequestHandler {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.params);
+    if (!result.success) {
+      res.status(400).json(formatZodError(result.error));
       return;
     }
-    res.locals[paramName] = id;
+    Object.assign(res.locals, result.data);
     next();
   };
-};
+}
 
-/**
- * Validates that a required environment variable is set.
- * Returns a middleware function that checks for the given key in process.env.
- */
+function validateQuery(schema: ZodType): RequestHandler {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.query);
+    if (!result.success) {
+      res.status(400).json(formatZodError(result.error));
+      return;
+    }
+    Object.assign(res.locals, result.data);
+    next();
+  };
+}
+
+// ---- Exported middleware ----
+
+export const validatePostIssueBody = validateBody(postIssueBodySchema);
+export const validatePatchIssueBody = validateBody(patchIssueSchema);
+export const validateCreateReviewBody = validateBody(createReviewBodySchema);
+export const validateUpdateReviewBody = validateBody(updateReviewBodySchema);
+export const validateCreateRatingBody = validateBody(createRatingBodySchema);
+export const validateUpdateRatingBody = validateBody(updateRatingBodySchema);
+
+export const validateIdParam = validateParams(idParamSchema);
+export const requireMovieId = validateParams(movieIdParamSchema);
+export const requireSeriesId = validateParams(seriesIdParamSchema);
+export const requireTitleName = validateQuery(titleQuerySchema);
+export const validateSearchPagination = validateQuery(searchPaginationQuerySchema);
+export const validateFeaturedSortQuery = validateQuery(featuredSortQuerySchema);
+export const validateGetIssuesQuery = validateQuery(getIssuesQuerySchema);
+export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
+
+// ---- Utility exports (non-middleware) ----
+
 export const requireEnvVar = (key: string) => {
   return (_request: Request, response: Response, next: NextFunction) => {
     if (!process.env[key]) {
@@ -118,81 +173,4 @@ export const requireEnvVar = (key: string) => {
     }
     next();
   };
-};
-
-/**
- * Validates that 'movie_id' is present as either a query param or route param.
- */
-export const requireMovieId = (request: Request, response: Response, next: NextFunction) => {
-  const movie_id = request.params.movie_id;
-  if (!movie_id) {
-    response.status(400).json({ message: 'movie_id is required' });
-    return;
-  }
-  next();
-};
-
-/**
- * Validates that 'series_id' is present as either a query param or route param.
- */
-export const requireSeriesId = (request: Request, response: Response, next: NextFunction) => {
-  const series_id = request.params.series_id;
-  if (!series_id) {
-    response.status(400).json({ message: 'series_id is required' });
-    return;
-  }
-  next();
-};
-
-/**
- *  Validates that 'title' is present as a query param and is a string.
- */
-export const requireTitleName = (request: Request, response: Response, next: NextFunction) => {
-  const title = request.query.title;
-  if (!title || typeof title !== 'string') {
-    response.status(400).json({ message: 'title is required and must be a string' });
-    return;
-  }
-  next();
-};
-
-/**
- * Validates that 'page' and 'limit' query parameters, if present, are integers within acceptable ranges.
- * 'page' must be an integer between 1 and 1000.
- * 'limit' must be an integer between 1 and 50.
- * If validation fails, responds with a 400 status and error details.
- * If validation succeeds, stores the parsed values in response.locals for downstream handlers.
- */
-export const validateSearchPagination = (
-  request: Request,
-  response: Response,
-  next: NextFunction
-) => {
-  const errors: string[] = [];
-  const pageRaw = request.query.page;
-  const limitRaw = request.query.limit;
-
-  if (pageRaw !== undefined) {
-    const page = Number(pageRaw);
-    if (!Number.isFinite(page) || page <= 0 || !Number.isInteger(page) || page > 1000) {
-      errors.push('page must be an integer between 1 and 1000');
-    }
-  }
-
-  if (limitRaw !== undefined) {
-    const limit = Number(limitRaw);
-    if (!Number.isFinite(limit) || limit <= 0 || !Number.isInteger(limit) || limit > 50) {
-      errors.push('limit must be an integer between 1 and 50');
-    }
-    response.locals.limit = limit;
-  } else {
-    response.locals.limit = 20; // Default limit
-  }
-
-  if (errors.length > 0) {
-    response.status(400).json({ message: 'Validation failed', details: errors });
-    return;
-  }
-
-  next();
 };

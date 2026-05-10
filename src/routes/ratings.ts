@@ -5,15 +5,34 @@ import {
   getRatingById,
   getRatings,
   deleteRating,
+  getPersonalRatings,
 } from '../controllers/ratings';
 import { requireAuth } from '../middleware/requireAuth';
+import {
+  validateIdParam,
+  validateGetReviewsQuery,
+  validateCreateRatingBody,
+  validateUpdateRatingBody,
+  validateSearchPagination,
+  requireEnvVar,
+} from '../middleware/validation';
+import { getUserRatings } from '../controllers/me';
 
 const router = Router();
 
-router.get('/api/ratings', getRatings);
-router.get('/api/ratings/:id', getRatingById);
-router.post('/api/ratings', requireAuth, createRating);
-router.put('/api/ratings/:id', requireAuth, updateRating);
-router.delete('/api/ratings/:id', requireAuth, deleteRating);
+router.get('/api/ratings', validateGetReviewsQuery, getRatings);
+router.get('/api/ratings/me', requireAuth, validateSearchPagination, getPersonalRatings);
+router.get('/api/ratings/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserRatings);
+router.get('/api/ratings/:id', validateIdParam, getRatingById);
+
+router.post('/api/ratings', requireAuth, validateCreateRatingBody, createRating);
+router.put(
+  '/api/ratings/:id',
+  requireAuth,
+  validateIdParam,
+  validateUpdateRatingBody,
+  updateRating
+);
+router.delete('/api/ratings/:id', requireAuth, validateIdParam, deleteRating);
 
 export { router as ratingsRouter };

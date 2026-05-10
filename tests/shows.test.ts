@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import request from 'supertest';
 import { app } from '../src/app';
 import { prisma } from '../src/lib/prisma';
@@ -191,19 +192,12 @@ describe('Get show by id when no tmdb response', () => {
 });
 
 describe('Get movie by tv id', () => {
-  it('Handles an invalid tv id', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: async () => ({
-        success: false,
-        status_code: 6,
-        status_message: 'Invalid id: The pre-requisite id is invalid or not found.',
-      }),
-    });
+  it('Handles a non-numeric tv id', async () => {
     const res = await request(app).get('/api/tv/_');
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Validation failed');
+    expect(res.body.details.some((d: any) => d.path === 'series_id')).toBe(true);
   });
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import request from 'supertest';
 import { app } from '../src/app';
 
@@ -627,7 +628,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/movies/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toBe('title is required and must be a string');
+      expect(res.body.message).toBe('Validation failed');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
@@ -637,8 +638,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for a page parameter less than 1', async () => {
@@ -646,8 +647,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for a page parameter greater than 1000', async () => {
@@ -655,8 +656,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for invalid limit parameter(not a number)', async () => {
@@ -666,8 +667,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for a limit parameter less than 1', async () => {
@@ -675,8 +676,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for a limit parameter greater than 50', async () => {
@@ -684,8 +685,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for invalid page and limit parameters', async () => {
@@ -695,8 +696,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
     it('should return 400 for invalid page, but valid limit parameter', async () => {
@@ -706,8 +707,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for valid page, but invalid limit parameter', async () => {
@@ -717,8 +718,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
     it('should return 404 when TMDB returns not found', async () => {
@@ -1777,7 +1778,7 @@ describe('Search Router', () => {
       const res = await request(app).get('/api/tv/search');
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toBe('title is required and must be a string');
+      expect(res.body.message).toBe('Validation failed');
     });
 
     it('should return 400 for invalid page parameter(not a number)', async () => {
@@ -1787,8 +1788,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for invalid limit parameter(not a number)', async () => {
@@ -1798,8 +1799,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for a page parameter less than 1', async () => {
@@ -1807,8 +1808,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for a page parameter greater than 1000', async () => {
@@ -1816,8 +1817,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for a limit parameter less than 1', async () => {
@@ -1825,8 +1826,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for a limit parameter greater than 50', async () => {
@@ -1834,8 +1835,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
     });
 
     it('should return 400 for invalid page and limit parameters', async () => {
@@ -1845,8 +1846,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
     it('should return 400 for invalid page, but valid limit parameter', async () => {
@@ -1856,8 +1857,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).not.toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(true);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(false);
     });
 
     it('should return 400 for valid page, but invalid limit parameter', async () => {
@@ -1867,8 +1868,8 @@ describe('Search Router', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.message).toContain('Validation failed');
-      expect(res.body.details).not.toContain('page must be an integer between 1 and 1000');
-      expect(res.body.details).toContain('limit must be an integer between 1 and 50');
+      expect(res.body.details.some((d: any) => d.path === 'page')).toBe(false);
+      expect(res.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
     it('should return 404 when TMDB returns not found', async () => {

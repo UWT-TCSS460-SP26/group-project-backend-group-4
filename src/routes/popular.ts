@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireEnvVar } from '../middleware/validation';
 import { getPopularMovies, getPopularTVShows } from '../controllers/popular';
 import { getFeaturedMovies, getFeaturedTVShows } from '../controllers/featured';
+import { validateFeaturedSortQuery } from '../middleware/validation';
 
 const router = Router();
 
@@ -14,11 +15,9 @@ router.get('/api/movies/popular', getPopularMovies);
 router.get('/api/tv/popular', getPopularTVShows);
 
 // Featured content routes
-// Note: The "featured" endpoints are currently implemented using the TMDB "trending" endpoints,
-// which return content that is popular over a specified time frame (day or week).
-// This is a temporary solution until we implement the user-based recommendation system.
-router.get('/api/movies/featured', getFeaturedMovies);
-router.get('/api/tv/featured', getFeaturedTVShows);
+// The "featured" endpoints use local community data for ratings and reviews.
+router.get('/api/movies/featured', validateFeaturedSortQuery, getFeaturedMovies);
+router.get('/api/tv/featured', validateFeaturedSortQuery, getFeaturedTVShows);
 
 export { router as popularRouter };
 export { router as featuredRouter };
