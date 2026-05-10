@@ -455,9 +455,7 @@ describe('GET /api/me', () => {
     });
 
     it('should return 401 with a malformed token', async () => {
-      const res = await request(app)
-        .get('/api/me')
-        .set('Authorization', 'Bearer not-a-real-token');
+      const res = await request(app).get('/api/me').set('Authorization', 'Bearer not-a-real-token');
 
       expect(res.status).toBe(401);
     });
@@ -542,7 +540,10 @@ describe('GET /api/me', () => {
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: true, json: async () => tmdbMovieResponse(550, 'Fight Club') })
-        .mockResolvedValueOnce({ ok: true, json: async () => tmdbTvResponse(1396, 'Breaking Bad') });
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => tmdbTvResponse(1396, 'Breaking Bad'),
+        });
 
       const res = await request(app)
         .get('/api/me')
