@@ -62,7 +62,6 @@ async function buildTitleMap(
   entries: { media: { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' } }[],
   apiKey: string
 ): Promise<Map<string, string | null>> {
-  
   const uniqueMedia = new Map<string, { tmdbId: number; type: 'MOVIE' | 'TV_SHOW' }>();
   for (const entry of entries) {
     const key = `${entry.media.tmdbId}:${entry.media.type}`;
@@ -78,7 +77,7 @@ async function buildTitleMap(
       return { key, title: title ?? 'Unknown Title' }; // null-safe: falls back if TMDB returns nothing
     })
   );
-  
+
   // Whether or not the everything in the Promise.allSettled is settled
   for (const result of results) {
     if (result.status === 'fulfilled') {
@@ -87,10 +86,9 @@ async function buildTitleMap(
       logger.error('Failed to resolve a TMDB title:', result.reason);
     }
   }
- 
+
   return titleMap;
 }
-
 
 // Helper - Maps raw rating rows to RatingEntry shape
 function mapRatings(
@@ -194,7 +192,7 @@ export const getUserRatings = async (req: Request, res: Response) => {
         createdAt: true,
         user: { select: { userId: true, username: true } },
         media: { select: { tmdbId: true, type: true } },
-        },
+      },
     });
 
     const titleMap = await buildTitleMap(ratings, apiKey);

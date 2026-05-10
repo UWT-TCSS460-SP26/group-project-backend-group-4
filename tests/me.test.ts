@@ -107,19 +107,19 @@ afterAll(() => {
   delete process.env.TMDB_API_KEY;
 });
 
-// ─── /api/me/ratings ────────────────────────────────────────────────────────
+// ─── /api/ratings/me/enhanced ───────────────────────────────────────────────
 
-describe('GET /api/me/ratings', () => {
+describe('GET /api/ratings/me/enhanced', () => {
   describe('Authentication', () => {
     it('should return 401 with no token', async () => {
-      const res = await request(app).get('/api/me/ratings');
+      const res = await request(app).get('/api/ratings/me/enhanced');
 
       expect(res.status).toBe(401);
     });
 
     it('should return 401 with a malformed token', async () => {
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set('Authorization', 'Bearer not-a-real-token');
 
       expect(res.status).toBe(401);
@@ -134,7 +134,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -149,7 +149,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -169,7 +169,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetch(tmdbTvResponse(1396, 'Breaking Bad'));
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -187,7 +187,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetchError(503);
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -204,7 +204,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       // Two ratings share the same media — TMDB should only be called once
@@ -219,7 +219,7 @@ describe('GET /api/me/ratings', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -234,7 +234,7 @@ describe('GET /api/me/ratings', () => {
       mockTransaction.mockResolvedValue([[]]);
 
       await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       // The $transaction callback receives prisma, so we verify the mock was
@@ -247,7 +247,7 @@ describe('GET /api/me/ratings', () => {
       mockTransaction.mockResolvedValue([[]]);
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .query({ page: 2, limit: 5 })
         .set(authHeader({ sub: 1, role: 'User' }));
 
@@ -260,7 +260,7 @@ describe('GET /api/me/ratings', () => {
       mockUser.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 999, role: 'User' }));
 
       expect(res.status).toBe(404);
@@ -271,7 +271,7 @@ describe('GET /api/me/ratings', () => {
       mockUser.findUnique.mockRejectedValue(new Error('DB connection lost'));
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(500);
@@ -282,7 +282,7 @@ describe('GET /api/me/ratings', () => {
       delete process.env.TMDB_API_KEY;
 
       const res = await request(app)
-        .get('/api/me/ratings')
+        .get('/api/ratings/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(500);
@@ -292,19 +292,19 @@ describe('GET /api/me/ratings', () => {
   });
 });
 
-// ─── /api/me/reviews ────────────────────────────────────────────────────────
+// ─── /api/reviews/me/enhanced ───────────────────────────────────────────────
 
-describe('GET /api/me/reviews', () => {
+describe('GET /api/reviews/me/enhanced', () => {
   describe('Authentication', () => {
     it('should return 401 with no token', async () => {
-      const res = await request(app).get('/api/me/reviews');
+      const res = await request(app).get('/api/reviews/me/enhanced');
 
       expect(res.status).toBe(401);
     });
 
     it('should return 401 with a malformed token', async () => {
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set('Authorization', 'Bearer not-a-real-token');
 
       expect(res.status).toBe(401);
@@ -317,7 +317,7 @@ describe('GET /api/me/reviews', () => {
       mockTransaction.mockResolvedValue([[]]);
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -332,7 +332,7 @@ describe('GET /api/me/reviews', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -353,7 +353,7 @@ describe('GET /api/me/reviews', () => {
       mockTmdbFetch(tmdbTvResponse(1396, 'Breaking Bad'));
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -371,7 +371,7 @@ describe('GET /api/me/reviews', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -385,7 +385,7 @@ describe('GET /api/me/reviews', () => {
       mockTmdbFetchError(404);
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -399,7 +399,7 @@ describe('GET /api/me/reviews', () => {
       mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(200);
@@ -412,7 +412,7 @@ describe('GET /api/me/reviews', () => {
       mockUser.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 999, role: 'User' }));
 
       expect(res.status).toBe(404);
@@ -423,7 +423,7 @@ describe('GET /api/me/reviews', () => {
       mockUser.findUnique.mockRejectedValue(new Error('DB connection lost'));
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(500);
@@ -434,188 +434,12 @@ describe('GET /api/me/reviews', () => {
       delete process.env.TMDB_API_KEY;
 
       const res = await request(app)
-        .get('/api/me/reviews')
+        .get('/api/reviews/me/enhanced')
         .set(authHeader({ sub: 1, role: 'User' }));
 
       expect(res.status).toBe(500);
 
       process.env.TMDB_API_KEY = 'test-tmdb-api-key';
-    });
-  });
-});
-
-// ─── /api/me ────────────────────────────────────────────────────────────────
-
-describe('GET /api/me', () => {
-  describe('Authentication', () => {
-    it('should return 401 with no token', async () => {
-      const res = await request(app).get('/api/me');
-
-      expect(res.status).toBe(401);
-    });
-
-    it('should return 401 with a malformed token', async () => {
-      const res = await request(app).get('/api/me').set('Authorization', 'Bearer not-a-real-token');
-
-      expect(res.status).toBe(401);
-    });
-  });
-
-  describe('Happy path', () => {
-    it('should return both ratings and reviews arrays', async () => {
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[], []]);
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('ratings');
-      expect(res.body).toHaveProperty('reviews');
-    });
-
-    it('should return correctly shaped ratings and reviews', async () => {
-      const rating = createRatingRecord();
-      const review = createReviewRecord();
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[rating], [review]]);
-      mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-
-      expect(res.body.ratings[0]).toMatchObject({
-        id: 1,
-        score: 4,
-        author: { id: 1, username: 'testuser' },
-        media: { tmdbId: 550, type: 'MOVIE', title: 'Fight Club' },
-      });
-
-      expect(res.body.reviews[0]).toMatchObject({
-        id: 1,
-        title: 'Great film',
-        body: 'Loved every second of it.',
-        author: { id: 1, username: 'testuser' },
-        media: { tmdbId: 550, type: 'MOVIE', title: 'Fight Club' },
-      });
-    });
-
-    it('should deduplicate TMDB calls across ratings and reviews sharing the same media', async () => {
-      const rating = createRatingRecord({ media: { tmdbId: 550, type: 'MOVIE' } });
-      const review = createReviewRecord({ media: { tmdbId: 550, type: 'MOVIE' } });
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[rating], [review]]);
-      mockTmdbFetch(tmdbMovieResponse(550, 'Fight Club'));
-
-      await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      // Same media referenced in both a rating and a review — only one TMDB call expected
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return empty arrays when user has no activity', async () => {
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[], []]);
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-      expect(res.body.ratings).toHaveLength(0);
-      expect(res.body.reviews).toHaveLength(0);
-    });
-
-    it('should handle a mix of MOVIE and TV_SHOW media correctly', async () => {
-      const movieRating = createRatingRecord({ id: 1, media: { tmdbId: 550, type: 'MOVIE' } });
-      const tvReview = createReviewRecord({ id: 2, media: { tmdbId: 1396, type: 'TV_SHOW' } });
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[movieRating], [tvReview]]);
-
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => tmdbMovieResponse(550, 'Fight Club') })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => tmdbTvResponse(1396, 'Breaking Bad'),
-        });
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-      expect(res.body.ratings[0].media.title).toBe('Fight Club');
-      expect(res.body.reviews[0].media.title).toBe('Breaking Bad');
-    });
-
-    it('should apply pagination to both ratings and reviews', async () => {
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[], []]);
-
-      const res = await request(app)
-        .get('/api/me')
-        .query({ page: 3, limit: 10 })
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-    });
-  });
-
-  describe('Error cases', () => {
-    it('should return 404 when the authenticated user is not found in the database', async () => {
-      mockUser.findUnique.mockResolvedValue(null);
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 999, role: 'User' }));
-
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe('User not found');
-    });
-
-    it('should return 500 when the database throws', async () => {
-      mockUser.findUnique.mockRejectedValue(new Error('DB connection lost'));
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(500);
-      expect(res.body.message).toBe('Internal server error');
-    });
-
-    it('should return 500 when TMDB_API_KEY is missing', async () => {
-      delete process.env.TMDB_API_KEY;
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(500);
-
-      process.env.TMDB_API_KEY = 'test-tmdb-api-key';
-    });
-
-    it('should still return 200 with null titles when TMDB is unreachable for all media', async () => {
-      const rating = createRatingRecord({ media: { tmdbId: 550, type: 'MOVIE' } });
-      const review = createReviewRecord({ media: { tmdbId: 1396, type: 'TV_SHOW' } });
-      mockUser.findUnique.mockResolvedValue(createUserRecord());
-      mockTransaction.mockResolvedValue([[rating], [review]]);
-      mockTmdbFetchError(503);
-
-      const res = await request(app)
-        .get('/api/me')
-        .set(authHeader({ sub: 1, role: 'User' }));
-
-      expect(res.status).toBe(200);
-      expect(res.body.ratings[0].media.title).toBeNull();
-      expect(res.body.reviews[0].media.title).toBeNull();
     });
   });
 });

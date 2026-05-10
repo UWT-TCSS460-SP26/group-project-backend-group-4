@@ -27,8 +27,6 @@ tags:
     description: Routes used with persisted user ratings
   - name: Issues
     description: Routes for reporting and tracking issues
-  - name: Me
-    description: Routes for the authenticated user's own activity
 
 paths:
   /heartbeat:
@@ -1710,68 +1708,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /api/me:
+  /api/ratings/me/enhanced:
     get:
-      tags: [Me]
-      summary: Get My Ratings & Reviews
-      description: Returns the authenticated user's ratings and reviews (paginated), with media titles resolved from TMDB.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-          description: Page number.
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-            minimum: 1
-          description: Number of results per page.
-      responses:
-        '200':
-          description: Successfully retrieved the authenticated user's ratings and reviews.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ratings:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RatingEntry'
-                  reviews:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ReviewEntry'
-        '401':
-          description: Missing or invalid bearer token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Authenticated user not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/me/ratings:
-    get:
-      tags: [Me]
+      tags: [Rating]
       summary: Get My Ratings
       description: Returns the authenticated user's ratings (paginated), with media titles resolved from TMDB.
       security:
@@ -1824,9 +1763,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/me/reviews:
+  /api/reviews/me/enhanced:
     get:
-      tags: [Me]
+      tags: [Review]
       summary: Get My Reviews
       description: Returns the authenticated user's reviews (paginated), with media titles resolved from TMDB.
       security:
