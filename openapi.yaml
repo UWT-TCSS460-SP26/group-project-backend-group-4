@@ -945,15 +945,84 @@ paths:
   /issues:
     get:
       tags: [Issues]
-      summary: List Issues
-      description: Returns the 10 most recent issues that have not been deleted.
+      summary: List Issues (Admin)
+      description: |
+        Returns a paginated, filterable, sortable list of issues that have not been deleted.
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+          description: 1-based page number.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of issues per page.
+        - name: status
+          in: query
+          required: false
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/IssueStatus'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/IssueStatus'
+          description: Filter by one or more status values (e.g. `?status=OPEN` or `?status=OPEN&status=IN_PROGRESS`).
+          explode: true
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [createdAt, status, title]
+            default: createdAt
+          description: Field to sort by.
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort direction.
       responses:
         '200':
-          description: A list of issues.
+          description: A paginated list of issues.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/IssueListResponse'
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1010,8 +1079,13 @@ paths:
         description: The ID of the issue.
     get:
       tags: [Issues]
-      summary: Get Issue by ID
-      description: Returns a single issue by its ID.
+      summary: Get Issue by ID (Admin)
+      description: |
+        Returns a single issue by its ID.
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Issue retrieved successfully.
@@ -1025,6 +1099,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Issue not found.
           content:
@@ -1451,6 +1537,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Issue'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
     IssueSingleResponse:
       type: object
       properties:

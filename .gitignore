@@ -24,3 +24,6 @@ yarn-error.log
 coverage/
 
 src/generated/prisma
+
+# Markdown files
+DEEPSEEK.md
