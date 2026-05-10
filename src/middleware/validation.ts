@@ -11,7 +11,7 @@ const postIssueBodySchema = z.object({
   contact: z.string().trim().min(1),
 });
 
-const putIssueUpdateSchema = z.object({
+const patchIssueSchema = z.object({
   title: z.string().trim().min(1).optional(),
   body: z.string().trim().min(1).optional(),
   contact: z.string().trim().min(1).optional(),
@@ -42,6 +42,16 @@ const searchPaginationQuerySchema = z.object({
 const featuredSortQuerySchema = z.object({
   sort: z.enum(['most-reviewed', 'top-rated']).optional().default('top-rated'),
 });
+const getIssuesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(1000).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+  status: z
+    .union([z.enum(IssueStatus), z.array(z.enum(IssueStatus))])
+    .transform((v) => (Array.isArray(v) ? v : [v]))
+    .optional(),
+  sortBy: z.enum(['createdAt', 'status', 'title']).optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+});
 
 const getReviewsQuerySchema = z
   .object({
@@ -60,7 +70,7 @@ const getReviewsQuerySchema = z
   );
 
 const createReviewBodySchema = z.object({
-  tmdbId: z.number().int(),
+  tmdbId: z.number().int().positive(),
   type: z.enum(MediaType),
   body: z.string().trim().min(1),
   title: z.string().optional(),
@@ -137,7 +147,7 @@ function validateQuery(schema: ZodType): RequestHandler {
 // ---- Exported middleware ----
 
 export const validatePostIssueBody = validateBody(postIssueBodySchema);
-export const validatePutIssueBody = validateBody(putIssueUpdateSchema);
+export const validatePatchIssueBody = validateBody(patchIssueSchema);
 export const validateCreateReviewBody = validateBody(createReviewBodySchema);
 export const validateUpdateReviewBody = validateBody(updateReviewBodySchema);
 export const validateCreateRatingBody = validateBody(createRatingBodySchema);
@@ -149,18 +159,10 @@ export const requireSeriesId = validateParams(seriesIdParamSchema);
 export const requireTitleName = validateQuery(titleQuerySchema);
 export const validateSearchPagination = validateQuery(searchPaginationQuerySchema);
 export const validateFeaturedSortQuery = validateQuery(featuredSortQuerySchema);
+export const validateGetIssuesQuery = validateQuery(getIssuesQuerySchema);
 export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
 
 // ---- Utility exports (non-middleware) ----
-
-export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
-  const result = z.coerce.number().int().positive().safeParse(value);
-  if (!result.success) {
-    res.status(400).json({ message });
-    return null;
-  }
-  return result.data;
-};
 
 export const requireEnvVar = (key: string) => {
   return (_request: Request, response: Response, next: NextFunction) => {

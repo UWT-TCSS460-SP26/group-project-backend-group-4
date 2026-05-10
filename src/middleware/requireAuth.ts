@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express';
 import { expressjwt, type Request as JwtRequest } from 'express-jwt';
 import JwksRsa from 'jwks-rsa';
+import { prisma } from '../lib/prisma';
+import { loggerUtil as logger } from '../utils/logger';
 
 export const ROLE_HIERARCHY = ['User', 'Moderator', 'Admin', 'SuperAdmin', 'Owner'] as const;
 export type Role = (typeof ROLE_HIERARCHY)[number];
@@ -67,6 +69,29 @@ const handleAuthError: ErrorRequestHandler = (error, _request, response, next) =
 };
 
 /**
+ * After JWT verification, replaces request.user.role with the value from the
+ * local DB. If the user row doesn't exist yet or the query fails, falls back
+ * to the JWT role claim — this ensures the service degrades gracefully.
+ */
+const lookupDbRole: RequestHandler = async (request, _response, next) => {
+  try {
+    const sub = request.user?.sub;
+    if (sub) {
+      const dbUser = await prisma.user.findUnique({
+        where: { subjectId: sub },
+        select: { role: true },
+      });
+      if (dbUser && request.user) {
+        request.user.role = dbUser.role;
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, 'Failed to look up user role from DB, falling back to JWT claim');
+  }
+  next();
+};
+
+/**
  * Verifies the Authorization: Bearer <token> header against the auth-squared
  * issuer's JWKS (RS256) and attaches the decoded payload to request.user.
  *
@@ -76,6 +101,7 @@ const handleAuthError: ErrorRequestHandler = (error, _request, response, next) =
 export const requireAuth: Array<RequestHandler | ErrorRequestHandler> = [
   verifyJwt,
   attachUser,
+  lookupDbRole,
   handleAuthError,
 ];
 

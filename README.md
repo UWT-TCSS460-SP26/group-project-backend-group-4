@@ -2,34 +2,14 @@
 
 Express + TypeScript API for the TCSS 460 group project.
 
-## Quick Start
+## Partner facing information
 
-```bash
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Start development server (auto-reloads on changes)
-npm run dev
-```
-
-The server starts at [http://localhost:3000](http://localhost:3000).
-
-API documentation is at [http://localhost:3000/api-docs](http://localhost:3000/api-docs).
-
-## Scripts
-
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `npm run dev`          | Start dev server with auto-reload |
-| `npm run build`        | Compile TypeScript to `dist/`     |
-| `npm start`            | Run compiled output               |
-| `npm test`             | Run tests                         |
-| `npm run lint`         | Run ESLint                        |
-| `npm run format`       | Format code with Prettier         |
-| `npm run format:check` | Check formatting                  |
+1. The deployed API URL can be found [just below](#deployed-url)
+2. You can obtain an API token by going to [Token Playground](https://tcss460-token-playground.onrender.com/) and selecting the "group-4-api" audience
+3. The full API docs can be found at <https://group-project-backend-group-4.onrender.com/api-docs>
+4. The only orgins that are CORS-allowed are: `https://group-project-frontend-group-4.onrender.com`, should you need to get your origin added, please file a bug report and include "CORS Request" in the title.
+5. You can file a bug report by going to the [bug tracker](https://bug-tracker-group4.onrender.com/)
+6. No currently known quirks, limits inclued Render's startup time as well as TMDB's rate limits
 
 ## Deployed URL
 
