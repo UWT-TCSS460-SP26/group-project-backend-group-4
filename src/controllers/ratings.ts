@@ -133,6 +133,9 @@ export const getRatingById = async (req: Request, res: Response) => {
         user: {
           select: { username: true },
         },
+        media: {
+          select: { tmdbId: true, type: true },
+        },
       },
     });
     if (!rating) {

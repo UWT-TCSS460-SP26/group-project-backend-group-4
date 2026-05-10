@@ -119,6 +119,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MovieListItem'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
         '500':
           description: Internal server error
           content:
@@ -153,58 +159,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 1226863
-                    title:
-                      type: string
-                      example: The Super Mario Galaxy Movie
-                    overview:
-                      type: string
-                      example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
-                    release_date:
-                      type: string
-                      example: '2026-04-01'
-                    poster_path:
-                      type: string
-                      example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
-                    backdrop_path:
-                      type: string
-                      example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10751, 35, 12, 14, 16]
-                    original_language:
-                      type: string
-                      example: en
-                    communityStats:
-                      oneOf:
-                        - type: object
-                          required: [rankingMetric, totalReviews]
-                          properties:
-                            rankingMetric:
-                              type: string
-                              enum: [most-reviewed]
-                            totalReviews:
-                              type: integer
-                              example: 10
-                        - type: object
-                          required: [rankingMetric, totalRatings]
-                          properties:
-                            rankingMetric:
-                              type: string
-                              enum: [top-rated]
-                            avgScore:
-                              type: number
-                              nullable: true
-                              example: 4.5
-                            totalRatings:
-                              type: integer
-                              example: 20
+                  $ref: '#/components/schemas/FeaturedMovie'
         '400':
           description: Validation failed
           content:
@@ -410,58 +365,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 76479
-                    name:
-                      type: string
-                      example: The Boys
-                    overview:
-                      type: string
-                      example: A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
-                    first_air_date:
-                      type: string
-                      example: '2019-07-25'
-                    poster_path:
-                      type: string
-                      example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
-                    backdrop_path:
-                      type: string
-                      example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
-                    genre_ids:
-                      type: array
-                      items:
-                        type: integer
-                      example: [10765, 10759]
-                    original_language:
-                      type: string
-                      example: en
-                    communityStats:
-                      oneOf:
-                        - type: object
-                          required: [rankingMetric, totalReviews]
-                          properties:
-                            rankingMetric:
-                              type: string
-                              enum: [most-reviewed]
-                            totalReviews:
-                              type: integer
-                              example: 10
-                        - type: object
-                          required: [rankingMetric, totalRatings]
-                          properties:
-                            rankingMetric:
-                              type: string
-                              enum: [top-rated]
-                            avgScore:
-                              type: number
-                              nullable: true
-                              example: 4.5
-                            totalRatings:
-                              type: integer
-                              example: 20
+                  $ref: '#/components/schemas/FeaturedTVShow'
         '400':
           description: Validation failed
           content:
@@ -515,6 +419,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TVShowListItem'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
         '500':
           description: Internal server error
           content:
@@ -1176,12 +1086,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ratings:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RatingEntry'
+                $ref: '#/components/schemas/RatingsEnhancedResponse'
         '401':
           description: Missing or invalid bearer token.
           content:
@@ -1237,20 +1142,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  reviews:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ReviewEntry'
+                $ref: '#/components/schemas/ReviewsEnhancedResponse'
         '401':
-          description: Missing or invalid bearer token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Authenticated user not found.
+          description: Missing or invalid bearer token, or authenticated user not found in local database.
           content:
             application/json:
               schema:
@@ -2066,3 +1960,123 @@ components:
           example: 'Issue deleted'
         issue:
           $ref: '#/components/schemas/Issue'
+    FeaturedMovie:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1226863
+        title:
+          type: string
+          example: The Super Mario Galaxy Movie
+        overview:
+          type: string
+          example: "Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr..."
+        release_date:
+          type: string
+          example: '2026-04-01'
+        poster_path:
+          type: string
+          example: /eJGWx219ZcEMVQJhAgMiqo8tYY.jpg
+        backdrop_path:
+          type: string
+          example: /9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg
+        genre_ids:
+          type: array
+          items:
+            type: integer
+          example: [10751, 35, 12, 14, 16]
+        original_language:
+          type: string
+          example: en
+        communityStats:
+          oneOf:
+            - type: object
+              required: [rankingMetric, totalReviews]
+              properties:
+                rankingMetric:
+                  type: string
+                  enum: [most-reviewed]
+                totalReviews:
+                  type: integer
+                  example: 10
+            - type: object
+              required: [rankingMetric, totalRatings]
+              properties:
+                rankingMetric:
+                  type: string
+                  enum: [top-rated]
+                avgScore:
+                  type: number
+                  nullable: true
+                  example: 4.5
+                totalRatings:
+                  type: integer
+                  example: 20
+    FeaturedTVShow:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 76479
+        name:
+          type: string
+          example: The Boys
+        overview:
+          type: string
+          example: A group of vigilantes known informally as "The Boys" set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.
+        first_air_date:
+          type: string
+          example: '2019-07-25'
+        poster_path:
+          type: string
+          example: /in1R2dDc421JxsoRWaIIAqVI2KE.jpg
+        backdrop_path:
+          type: string
+          example: /bq28ajZaoMyzEIm6REelqyqtEDZ.jpg
+        genre_ids:
+          type: array
+          items:
+            type: integer
+          example: [10765, 10759]
+        original_language:
+          type: string
+          example: en
+        communityStats:
+          oneOf:
+            - type: object
+              required: [rankingMetric, totalReviews]
+              properties:
+                rankingMetric:
+                  type: string
+                  enum: [most-reviewed]
+                totalReviews:
+                  type: integer
+                  example: 10
+            - type: object
+              required: [rankingMetric, totalRatings]
+              properties:
+                rankingMetric:
+                  type: string
+                  enum: [top-rated]
+                avgScore:
+                  type: number
+                  nullable: true
+                  example: 4.5
+                totalRatings:
+                  type: integer
+                  example: 20
+    ReviewsEnhancedResponse:
+      type: object
+      properties:
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewEntry'
+    RatingsEnhancedResponse:
+      type: object
+      properties:
+        ratings:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatingEntry'

@@ -42,6 +42,13 @@ const searchPaginationQuerySchema = z.object({
 const featuredSortQuerySchema = z.object({
   sort: z.enum(['most-reviewed', 'top-rated']).optional().default('top-rated'),
 });
+
+const popularQuerySchema = z.object({
+  language: z.string().optional().default('en-US'),
+  page: z.coerce.number().int().min(1).max(1000).optional().default(1),
+  sort_by: z.enum(['desc', 'asc']).optional().default('desc'),
+});
+
 const getIssuesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
@@ -159,6 +166,7 @@ export const requireSeriesId = validateParams(seriesIdParamSchema);
 export const requireTitleName = validateQuery(titleQuerySchema);
 export const validateSearchPagination = validateQuery(searchPaginationQuerySchema);
 export const validateFeaturedSortQuery = validateQuery(featuredSortQuerySchema);
+export const validatePopularQuery = validateQuery(popularQuerySchema);
 export const validateGetIssuesQuery = validateQuery(getIssuesQuerySchema);
 export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
 
