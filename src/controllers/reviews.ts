@@ -3,21 +3,9 @@ import { prisma } from '../lib/prisma';
 import { Prisma, MediaType } from '../generated/prisma/client';
 import { resolveLocalUser } from '../auth/resolveLocalUser';
 import { hasRoleAtLeast } from '../middleware/requireAuth';
-import { parseIdOrRespond } from '../middleware/validation';
 import { loggerUtil as logger } from '../utils/logger';
 
 // ====== Validation & Parsing Helpers ========
-const isValidReviewType = (type: unknown): type is MediaType =>
-  type === 'MOVIE' || type === 'TV_SHOW';
-
-const parsePositiveInt = (value: unknown): number | null => {
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-};
-
 const normalizeTitle = (title: unknown): string | null => {
   if (typeof title !== 'string') {
     return null;
@@ -66,19 +54,6 @@ const updateMediaReviewCount = async (tx: Prisma.TransactionClient, mediaId: num
 export const createReview = async (req: Request, res: Response) => {
   const { tmdbId, type, title, body } = req.body;
 
-  if (!Number.isInteger(tmdbId)) {
-    return res.status(400).json({ message: 'Invalid tmdbId' });
-  }
-  if (!isValidReviewType(type)) {
-    return res.status(400).json({ message: 'Invalid media type' });
-  }
-  if (typeof body !== 'string' || !body.trim()) {
-    return res.status(400).json({ message: 'Review body is required.' });
-  }
-  if (title !== undefined && typeof title !== 'string') {
-    return res.status(400).json({ message: 'Invalid review title.' });
-  }
-
   try {
     const author = await resolveLocalUser(req);
     const media = await resolveOrCreateMedia(tmdbId, type);
@@ -120,41 +95,19 @@ export const createReview = async (req: Request, res: Response) => {
 // ======= Reviews: Get All =======
 export const getReviews = async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.max(1, parseInt(req.query.limit as string) || 20);
+    const { page, limit, userId, mediaId, tmdbId, type } = res.locals;
     const skip = (page - 1) * limit;
 
-    const { userId, mediaId, tmdbId, type } = req.query;
     const where: Prisma.ReviewWhereInput = {};
 
-    if (userId) {
-      const parsedUserId = parsePositiveInt(userId);
-      if (!parsedUserId) {
-        return res.status(400).json({ message: 'Invalid userId' });
-      }
-      where.userId = parsedUserId;
+    if (userId !== undefined) {
+      where.userId = userId;
     }
 
-    if (mediaId) {
-      const parsedMediaId = parsePositiveInt(mediaId);
-      if (!parsedMediaId) {
-        return res.status(400).json({ message: 'Invalid mediaId' });
-      }
-      where.mediaId = parsedMediaId;
-    } else if (tmdbId && type) {
-      const parsedTmdbId = parsePositiveInt(tmdbId);
-      if (!parsedTmdbId) {
-        return res.status(400).json({ message: 'Invalid tmdbId' });
-      }
-      if (!isValidReviewType(type)) {
-        return res.status(400).json({ message: 'Invalid media type' });
-      }
-      where.media = {
-        tmdbId: parsedTmdbId,
-        type,
-      };
-    } else if (tmdbId || type) {
-      return res.status(400).json({ message: 'Both tmdbId and type are required together' });
+    if (mediaId !== undefined) {
+      where.mediaId = mediaId;
+    } else if (tmdbId !== undefined && type !== undefined) {
+      where.media = { tmdbId, type };
     }
 
     const [reviews, total] = await Promise.all([
@@ -192,13 +145,7 @@ export const getReviews = async (req: Request, res: Response) => {
 
 // ======== Reviews: Get By ID =======
 export const getReviewById = async (req: Request, res: Response) => {
-  const id =
-    typeof res.locals.id === 'number'
-      ? res.locals.id
-      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
-  if (!id) {
-    return;
-  }
+  const id = res.locals.id;
 
   try {
     const review = await prisma.review.findUnique({
@@ -226,24 +173,8 @@ export const getReviewById = async (req: Request, res: Response) => {
 
 // ==== Reviews: Update ======
 export const updateReview = async (req: Request, res: Response) => {
-  const id =
-    typeof res.locals.id === 'number'
-      ? res.locals.id
-      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
+  const id = res.locals.id;
   const { title, body } = req.body;
-  if (!id) {
-    return;
-  }
-
-  if (title !== undefined && typeof title !== 'string') {
-    return res.status(400).json({ message: 'Invalid review title.' });
-  }
-  if (body !== undefined && (typeof body !== 'string' || !body.trim())) {
-    return res.status(400).json({ message: 'Invalid review body.' });
-  }
-  if (title === undefined && body === undefined) {
-    return res.status(400).json({ message: 'No fields provided to update.' });
-  }
 
   try {
     const user = await resolveLocalUser(req);
@@ -279,13 +210,7 @@ export const updateReview = async (req: Request, res: Response) => {
 
 // ====== Reviews: Delete ======
 export const deleteReview = async (req: Request, res: Response) => {
-  const id =
-    typeof res.locals.id === 'number'
-      ? res.locals.id
-      : parseIdOrRespond(req.params.id, res, 'Invalid review id');
-  if (!id) {
-    return;
-  }
+  const id = res.locals.id;
 
   try {
     const author = await resolveLocalUser(req);

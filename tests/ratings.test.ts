@@ -111,47 +111,36 @@ describe('Ratings API', () => {
       );
     });
 
-    it('should normalize page 0 to page 1', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for page 0', async () => {
       const response = await request(app).get('/api/ratings').query({ page: 0, limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
-      expect(mockRating.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
-    it('should normalize negative page to page 1', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for negative page', async () => {
       const response = await request(app).get('/api/ratings').query({ page: -5, limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
-      expect(mockRating.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
-    it('should treat limit 0 as invalid and use default limit 20', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for limit 0', async () => {
       const response = await request(app).get('/api/ratings').query({ limit: 0 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.limit).toBe(20);
-      expect(mockRating.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 20 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
-    it('should normalize negative limit to limit 1', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for negative limit', async () => {
       const response = await request(app).get('/api/ratings').query({ limit: -10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.limit).toBe(1);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
     it('should handle very large page numbers returning empty results', async () => {
@@ -165,24 +154,20 @@ describe('Ratings API', () => {
       expect(response.body.pagination.page).toBe(1000);
     });
 
-    it('should handle very large limit', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for very large limit', async () => {
       const response = await request(app).get('/api/ratings').query({ limit: 10000 });
 
-      expect(response.status).toBe(200);
-      expect(mockRating.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 10000 }));
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'limit')).toBe(true);
     });
 
-    it('should handle non-integer page', async () => {
-      mockRating.findMany.mockResolvedValue([createRatingRecord()]);
-      mockRating.count.mockResolvedValue(1);
-
+    it('should return 400 for non-integer page', async () => {
       const response = await request(app).get('/api/ratings').query({ page: '1.5', limit: 10 });
 
-      expect(response.status).toBe(200);
-      expect(response.body.pagination.page).toBe(1);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'page')).toBe(true);
     });
 
     // ========== QUERY BY USERID TESTS ==========
@@ -402,13 +387,15 @@ describe('Ratings API', () => {
     it('should return 400 if tmdbId is provided without type', async () => {
       const response = await request(app).get('/api/ratings').query({ tmdbId: 123 });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 if type is provided without tmdbId', async () => {
       const response = await request(app).get('/api/ratings').query({ type: 'MOVIE' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Both tmdbId and type are required together');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'tmdbId')).toBe(true);
     });
 
     it('should return 400 if type is invalid', async () => {
@@ -416,7 +403,8 @@ describe('Ratings API', () => {
         .get('/api/ratings')
         .query({ tmdbId: 123, type: 'INVALID' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid media type');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'type')).toBe(true);
     });
 
     // ========== COMBINED PARAMETER TESTS ==========
@@ -509,14 +497,12 @@ describe('Ratings API', () => {
       expect(response.body.pagination.totalPages).toBe(0);
     });
 
-    it('should handle special characters in query params gracefully', async () => {
-      mockRating.findMany.mockResolvedValue([]);
-      mockRating.count.mockResolvedValue(0);
-
+    it('should return 400 for non-numeric userId', async () => {
       const response = await request(app).get('/api/ratings').query({ userId: '1<script>' });
 
-      expect(response.status).toBe(200);
-      expect(mockRating.findMany).toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'userId')).toBe(true);
     });
 
     it('should include user and media data in response', async () => {
@@ -646,9 +632,8 @@ describe('Ratings API', () => {
         .send(ratingData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe(
-        'Invalid rating score. Please provide a score between 1 and 5.'
-      );
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'score')).toBe(true);
     });
 
     it('should return 400 for invalid type', async () => {
@@ -664,7 +649,8 @@ describe('Ratings API', () => {
         .send(ratingData);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid media type');
+      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.details.some((d: any) => d.path === 'type')).toBe(true);
     });
 
     it('should return 409 if user already rated', async () => {
