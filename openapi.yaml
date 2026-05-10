@@ -1710,8 +1710,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /api/ratings/me/enhanced:
     get:
-      tags: [Rating]
-      summary: Get My Ratings
+      tags: [Ratings]
+      summary: Get My Ratings (Enhanced)
       description: Returns the authenticated user's ratings (paginated), with media titles resolved from TMDB.
       security:
         - bearerAuth: []
@@ -1765,8 +1765,8 @@ paths:
 
   /api/reviews/me/enhanced:
     get:
-      tags: [Review]
-      summary: Get My Reviews
+      tags: [Reviews]
+      summary: Get My Reviews (Enhanced)
       description: Returns the authenticated user's reviews (paginated), with media titles resolved from TMDB.
       security:
         - bearerAuth: []
