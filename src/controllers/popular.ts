@@ -26,11 +26,13 @@ type TmdbTVResponse = {
   backdrop_path: string;
 };
 
-export const getPopularMovies = async (request: Request, response: Response) => {
-  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
-  const page = (request.query.page as string) || '1'; // Default to '1' if not provided
-  const querySortBy = (request.query.sort_by as string)?.toLowerCase();
-  const sortOrder = querySortBy === 'asc' || querySortBy === 'popularity.asc' ? 'asc' : 'desc'; // Default to 'desc'
+export const getPopularMovies = async (_request: Request, response: Response) => {
+  const { language, page, sort_by } = response.locals as {
+    language: string;
+    page: number;
+    sort_by: string;
+  };
+  const sortOrder = sort_by.includes('asc') ? 'asc' : 'desc';
   const apiKey = process.env.TMDB_API_KEY;
 
   try {
@@ -65,11 +67,13 @@ export const getPopularMovies = async (request: Request, response: Response) => 
   }
 };
 
-export const getPopularTVShows = async (request: Request, response: Response) => {
-  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
-  const page = (request.query.page as string) || '1'; // Default to '1' if not provided
-  const querySortBy = (request.query.sort_by as string)?.toLowerCase();
-  const sortOrder = querySortBy === 'asc' || querySortBy === 'popularity.asc' ? 'asc' : 'desc'; // Default to 'desc'
+export const getPopularTVShows = async (_request: Request, response: Response) => {
+  const { language, page, sort_by } = response.locals as {
+    language: string;
+    page: number;
+    sort_by: string;
+  };
+  const sortOrder = sort_by.includes('asc') ? 'asc' : 'desc';
   const apiKey = process.env.TMDB_API_KEY;
 
   try {

@@ -102,6 +102,8 @@ describe('GET /api/ratings/me/enhanced', () => {
       .set(authHeader({ sub: 1, role: 'User' }));
 
     expect(res.status).toBe(200);
+    expect(res.body.ratings[0].user.username).toBe('testuser');
+    expect(res.body.ratings[0].user.userId).toBe(1);
     expect(res.body.ratings[0].media.title).toBe('Fight Club');
   });
 
@@ -163,6 +165,8 @@ describe('GET /api/reviews/me/enhanced', () => {
       .set(authHeader({ sub: 1, role: 'User' }));
 
     expect(res.status).toBe(200);
+    expect(res.body.reviews[0].user.username).toBe('testuser');
+    expect(res.body.reviews[0].user.userId).toBe(1);
     expect(res.body.reviews[0].media.title).toBe('Fight Club');
   });
 
