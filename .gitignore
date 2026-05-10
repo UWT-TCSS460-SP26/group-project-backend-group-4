@@ -24,3 +24,5 @@ yarn-error.log
 coverage/
 
 src/generated/prisma
+
+CLAUDE.md
