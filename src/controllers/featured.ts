@@ -1,16 +1,17 @@
 import { Request, Response } from 'express';
 import { loggerUtil as logger } from '../utils/logger';
+import { prisma } from '../lib/prisma';
 
-const BASE_URL = 'https://api.themoviedb.org/3/trending';
+const BASE_URL = 'https://api.themoviedb.org/3';
 
 type TmdbMovieResponse = {
   id: number;
   title: string;
   overview: string;
   release_date: string;
-  poster_path: string;
-  backdrop_path: string;
-  genre_ids: number[];
+  poster_path: string | null;
+  backdrop_path: string | null;
+  genres: Array<{ id: number; name: string }>;
   original_language: string;
 };
 
@@ -19,83 +20,232 @@ type TmdbTVResponse = {
   name: string;
   overview: string;
   first_air_date: string;
-  poster_path: string;
+  poster_path: string | null;
   status: string;
-  genre_ids: number[];
+  genres: Array<{ id: number; name: string }>;
   original_language: string;
-  backdrop_path: string;
+  backdrop_path: string | null;
 };
 
+type CommunityStats =
+  | { rankingMetric: 'most-reviewed'; totalReviews: number }
+  | { rankingMetric: 'top-rated'; avgScore: number | null; totalRatings: number };
+
+type EnrichedMovie = {
+  id: number;
+  title: string;
+  overview: string;
+  release_date: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  genre_ids: number[];
+  original_language: string;
+  communityStats: CommunityStats;
+};
+
+type EnrichedTVShow = {
+  id: number;
+  name: string;
+  overview: string;
+  first_air_date: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  genre_ids: number[];
+  original_language: string;
+  communityStats: CommunityStats;
+};
+
+const cache: {
+  movies: {
+    'most-reviewed': { data: EnrichedMovie[] | null; timestamp: number };
+    'top-rated': { data: EnrichedMovie[] | null; timestamp: number };
+  };
+  tv: {
+    'most-reviewed': { data: EnrichedTVShow[] | null; timestamp: number };
+    'top-rated': { data: EnrichedTVShow[] | null; timestamp: number };
+  };
+} = {
+  movies: {
+    'most-reviewed': { data: null, timestamp: 0 },
+    'top-rated': { data: null, timestamp: 0 },
+  },
+  tv: { 'most-reviewed': { data: null, timestamp: 0 }, 'top-rated': { data: null, timestamp: 0 } },
+};
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export const getFeaturedMovies = async (request: Request, response: Response) => {
-  const timeframe = (request.query.timeframe as string) || 'week'; // Default to 'week' if not provided
-  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
-  const apiKey = process.env.TMDB_API_KEY;
-
   try {
-    const result = await fetch(
-      `${BASE_URL}/movie/${timeframe}?language=${language}&api_key=${apiKey}`
-    );
+    const sort = (response.locals.sort || 'top-rated') as 'most-reviewed' | 'top-rated';
+    const limit = 20;
+    const apiKey = process.env.TMDB_API_KEY;
 
-    const data = (await result.json()) as Record<string, unknown>;
-
-    if (!result.ok) {
-      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
-      return;
+    // Return cached response if valid (disabled in testing environment)
+    const cached = cache.movies[sort];
+    if (
+      process.env.NODE_ENV !== 'test' &&
+      cached.data &&
+      Date.now() - cached.timestamp < CACHE_TTL
+    ) {
+      return response.status(200).json(cached.data);
     }
 
-    const list = data.results as TmdbMovieResponse[];
+    let movies;
+    if (sort === 'most-reviewed') {
+      movies = await prisma.media.findMany({
+        where: { type: 'MOVIE', totalReviews: { gt: 0 } },
+        orderBy: { totalReviews: 'desc' },
+        take: limit,
+      });
+    } else {
+      movies = await prisma.media.findMany({
+        // Return only if greater than 2 results to avoid data skewing
+        where: { type: 'MOVIE', totalRatings: { gte: 2 } },
+        orderBy: { avgRating: 'desc' },
+        take: limit,
+      });
+    }
 
-    response.json(
-      list.map((movie) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        genre_ids: movie.genre_ids ?? [],
-        original_language: movie.original_language,
-        backdrop_path: movie.backdrop_path,
-        poster_path: movie.poster_path,
-      }))
+    const enrichedMovies = await Promise.all(
+      movies.map(async (movie) => {
+        const stats: CommunityStats =
+          sort === 'most-reviewed'
+            ? { rankingMetric: 'most-reviewed', totalReviews: movie.totalReviews }
+            : {
+                rankingMetric: 'top-rated',
+                avgScore: movie.avgRating,
+                totalRatings: movie.totalRatings,
+              };
+
+        try {
+          const tmdbRes = await fetch(`${BASE_URL}/movie/${movie.tmdbId}?api_key=${apiKey}`);
+          if (tmdbRes.status === 404) {
+            logger.warn(`TMDB 404 for movie ${movie.tmdbId} — skipping`);
+            return null;
+          }
+          if (!tmdbRes.ok) {
+            throw new Error(`TMDB returned status ${tmdbRes.status}`);
+          }
+          const tmdbData = (await tmdbRes.json()) as TmdbMovieResponse;
+
+          return {
+            id: tmdbData.id,
+            title: tmdbData.title,
+            overview: tmdbData.overview,
+            release_date: tmdbData.release_date,
+            poster_path: tmdbData.poster_path,
+            backdrop_path: tmdbData.backdrop_path,
+            genre_ids: tmdbData.genres ? tmdbData.genres.map((g) => g.id) : [],
+            original_language: tmdbData.original_language,
+            communityStats: stats,
+          };
+        } catch (error) {
+          logger.error(`Error fetching TMDB data for movie ${movie.tmdbId}:`, error);
+          throw new Error('TMDB_FETCH_FAILED', { cause: error });
+        }
+      })
     );
+
+    const filtered = enrichedMovies.filter((m): m is EnrichedMovie => m !== null);
+
+    cache.movies[sort] = { data: filtered, timestamp: Date.now() };
+
+    return response.status(200).json(filtered);
   } catch (error) {
-    logger.error('Error fetching featured movies:', error);
-    response.status(502).json({ message: 'Failed to fetch featured content' });
+    logger.error('Error retrieving featured movies:', error);
+    if (
+      error instanceof Error &&
+      (error.message === 'TMDB_FETCH_FAILED' || error.message.includes('TMDB'))
+    ) {
+      return response.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
+    return response.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export const getFeaturedTVShows = async (request: Request, response: Response) => {
-  const timeframe = (request.query.timeframe as string) || 'week'; // Default to 'week' if not provided
-  const language = (request.query.language as string) || 'en-US'; // Default to 'en-US' if not provided
-  const apiKey = process.env.TMDB_API_KEY;
-
   try {
-    const result = await fetch(
-      `${BASE_URL}/tv/${timeframe}?language=${language}&api_key=${apiKey}`
-    );
+    const sort = (response.locals.sort || 'top-rated') as 'most-reviewed' | 'top-rated';
+    const limit = 20;
+    const apiKey = process.env.TMDB_API_KEY;
 
-    const data = (await result.json()) as Record<string, unknown>;
-
-    if (!result.ok) {
-      response.status(result.status).json({ message: data.status_message || 'TMDB API error' });
-      return;
+    // Return cached response if valid (disabled in testing environment)
+    const cached = cache.tv[sort];
+    if (
+      process.env.NODE_ENV !== 'test' &&
+      cached.data &&
+      Date.now() - cached.timestamp < CACHE_TTL
+    ) {
+      return response.status(200).json(cached.data);
     }
 
-    const list = data.results as TmdbTVResponse[];
+    let tvShows;
+    if (sort === 'most-reviewed') {
+      tvShows = await prisma.media.findMany({
+        where: { type: 'TV_SHOW', totalReviews: { gt: 0 } },
+        orderBy: { totalReviews: 'desc' },
+        take: limit,
+      });
+    } else {
+      tvShows = await prisma.media.findMany({
+        where: { type: 'TV_SHOW', totalRatings: { gte: 2 } },
+        orderBy: { avgRating: 'desc' },
+        take: limit,
+      });
+    }
 
-    response.json(
-      list.map((tv) => ({
-        id: tv.id,
-        name: tv.name,
-        overview: tv.overview,
-        first_air_date: tv.first_air_date,
-        genre_ids: tv.genre_ids ?? [],
-        original_language: tv.original_language,
-        backdrop_path: tv.backdrop_path,
-        poster_path: tv.poster_path,
-      }))
+    const enrichedTVShows = await Promise.all(
+      tvShows.map(async (tvShow) => {
+        const stats: CommunityStats =
+          sort === 'most-reviewed'
+            ? { rankingMetric: 'most-reviewed', totalReviews: tvShow.totalReviews }
+            : {
+                rankingMetric: 'top-rated',
+                avgScore: tvShow.avgRating,
+                totalRatings: tvShow.totalRatings,
+              };
+
+        try {
+          const tmdbRes = await fetch(`${BASE_URL}/tv/${tvShow.tmdbId}?api_key=${apiKey}`);
+          if (tmdbRes.status === 404) {
+            logger.warn(`TMDB 404 for TV show ${tvShow.tmdbId} — skipping`);
+            return null;
+          }
+          if (!tmdbRes.ok) {
+            throw new Error(`TMDB returned status ${tmdbRes.status}`);
+          }
+          const tmdbData = (await tmdbRes.json()) as TmdbTVResponse;
+
+          return {
+            id: tmdbData.id,
+            name: tmdbData.name,
+            overview: tmdbData.overview,
+            first_air_date: tmdbData.first_air_date,
+            poster_path: tmdbData.poster_path,
+            backdrop_path: tmdbData.backdrop_path,
+            genre_ids: tmdbData.genres ? tmdbData.genres.map((g) => g.id) : [],
+            original_language: tmdbData.original_language,
+            communityStats: stats,
+          };
+        } catch (error) {
+          logger.error(`Error fetching TMDB data for TV show ${tvShow.tmdbId}:`, error);
+          throw new Error('TMDB_FETCH_FAILED', { cause: error });
+        }
+      })
     );
+
+    const filtered = enrichedTVShows.filter((s): s is EnrichedTVShow => s !== null);
+
+    cache.tv[sort] = { data: filtered, timestamp: Date.now() };
+
+    return response.status(200).json(filtered);
   } catch (error) {
-    logger.error('Error fetching featured TV shows:', error);
-    response.status(502).json({ message: 'Failed to fetch featured content' });
+    logger.error('Error retrieving featured TV shows:', error);
+    if (
+      error instanceof Error &&
+      (error.message === 'TMDB_FETCH_FAILED' || error.message.includes('TMDB'))
+    ) {
+      return response.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
+    return response.status(500).json({ message: 'Internal server error' });
   }
 };

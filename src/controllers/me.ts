@@ -37,24 +37,24 @@ async function fetchTmdbTitle(
   type: 'MOVIE' | 'TV_SHOW',
   apiKey: string
 ): Promise<string | null> {
-  try {
-    const endpoint =
-      type === 'MOVIE'
-        ? `${BASE_URL}/movie/${tmdbId}?api_key=${apiKey}`
-        : `${BASE_URL}/tv/${tmdbId}?api_key=${apiKey}`;
+  const endpoint =
+    type === 'MOVIE'
+      ? `${BASE_URL}/movie/${tmdbId}?api_key=${apiKey}`
+      : `${BASE_URL}/tv/${tmdbId}?api_key=${apiKey}`;
 
-    const result = await fetch(endpoint);
-    if (!result.ok) {
-      logger.warn(`TMDB returned ${result.status} for ${type} ${tmdbId}`);
-      return null;
-    }
+  const result = await fetch(endpoint);
 
-    const data = (await result.json()) as Record<string, unknown>;
-    return type === 'MOVIE' ? ((data.title as string) ?? null) : ((data.name as string) ?? null);
-  } catch (error) {
-    logger.error(`Failed to fetch TMDB title for ${type} ${tmdbId}:`, error);
+  if (result.status === 404) {
+    logger.warn(`TMDB 404 for ${type} ${tmdbId} — skipping`);
     return null;
   }
+
+  if (!result.ok) {
+    throw new Error(`TMDB returned ${result.status}`);
+  }
+
+  const data = (await result.json()) as Record<string, unknown>;
+  return type === 'MOVIE' ? ((data.title as string) ?? null) : ((data.name as string) ?? null);
 }
 
 // Helper - Builds a deduped title map for a list of media entries
@@ -71,20 +71,15 @@ async function buildTitleMap(
   }
 
   const titleMap = new Map<string, string | null>();
-  const results = await Promise.allSettled(
+  const results = await Promise.all(
     Array.from(uniqueMedia.entries()).map(async ([key, { tmdbId, type }]) => {
       const title = await fetchTmdbTitle(tmdbId, type, apiKey);
-      return { key, title: title ?? 'Unknown Title' }; // null-safe: falls back if TMDB returns nothing
+      return { key, title: title ?? 'Unknown Title' };
     })
   );
 
-  // Whether or not the everything in the Promise.allSettled is settled
-  for (const result of results) {
-    if (result.status === 'fulfilled') {
-      titleMap.set(result.value.key, result.value.title);
-    } else {
-      logger.error('Failed to resolve a TMDB title:', result.reason);
-    }
+  for (const { key, title } of results) {
+    titleMap.set(key, title);
   }
 
   return titleMap;
@@ -168,6 +163,9 @@ export const getUserReviews = async (req: Request, res: Response) => {
     return res.json({ reviews: mapReviews(reviews, titleMap) });
   } catch (error) {
     logger.error('Error fetching user reviews:', error);
+    if (error instanceof Error && error.message.includes('TMDB')) {
+      return res.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -199,6 +197,9 @@ export const getUserRatings = async (req: Request, res: Response) => {
     return res.json({ ratings: mapRatings(ratings, titleMap) });
   } catch (error) {
     logger.error('Error fetching user ratings:', error);
+    if (error instanceof Error && error.message.includes('TMDB')) {
+      return res.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -249,6 +250,9 @@ export const getUserRatingsReviews = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching user ratings/reviews:', error);
+    if (error instanceof Error && error.message.includes('TMDB')) {
+      return res.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

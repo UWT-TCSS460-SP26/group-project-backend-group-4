@@ -3,6 +3,7 @@ import {
   createReview,
   updateReview,
   getReviews,
+  getPersonalReviews,
   getReviewById,
   deleteReview,
 } from '../controllers/reviews';
@@ -12,6 +13,7 @@ import {
   validateCreateReviewBody,
   validateUpdateReviewBody,
   validateIdParam,
+  validateSearchPagination,
   requireEnvVar,
 } from '../middleware/validation';
 import { getUserReviews } from '../controllers/me';
@@ -19,8 +21,10 @@ import { getUserReviews } from '../controllers/me';
 const router = Router();
 
 router.get('/api/reviews', validateGetReviewsQuery, getReviews);
+router.get('/api/reviews/me', requireAuth, validateSearchPagination, getPersonalReviews);
 router.get('/api/reviews/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserReviews);
 router.get('/api/reviews/:id', validateIdParam, getReviewById);
+
 router.post('/api/reviews', requireAuth, validateCreateReviewBody, createReview);
 router.put(
   '/api/reviews/:id',

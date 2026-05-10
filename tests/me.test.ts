@@ -113,6 +113,40 @@ describe('GET /api/ratings/me/enhanced', () => {
 
     expect(res.status).toBe(404);
   });
+
+  it('should set title to null when TMDB returns 404', async () => {
+    const rating = createRatingRecord();
+    mockUser.findUnique.mockResolvedValue(createUserRecord());
+    mockRating.findMany.mockResolvedValue([rating]);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 404,
+    });
+
+    const res = await request(app)
+      .get('/api/ratings/me/enhanced')
+      .set(authHeader({ sub: 1, role: 'User' }));
+
+    expect(res.status).toBe(200);
+    expect(res.body.ratings[0].media.title).toBe('Unknown Title');
+  });
+
+  it('should return 502 when TMDB returns non-404 error', async () => {
+    const rating = createRatingRecord();
+    mockUser.findUnique.mockResolvedValue(createUserRecord());
+    mockRating.findMany.mockResolvedValue([rating]);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+
+    const res = await request(app)
+      .get('/api/ratings/me/enhanced')
+      .set(authHeader({ sub: 1, role: 'User' }));
+
+    expect(res.status).toBe(502);
+    expect(res.body.message).toBe('Failed to reach the TMDB API');
+  });
 });
 
 // ─── /api/reviews/me/enhanced ───────────────────────────────────────────────
@@ -140,5 +174,39 @@ describe('GET /api/reviews/me/enhanced', () => {
 
     // Your getUserReviews controller returns 401 on "User not found"
     expect(res.status).toBe(401);
+  });
+
+  it('should set title to null when TMDB returns 404', async () => {
+    const review = createReviewRecord();
+    mockUser.findUnique.mockResolvedValue(createUserRecord());
+    mockReview.findMany.mockResolvedValue([review]);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 404,
+    });
+
+    const res = await request(app)
+      .get('/api/reviews/me/enhanced')
+      .set(authHeader({ sub: 1, role: 'User' }));
+
+    expect(res.status).toBe(200);
+    expect(res.body.reviews[0].media.title).toBe('Unknown Title');
+  });
+
+  it('should return 502 when TMDB returns non-404 error', async () => {
+    const review = createReviewRecord();
+    mockUser.findUnique.mockResolvedValue(createUserRecord());
+    mockReview.findMany.mockResolvedValue([review]);
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+
+    const res = await request(app)
+      .get('/api/reviews/me/enhanced')
+      .set(authHeader({ sub: 1, role: 'User' }));
+
+    expect(res.status).toBe(502);
+    expect(res.body.message).toBe('Failed to reach the TMDB API');
   });
 });

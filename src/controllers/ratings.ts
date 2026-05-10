@@ -246,3 +246,53 @@ export const deleteRating = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+// Get All Personal Ratings
+export const getPersonalRatings = async (req: Request, res: Response) => {
+  try {
+    let localuser;
+    try {
+      localuser = await resolveLocalUser(req);
+    } catch (_err) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    if (!localuser) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const page = res.locals.page ? Number(res.locals.page) : 1;
+    const limit = res.locals.limit ? Number(res.locals.limit) : 20;
+    const skip = (page - 1) * limit;
+
+    const [ratings, total] = await Promise.all([
+      prisma.rating.findMany({
+        where: { userId: localuser.userId },
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: { username: true },
+          },
+          media: {
+            select: { tmdbId: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.rating.count({ where: { userId: localuser.userId } }),
+    ]);
+
+    return res.status(200).json({
+      data: ratings,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 0,
+      },
+    });
+  } catch (error) {
+    logger.error('Error fetching personal ratings:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};

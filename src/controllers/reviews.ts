@@ -244,3 +244,53 @@ export const deleteReview = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+// Get All Personal Reviews
+export const getPersonalReviews = async (req: Request, res: Response) => {
+  try {
+    let localuser;
+    try {
+      localuser = await resolveLocalUser(req);
+    } catch (_err) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    if (!localuser) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const page = res.locals.page ? Number(res.locals.page) : 1;
+    const limit = res.locals.limit ? Number(res.locals.limit) : 20;
+    const skip = (page - 1) * limit;
+
+    const [review, total] = await Promise.all([
+      prisma.review.findMany({
+        where: { userId: localuser.userId },
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: { username: true },
+          },
+          media: {
+            select: { tmdbId: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.review.count({ where: { userId: localuser.userId } }),
+    ]);
+
+    return res.status(200).json({
+      data: review,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 0,
+      },
+    });
+  } catch (error) {
+    logger.error('Error fetching personal reviews:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
