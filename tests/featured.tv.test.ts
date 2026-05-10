@@ -126,19 +126,41 @@ describe('GET /api/tv/featured', () => {
     expect(response.body.message).toBe('Failed to reach the TMDB API');
   });
 
-  it('should return 502 if TMDB returns non-OK HTTP response', async () => {
+  it('should return 502 if TMDB returns non-OK HTTP response (non-404)', async () => {
     (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
       { id: 1, tmdbId: 201, avgRating: 4.8, totalRatings: 25 },
     ]);
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
-      status: 404,
+      status: 500,
     });
 
     const response = await request(app).get('/api/tv/featured');
     expect(response.status).toBe(502);
     expect(response.body.message).toBe('Failed to reach the TMDB API');
+  });
+
+  it('should skip items where TMDB returns 404 and continue', async () => {
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tmdbId: 201, avgRating: 4.8, totalRatings: 25 },
+      { id: 2, tmdbId: 202, avgRating: 4.1, totalRatings: 18 },
+    ]);
+
+    (global.fetch as jest.Mock).mockImplementation(async (url) => {
+      if (url.includes('/tv/201')) {
+        return { ok: false, status: 404 };
+      }
+      if (url.includes('/tv/202')) {
+        return { ok: true, json: async () => ({ id: 202, name: 'Show 202' }) };
+      }
+      return { ok: false };
+    });
+
+    const response = await request(app).get('/api/tv/featured');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0].id).toBe(202);
   });
 
   it('should handle missing media in database mapping gracefully', async () => {

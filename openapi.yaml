@@ -135,7 +135,7 @@ paths:
     get:
       tags: [Movies]
       summary: Featured Movies
-      description: Returns featured movies based on community interactions, sorted by most-reviewed or top-rated.
+      description: Returns featured movies based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response.
       parameters:
         - name: sort
           in: query
@@ -392,7 +392,7 @@ paths:
     get:
       tags: [TV Shows]
       summary: Featured TV Shows
-      description: Returns featured TV shows based on community interactions, sorted by most-reviewed or top-rated.
+      description: Returns featured TV shows based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response.
       parameters:
         - name: sort
           in: query
@@ -1150,7 +1150,7 @@ paths:
     get:
       tags: [Ratings]
       summary: Get My Ratings (Enhanced)
-      description: Returns the authenticated user's ratings (paginated), with media titles resolved from TMDB.
+      description: Returns the authenticated user's ratings (paginated), with media titles resolved from TMDB. Items whose TMDB data is unavailable (404) will have their title fall back to "Unknown Title".
       security:
         - bearerAuth: []
       parameters:
@@ -1194,6 +1194,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Failed to reach TMDB API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
@@ -1205,7 +1211,7 @@ paths:
     get:
       tags: [Reviews]
       summary: Get My Reviews (Enhanced)
-      description: Returns the authenticated user's reviews (paginated), with media titles resolved from TMDB.
+      description: Returns the authenticated user's reviews (paginated), with media titles resolved from TMDB. Items whose TMDB data is unavailable (404) will have their title fall back to "Unknown Title".
       security:
         - bearerAuth: []
       parameters:
@@ -1245,6 +1251,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Authenticated user not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Failed to reach TMDB API
           content:
             application/json:
               schema:

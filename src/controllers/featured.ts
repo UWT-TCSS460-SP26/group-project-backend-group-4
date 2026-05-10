@@ -118,6 +118,10 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
 
         try {
           const tmdbRes = await fetch(`${BASE_URL}/movie/${movie.tmdbId}?api_key=${apiKey}`);
+          if (tmdbRes.status === 404) {
+            logger.warn(`TMDB 404 for movie ${movie.tmdbId} — skipping`);
+            return null;
+          }
           if (!tmdbRes.ok) {
             throw new Error(`TMDB returned status ${tmdbRes.status}`);
           }
@@ -141,9 +145,11 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
       })
     );
 
-    cache.movies[sort] = { data: enrichedMovies, timestamp: Date.now() };
+    const filtered = enrichedMovies.filter((m): m is EnrichedMovie => m !== null);
 
-    return response.status(200).json(enrichedMovies);
+    cache.movies[sort] = { data: filtered, timestamp: Date.now() };
+
+    return response.status(200).json(filtered);
   } catch (error) {
     logger.error('Error retrieving featured movies:', error);
     if (
@@ -200,6 +206,10 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
 
         try {
           const tmdbRes = await fetch(`${BASE_URL}/tv/${tvShow.tmdbId}?api_key=${apiKey}`);
+          if (tmdbRes.status === 404) {
+            logger.warn(`TMDB 404 for TV show ${tvShow.tmdbId} — skipping`);
+            return null;
+          }
           if (!tmdbRes.ok) {
             throw new Error(`TMDB returned status ${tmdbRes.status}`);
           }
@@ -223,9 +233,11 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
       })
     );
 
-    cache.tv[sort] = { data: enrichedTVShows, timestamp: Date.now() };
+    const filtered = enrichedTVShows.filter((s): s is EnrichedTVShow => s !== null);
 
-    return response.status(200).json(enrichedTVShows);
+    cache.tv[sort] = { data: filtered, timestamp: Date.now() };
+
+    return response.status(200).json(filtered);
   } catch (error) {
     logger.error('Error retrieving featured TV shows:', error);
     if (
