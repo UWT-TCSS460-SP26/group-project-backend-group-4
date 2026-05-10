@@ -1054,15 +1054,84 @@ paths:
   /issues:
     get:
       tags: [Issues]
-      summary: List Issues
-      description: Returns the 10 most recent issues that have not been deleted.
+      summary: List Issues (Admin)
+      description: |
+        Returns a paginated, filterable, sortable list of issues that have not been deleted.
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+          description: 1-based page number.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of issues per page.
+        - name: status
+          in: query
+          required: false
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/IssueStatus'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/IssueStatus'
+          description: Filter by one or more status values (e.g. `?status=OPEN` or `?status=OPEN&status=IN_PROGRESS`).
+          explode: true
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [createdAt, status, title]
+            default: createdAt
+          description: Field to sort by.
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort direction.
       responses:
         '200':
-          description: A list of issues.
+          description: A paginated list of issues.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/IssueListResponse'
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -1119,8 +1188,13 @@ paths:
         description: The ID of the issue.
     get:
       tags: [Issues]
-      summary: Get Issue by ID
-      description: Returns a single issue by its ID.
+      summary: Get Issue by ID (Admin)
+      description: |
+        Returns a single issue by its ID.
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Issue retrieved successfully.
@@ -1134,6 +1208,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Issue not found.
           content:
@@ -1146,10 +1232,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    put:
+    patch:
       tags: [Issues]
-      summary: Update Issue
-      description: Updates an existing issue's details or status.
+      summary: Patch Issue (Admin)
+      description: |
+        Partially updates an existing issue. Only the fields present in the
+        request body are changed — omitted fields are left untouched (PATCH
+        merge semantics). An empty body is a no-op (200).
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -1159,27 +1252,103 @@ paths:
               properties:
                 title:
                   type: string
+                  example: 'Corrected title'
                 body:
                   type: string
+                  example: 'Updated description'
                 contact:
                   type: string
+                  example: 'new-contact@example.com'
                 status:
                   $ref: '#/components/schemas/IssueStatus'
+            examples:
+              triage:
+                summary: Triage — move to in-progress
+                value:
+                  status: IN_PROGRESS
+              resolve:
+                summary: Mark as resolved
+                value:
+                  status: RESOLVED
+              editDetails:
+                summary: Fix a typo
+                value:
+                  title: 'Corrected title'
+                  body: 'Updated description'
       responses:
         '200':
-          description: Issue updated successfully.
+          description: Issue updated (or no-op for empty body).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IssueUpdateResponse'
+                $ref: '#/components/schemas/IssuePatchResponse'
         '400':
-          description: Validation failed.
+          description: Validation failed (e.g. unknown status string).
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Issue not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Issues]
+      summary: Delete Issue (Admin)
+      description: |
+        Soft-deletes an issue (sets `deleted=true`). The row is preserved for
+        audit purposes but excluded from all list/detail responses.
+
+        **Authentication:** Requires a valid Auth² JWT with role Admin or above.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Issue soft-deleted. The response includes the deleted issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDeleteResponse'
+        '400':
+          description: Invalid ID parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions (role below Admin).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Issue not found or already deleted.
           content:
             application/json:
               schema:
@@ -1638,6 +1807,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Issue'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
     IssueSingleResponse:
       type: object
       properties:
@@ -1651,11 +1822,19 @@ components:
           example: 'Issue created'
         issue:
           $ref: '#/components/schemas/Issue'
-    IssueUpdateResponse:
+    IssuePatchResponse:
       type: object
       properties:
         message:
           type: string
           example: 'Issue updated'
-        newIssue:
+        issue:
+          $ref: '#/components/schemas/Issue'
+    IssueDeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Issue deleted'
+        issue:
           $ref: '#/components/schemas/Issue'
