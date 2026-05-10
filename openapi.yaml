@@ -942,6 +942,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/ratings/me/enhanced:
+    get:
+      tags: [Ratings]
+      summary: Get My Ratings (Enhanced)
+      description: Returns the authenticated user's ratings (paginated), with media titles resolved from TMDB.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+          description: Number of results per page.
+      responses:
+        '200':
+          description: Successfully retrieved the authenticated user's ratings.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ratings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RatingEntry'
+        '401':
+          description: Missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Authenticated user not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/reviews/me/enhanced:
+    get:
+      tags: [Reviews]
+      summary: Get My Reviews (Enhanced)
+      description: Returns the authenticated user's reviews (paginated), with media titles resolved from TMDB.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+          description: Number of results per page.
+      responses:
+        '200':
+          description: Successfully retrieved the authenticated user's reviews.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReviewEntry'
+        '401':
+          description: Missing or invalid bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Authenticated user not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /issues:
     get:
       tags: [Issues]
@@ -1091,6 +1200,84 @@ components:
         Auth²-issued JWT. Obtain a token from `https://tcss-460-iam.onrender.com`.
         **Audience:** `group-4-api`
   schemas:
+    RatingEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        score:
+          type: integer
+          example: 4
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-11-01T12:34:56.000Z'
+        author:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 42
+            username:
+              type: string
+              description: The user's display name. Defaults to "Username Not Found" if not set.
+              example: moviecritic99
+        media:
+          type: object
+          properties:
+            tmdbId:
+              type: integer
+              example: 550
+            type:
+              type: string
+              enum: [MOVIE, TV_SHOW]
+              example: MOVIE
+            title:
+              type: string
+              nullable: true
+              example: Fight Club
+    ReviewEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 7
+        title:
+          type: string
+          nullable: true
+          example: A modern classic
+        body:
+          type: string
+          example: One of the best films ever made.
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-11-01T12:34:56.000Z'
+        author:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 42
+            username:
+              type: string
+              description: The user's display name. Defaults to "Username Not Found" if not set.
+              example: moviecritic99
+        media:
+          type: object
+          properties:
+            tmdbId:
+              type: integer
+              example: 550
+            type:
+              type: string
+              enum: [MOVIE, TV_SHOW]
+              example: MOVIE
+            title:
+              type: string
+              nullable: true
+              example: Fight Club
     ErrorResponse:
       type: object
       properties:
