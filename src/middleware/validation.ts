@@ -148,15 +148,6 @@ export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
 
 // ---- Utility exports (non-middleware) ----
 
-export const parseIdOrRespond = (value: unknown, res: Response, message: string): number | null => {
-  const result = z.coerce.number().int().positive().safeParse(value);
-  if (!result.success) {
-    res.status(400).json({ message });
-    return null;
-  }
-  return result.data;
-};
-
 export const requireEnvVar = (key: string) => {
   return (_request: Request, response: Response, next: NextFunction) => {
     if (!process.env[key]) {
