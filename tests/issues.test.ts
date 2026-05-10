@@ -36,11 +36,24 @@ function authHeader(claims: Record<string, unknown>) {
   return { Authorization: `Bearer ${JSON.stringify(claims)}` };
 }
 
-// Helper: mock admin-authenticated request
+// Helper: mock admin-authenticated GET request
 function adminGet(url: string, query?: Record<string, unknown>) {
   const req = request(app).get(url).set(authHeader(ADMIN_AUTH));
   if (query) req.query(query);
   return req;
+}
+
+// Helper: mock admin-authenticated PATCH request
+function adminPatch(url: string, body?: Record<string, unknown>) {
+  return request(app)
+    .patch(url)
+    .set(authHeader(ADMIN_AUTH))
+    .send(body ?? {});
+}
+
+// Helper: mock admin-authenticated DELETE request
+function adminDelete(url: string) {
+  return request(app).delete(url).set(authHeader(ADMIN_AUTH));
 }
 
 beforeAll(async () => {
@@ -258,99 +271,188 @@ describe('Issues API', () => {
     });
   });
 
-  // ─── PUT /issues/:id (unchanged for now — Story 2) ─────────────
-  describe('PUT /issues/:id', () => {
-    it('should update an existing issue', async () => {
-      const mockIssue = {
-        id: 1,
-        title: 'Non-Updated Issue',
-        body: 'This issue has not been updated',
-        contact: 'First Contact',
-        status: 'OPEN',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(mockIssue);
+  // ─── PATCH /issues/:id (admin-gated partial update) ───────────
+  describe('PATCH /issues/:id', () => {
+    const existingIssue = {
+      id: 1,
+      title: 'Original Title',
+      body: 'Original body',
+      contact: 'original@test.local',
+      status: 'OPEN',
+      createdAt: new Date('2026-05-01'),
+      updatedAt: new Date('2026-05-01'),
+    };
 
-      const updatedIssue = {
-        id: 1,
-        title: 'Updated Issue',
-        body: 'This issue has been updated',
-        contact: 'Updated Contact',
-        status: 'RESOLVED',
-        createdAt: mockIssue.createdAt,
-        updatedAt: new Date(),
-      };
+    it('should partially update only the provided fields', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
+
+      const updatedIssue = { ...existingIssue, status: 'IN_PROGRESS', updatedAt: new Date() };
       (prisma.issue.update as jest.Mock).mockResolvedValue(updatedIssue);
 
-      const response = await request(app).put('/issues/1').send({
-        title: 'Updated Issue',
-        body: 'This issue has been updated',
-        contact: 'Updated Contact',
-        status: 'RESOLVED',
-      });
+      const response = await adminPatch('/issues/1', { status: 'IN_PROGRESS' });
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('newIssue');
-      expect(response.body.newIssue).toMatchObject({
-        ...updatedIssue,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
+      expect(response.body).toHaveProperty('message', 'Issue updated');
+      expect(response.body.issue).toMatchObject({
+        id: 1,
+        status: 'IN_PROGRESS',
       });
+      // Only 'status' was in the body — no other fields should be sent to Prisma
       expect(prisma.issue.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: {
-          title: 'Updated Issue',
-          body: 'This issue has been updated',
-          contact: 'Updated Contact',
-          status: 'RESOLVED',
-        },
+        data: { status: 'IN_PROGRESS' },
         omit: { deleted: true },
       });
     });
 
-    it('should return 404 if the issue to update is not found', async () => {
-      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(null);
+    it('should update multiple fields when provided', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
 
-      const response = await request(app).put('/issues/999').send({
-        title: 'Updated Issue',
-        body: 'This issue has been updated',
-        contact: 'Updated Contact',
-        status: 'RESOLVED',
+      const updatedIssue = {
+        ...existingIssue,
+        title: 'New Title',
+        body: 'New body',
+        updatedAt: new Date(),
+      };
+      (prisma.issue.update as jest.Mock).mockResolvedValue(updatedIssue);
+
+      const response = await adminPatch('/issues/1', {
+        title: 'New Title',
+        body: 'New body',
       });
 
+      expect(response.status).toBe(200);
+      expect(prisma.issue.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { title: 'New Title', body: 'New body' },
+        omit: { deleted: true },
+      });
+    });
+
+    it('should accept an empty body as a no-op', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
+
+      const unchangedIssue = { ...existingIssue, updatedAt: new Date() };
+      (prisma.issue.update as jest.Mock).mockResolvedValue(unchangedIssue);
+
+      const response = await adminPatch('/issues/1', {});
+
+      expect(response.status).toBe(200);
+      expect(prisma.issue.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {},
+        omit: { deleted: true },
+      });
+    });
+
+    it('should return 401 when no auth token is provided', async () => {
+      const response = await request(app).patch('/issues/1').send({ status: 'RESOLVED' });
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 403 when user role is insufficient', async () => {
+      const response = await request(app)
+        .patch('/issues/1')
+        .set(authHeader(USER_AUTH))
+        .send({ status: 'RESOLVED' });
+      expect(response.status).toBe(403);
+      expect(response.body).toHaveProperty('message', 'Insufficient permissions');
+    });
+
+    it('should return 404 if the issue is not found or already deleted', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const response = await adminPatch('/issues/999', { status: 'RESOLVED' });
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('message', 'Issue not found');
     });
 
-    it('should return 500 on database error during update', async () => {
-      (prisma.issue.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
-      (prisma.issue.update as jest.Mock).mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app).put('/issues/1').send({
-        title: 'Updated Issue',
-        body: 'This issue has been updated',
-        contact: 'Updated Contact',
-        status: 'RESOLVED',
-      });
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message', 'Internal Server Error');
-    });
-
-    it('should return 400 if the id parameter is invalid', async () => {
-      const response = await request(app)
-        .put('/issues/invalid_id')
-        .send({ title: 'Updated Issue' });
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('message', 'Validation failed');
-    });
-
     it('should return 400 if the status is invalid', async () => {
-      const response = await request(app).put('/issues/1').send({ status: 'INVALID_STATUS' });
+      const response = await adminPatch('/issues/1', { status: 'INVALID_STATUS' });
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('message', 'Validation failed');
       expect(response.body.details[0]).toMatchObject({ path: 'status' });
+    });
+
+    it('should return 400 if the id parameter is invalid', async () => {
+      const response = await adminPatch('/issues/invalid_id', { status: 'OPEN' });
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Validation failed');
+    });
+
+    it('should return 500 on database error', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
+      (prisma.issue.update as jest.Mock).mockRejectedValue(new Error('Database error'));
+
+      const response = await adminPatch('/issues/1', { status: 'RESOLVED' });
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('message', 'Internal Server Error');
+    });
+  });
+
+  // ─── DELETE /issues/:id (admin-gated soft-delete) ─────────────
+  describe('DELETE /issues/:id', () => {
+    const existingIssue = {
+      id: 1,
+      title: 'Spam Report',
+      body: 'Buy my product!',
+      contact: 'spammer@test.local',
+      status: 'OPEN',
+      createdAt: new Date('2026-05-01'),
+      updatedAt: new Date('2026-05-01'),
+    };
+
+    it('should soft-delete an existing issue', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
+
+      const deletedIssue = { ...existingIssue, deleted: true, updatedAt: new Date() };
+      (prisma.issue.update as jest.Mock).mockResolvedValue(deletedIssue);
+
+      const response = await adminDelete('/issues/1');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Issue deleted');
+      expect(response.body.issue).toMatchObject({ id: 1 });
+      expect(prisma.issue.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { deleted: true },
+        omit: { deleted: true },
+      });
+    });
+
+    it('should return 401 when no auth token is provided', async () => {
+      const response = await request(app).delete('/issues/1');
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 403 when user role is insufficient', async () => {
+      const response = await request(app).delete('/issues/1').set(authHeader(USER_AUTH));
+      expect(response.status).toBe(403);
+      expect(response.body).toHaveProperty('message', 'Insufficient permissions');
+    });
+
+    it('should return 404 if the issue is not found or already deleted', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const response = await adminDelete('/issues/999');
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('message', 'Issue not found');
+    });
+
+    it('should return 400 if the id parameter is invalid', async () => {
+      const response = await adminDelete('/issues/invalid_id');
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Validation failed');
+    });
+
+    it('should return 500 on database error', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(existingIssue);
+      (prisma.issue.update as jest.Mock).mockRejectedValue(new Error('Database error'));
+
+      const response = await adminDelete('/issues/1');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('message', 'Internal Server Error');
     });
   });
 

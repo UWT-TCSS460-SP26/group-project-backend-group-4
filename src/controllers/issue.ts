@@ -102,14 +102,19 @@ export async function createIssue(req: Request, res: Response) {
   }
 }
 
-export async function updateIssue(req: Request, res: Response) {
+/**
+ * PATCH /issues/:id — Admin-gated partial update for triage.
+ * Accepts a partial body: only provided fields are merged into the issue.
+ * An empty body is a no-op (200).
+ * Unknown status values are caught by Zod validation (400).
+ */
+export async function patchIssue(req: Request, res: Response) {
   const issueId = res.locals.id as number;
-  const { title, body, contact, status } = req.body;
+  const patch = req.body as Record<string, unknown>;
+
   try {
     const issue = await prisma.issue.findUnique({
-      where: {
-        id: issueId,
-      },
+      where: { id: issueId, deleted: false },
     });
 
     if (issue === null) {
@@ -117,24 +122,55 @@ export async function updateIssue(req: Request, res: Response) {
       return;
     }
 
-    const newIssue = await prisma.issue.update({
-      omit: {
-        deleted: true,
-      },
-      where: {
-        id: issueId,
-      },
-      data: {
-        title,
-        body,
-        contact,
-        status,
-      },
+    // Only include fields that were actually sent in the request body.
+    // This is what makes PATCH a "merge" rather than a "replace."
+    const data: Record<string, unknown> = {};
+    for (const key of ['title', 'body', 'contact', 'status'] as const) {
+      if (key in patch) {
+        data[key] = patch[key];
+      }
+    }
+
+    const updated = await prisma.issue.update({
+      where: { id: issueId },
+      data,
+      omit: { deleted: true },
     });
-    res.status(200).json({ message: 'Issue updated', newIssue });
+
+    res.status(200).json({ message: 'Issue updated', issue: updated });
   } catch (error) {
-    logger.error(`Error updating issue: `, error);
+    logger.error('Error patching issue:', error);
     res.status(500).json({ message: 'Internal Server Error' });
-    return;
+  }
+}
+
+/**
+ * DELETE /issues/:id — Admin-gated soft-delete.
+ * Sets deleted=true rather than removing the row, preserving an audit trail.
+ * Returns 404 for already-deleted or nonexistent issues.
+ */
+export async function deleteIssue(req: Request, res: Response) {
+  const issueId = res.locals.id as number;
+
+  try {
+    const issue = await prisma.issue.findUnique({
+      where: { id: issueId, deleted: false },
+    });
+
+    if (issue === null) {
+      res.status(404).json({ message: 'Issue not found' });
+      return;
+    }
+
+    const deleted = await prisma.issue.update({
+      where: { id: issueId },
+      data: { deleted: true },
+      omit: { deleted: true },
+    });
+
+    res.status(200).json({ message: 'Issue deleted', issue: deleted });
+  } catch (error) {
+    logger.error('Error deleting issue:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }

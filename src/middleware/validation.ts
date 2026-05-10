@@ -11,11 +11,11 @@ const postIssueBodySchema = z.object({
   contact: z.string().trim().min(1),
 });
 
-const putIssueUpdateSchema = z.object({
+const patchIssueSchema = z.object({
   title: z.string().trim().min(1).optional(),
   body: z.string().trim().min(1).optional(),
   contact: z.string().trim().min(1).optional(),
-  status: z.enum(IssueStatus).optional(),
+  status: z.nativeEnum(IssueStatus).optional(),
 });
 
 const idParamSchema = z.object({
@@ -144,7 +144,7 @@ function validateQuery(schema: ZodType): RequestHandler {
 // ---- Exported middleware ----
 
 export const validatePostIssueBody = validateBody(postIssueBodySchema);
-export const validatePutIssueBody = validateBody(putIssueUpdateSchema);
+export const validatePatchIssueBody = validateBody(patchIssueSchema);
 export const validateCreateReviewBody = validateBody(createReviewBodySchema);
 export const validateUpdateReviewBody = validateBody(updateReviewBodySchema);
 export const validateCreateRatingBody = validateBody(createRatingBodySchema);
