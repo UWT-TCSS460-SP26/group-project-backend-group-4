@@ -19,6 +19,7 @@ import { getUserReviews } from '../controllers/me';
 const router = Router();
 
 router.get('/api/reviews', validateGetReviewsQuery, getReviews);
+router.get('/api/reviews/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserReviews);
 router.get('/api/reviews/:id', validateIdParam, getReviewById);
 router.post('/api/reviews', requireAuth, validateCreateReviewBody, createReview);
 router.put(
@@ -29,6 +30,5 @@ router.put(
   updateReview
 );
 router.delete('/api/reviews/:id', requireAuth, validateIdParam, deleteReview);
-router.get('/api/reviews/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserReviews);
 
 export { router as reviewRouter };
