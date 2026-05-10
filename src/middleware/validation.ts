@@ -15,7 +15,7 @@ const patchIssueSchema = z.object({
   title: z.string().trim().min(1).optional(),
   body: z.string().trim().min(1).optional(),
   contact: z.string().trim().min(1).optional(),
-  status: z.nativeEnum(IssueStatus).optional(),
+  status: z.enum(IssueStatus).optional(),
 });
 
 const idParamSchema = z.object({
