@@ -1,8 +1,6 @@
 import request from 'supertest';
-import type { Express } from 'express';
+import { app } from '../src/app';
 import { prisma } from '../src/lib/prisma';
-
-let app: Express;
 
 jest.mock('../src/lib/prisma', () => ({
   prisma: {
@@ -18,35 +16,26 @@ jest.mock('../src/lib/prisma', () => ({
   },
 }));
 
-beforeAll(async () => {
+beforeAll(() => {
   process.env.NODE_ENV = 'test';
-  process.env.TMDB_API_KEY = 'TEST_API_KEY';
-  global.fetch = jest.fn();
-
-  const importedApp = await import('../src/app');
-  app = importedApp.app;
 });
 
 beforeEach(() => {
+  process.env.TMDB_API_KEY = 'TEST_API_KEY';
+  global.fetch = jest.fn();
   jest.clearAllMocks();
 });
 
 afterEach(() => {
+  delete process.env.TMDB_API_KEY;
   jest.restoreAllMocks();
 });
 
 describe('GET /api/movies/featured', () => {
   it('should return most-reviewed movies and merge TMDB data', async () => {
-    (prisma.media.findMany as jest.Mock)
-      .mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
-      .mockResolvedValueOnce([
-        { id: 1, tmdbId: 101 },
-        { id: 2, tmdbId: 102 },
-      ]);
-
-    (prisma.review.groupBy as jest.Mock).mockResolvedValue([
-      { mediaId: 2, _count: { id: 10 } },
-      { mediaId: 1, _count: { id: 5 } },
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 2, tmdbId: 102, totalReviews: 10 },
+      { id: 1, tmdbId: 101, totalReviews: 5 },
     ]);
 
     (global.fetch as jest.Mock).mockImplementation(async (url) => {
@@ -92,16 +81,9 @@ describe('GET /api/movies/featured', () => {
   });
 
   it('should return top-rated movies and merge TMDB data', async () => {
-    (prisma.media.findMany as jest.Mock)
-      .mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
-      .mockResolvedValueOnce([
-        { id: 1, tmdbId: 101 },
-        { id: 2, tmdbId: 102 },
-      ]);
-
-    (prisma.rating.groupBy as jest.Mock).mockResolvedValue([
-      { mediaId: 1, _avg: { score: 4.5 }, _count: { score: 20 } },
-      { mediaId: 2, _avg: { score: 3.5 }, _count: { score: 15 } },
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tmdbId: 101, avgRating: 4.5, totalRatings: 20 },
+      { id: 2, tmdbId: 102, avgRating: 3.5, totalRatings: 15 },
     ]);
 
     (global.fetch as jest.Mock).mockImplementation(async (url) => {
@@ -133,12 +115,8 @@ describe('GET /api/movies/featured', () => {
   });
 
   it('should handle TMDB fetch errors gracefully by omitting the media', async () => {
-    (prisma.media.findMany as jest.Mock)
-      .mockResolvedValueOnce([{ id: 1 }])
-      .mockResolvedValueOnce([{ id: 1, tmdbId: 101 }]);
-
-    (prisma.rating.groupBy as jest.Mock).mockResolvedValue([
-      { mediaId: 1, _avg: { score: 4.5 }, _count: { score: 20 } },
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tmdbId: 101, avgRating: 4.5, totalRatings: 20 },
     ]);
 
     (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('TMDB Network Error'));
@@ -150,12 +128,8 @@ describe('GET /api/movies/featured', () => {
   });
 
   it('should handle TMDB non-OK HTTP responses by omitting the media', async () => {
-    (prisma.media.findMany as jest.Mock)
-      .mockResolvedValueOnce([{ id: 1 }])
-      .mockResolvedValueOnce([{ id: 1, tmdbId: 101 }]);
-
-    (prisma.rating.groupBy as jest.Mock).mockResolvedValue([
-      { mediaId: 1, _avg: { score: 4.5 }, _count: { score: 20 } },
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tmdbId: 101, avgRating: 4.5, totalRatings: 20 },
     ]);
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -169,11 +143,7 @@ describe('GET /api/movies/featured', () => {
   });
 
   it('should handle missing media in database mapping gracefully', async () => {
-    (prisma.media.findMany as jest.Mock)
-      .mockResolvedValueOnce([{ id: 1 }])
-      .mockResolvedValueOnce([]); // Mock empty array for the secondary lookup
-
-    (prisma.review.groupBy as jest.Mock).mockResolvedValue([{ mediaId: 1, _count: { id: 10 } }]);
+    (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([]);
 
     const response = await request(app).get('/api/movies/featured?sort=most-reviewed');
     expect(response.status).toBe(200);
