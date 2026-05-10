@@ -13,12 +13,13 @@ import {
   validateGetReviewsQuery,
   validateCreateRatingBody,
   validateUpdateRatingBody,
+  validateSearchPagination,
 } from '../middleware/validation';
 
 const router = Router();
 
 router.get('/api/ratings', validateGetReviewsQuery, getRatings);
-router.get('/api/ratings/me', requireAuth, validateGetReviewsQuery, getPersonalRatings);
+router.get('/api/ratings/me', requireAuth, validateSearchPagination, getPersonalRatings);
 router.get('/api/ratings/:id', validateIdParam, getRatingById);
 
 router.post('/api/ratings', requireAuth, validateCreateRatingBody, createRating);

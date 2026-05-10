@@ -75,7 +75,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export const getFeaturedMovies = async (request: Request, response: Response) => {
   try {
-    const sort = request.query.sort === 'most-reviewed' ? 'most-reviewed' : 'top-rated';
+    const sort = (response.locals.sort || 'top-rated') as 'most-reviewed' | 'top-rated';
     const limit = 20;
     const apiKey = process.env.TMDB_API_KEY;
 
@@ -98,6 +98,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
       });
     } else {
       movies = await prisma.media.findMany({
+        // Return only if greater than 2 results to avoid data skewing
         where: { type: 'MOVIE', totalRatings: { gte: 2 } },
         orderBy: { avgRating: 'desc' },
         take: limit,
@@ -151,7 +152,7 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
 
 export const getFeaturedTVShows = async (request: Request, response: Response) => {
   try {
-    const sort = request.query.sort === 'most-reviewed' ? 'most-reviewed' : 'top-rated';
+    const sort = (response.locals.sort || 'top-rated') as 'most-reviewed' | 'top-rated';
     const limit = 20;
     const apiKey = process.env.TMDB_API_KEY;
 

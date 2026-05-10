@@ -39,6 +39,10 @@ const searchPaginationQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).optional().default(20),
 });
 
+const featuredSortQuerySchema = z.object({
+  sort: z.enum(['most-reviewed', 'top-rated']).optional().default('top-rated'),
+});
+
 const getReviewsQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).optional().default(1),
@@ -144,6 +148,7 @@ export const requireMovieId = validateParams(movieIdParamSchema);
 export const requireSeriesId = validateParams(seriesIdParamSchema);
 export const requireTitleName = validateQuery(titleQuerySchema);
 export const validateSearchPagination = validateQuery(searchPaginationQuerySchema);
+export const validateFeaturedSortQuery = validateQuery(featuredSortQuerySchema);
 export const validateGetReviewsQuery = validateQuery(getReviewsQuerySchema);
 
 // ---- Utility exports (non-middleware) ----
