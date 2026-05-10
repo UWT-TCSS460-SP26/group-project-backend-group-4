@@ -114,7 +114,7 @@ describe('GET /api/tv/featured', () => {
     });
   });
 
-  it('should handle TMDB fetch errors gracefully by omitting the media', async () => {
+  it('should return 502 if TMDB fetch fails', async () => {
     (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
       { id: 1, tmdbId: 201, avgRating: 4.8, totalRatings: 25 },
     ]);
@@ -122,11 +122,11 @@ describe('GET /api/tv/featured', () => {
     (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('TMDB Network Error'));
 
     const response = await request(app).get('/api/tv/featured');
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.status).toBe(502);
+    expect(response.body.message).toBe('Failed to reach the TMDB API');
   });
 
-  it('should handle TMDB non-OK HTTP responses by omitting the media', async () => {
+  it('should return 502 if TMDB returns non-OK HTTP response', async () => {
     (prisma.media.findMany as jest.Mock).mockResolvedValueOnce([
       { id: 1, tmdbId: 201, avgRating: 4.8, totalRatings: 25 },
     ]);
@@ -137,8 +137,8 @@ describe('GET /api/tv/featured', () => {
     });
 
     const response = await request(app).get('/api/tv/featured');
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.status).toBe(502);
+    expect(response.body.message).toBe('Failed to reach the TMDB API');
   });
 
   it('should handle missing media in database mapping gracefully', async () => {

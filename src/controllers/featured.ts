@@ -118,7 +118,9 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
 
         try {
           const tmdbRes = await fetch(`${BASE_URL}/movie/${movie.tmdbId}?api_key=${apiKey}`);
-          if (!tmdbRes.ok) return null;
+          if (!tmdbRes.ok) {
+            throw new Error(`TMDB returned status ${tmdbRes.status}`);
+          }
           const tmdbData = (await tmdbRes.json()) as TmdbMovieResponse;
 
           return {
@@ -134,18 +136,22 @@ export const getFeaturedMovies = async (request: Request, response: Response) =>
           };
         } catch (error) {
           logger.error(`Error fetching TMDB data for movie ${movie.tmdbId}:`, error);
-          return null;
+          throw new Error('TMDB_FETCH_FAILED', { cause: error });
         }
       })
     );
 
-    const finalResults = enrichedMovies.filter((movie): movie is EnrichedMovie => movie !== null);
+    cache.movies[sort] = { data: enrichedMovies, timestamp: Date.now() };
 
-    cache.movies[sort] = { data: finalResults, timestamp: Date.now() };
-
-    return response.status(200).json(finalResults);
+    return response.status(200).json(enrichedMovies);
   } catch (error) {
     logger.error('Error retrieving featured movies:', error);
+    if (
+      error instanceof Error &&
+      (error.message === 'TMDB_FETCH_FAILED' || error.message.includes('TMDB'))
+    ) {
+      return response.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
     return response.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -194,7 +200,9 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
 
         try {
           const tmdbRes = await fetch(`${BASE_URL}/tv/${tvShow.tmdbId}?api_key=${apiKey}`);
-          if (!tmdbRes.ok) return null;
+          if (!tmdbRes.ok) {
+            throw new Error(`TMDB returned status ${tmdbRes.status}`);
+          }
           const tmdbData = (await tmdbRes.json()) as TmdbTVResponse;
 
           return {
@@ -210,18 +218,22 @@ export const getFeaturedTVShows = async (request: Request, response: Response) =
           };
         } catch (error) {
           logger.error(`Error fetching TMDB data for TV show ${tvShow.tmdbId}:`, error);
-          return null;
+          throw new Error('TMDB_FETCH_FAILED', { cause: error });
         }
       })
     );
 
-    const finalResults = enrichedTVShows.filter((show): show is EnrichedTVShow => show !== null);
+    cache.tv[sort] = { data: enrichedTVShows, timestamp: Date.now() };
 
-    cache.tv[sort] = { data: finalResults, timestamp: Date.now() };
-
-    return response.status(200).json(finalResults);
+    return response.status(200).json(enrichedTVShows);
   } catch (error) {
     logger.error('Error retrieving featured TV shows:', error);
+    if (
+      error instanceof Error &&
+      (error.message === 'TMDB_FETCH_FAILED' || error.message.includes('TMDB'))
+    ) {
+      return response.status(502).json({ message: 'Failed to reach the TMDB API' });
+    }
     return response.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -293,9 +293,46 @@ paths:
                       type: string
                       example: en
                     communityStats:
+                      oneOf:
+                        - type: object
+                          required: [rankingMetric, totalReviews]
+                          properties:
+                            rankingMetric:
+                              type: string
+                              enum: [most-reviewed]
+                            totalReviews:
+                              type: integer
+                              example: 10
+                        - type: object
+                          required: [rankingMetric, totalRatings]
+                          properties:
+                            rankingMetric:
+                              type: string
+                              enum: [top-rated]
+                            avgScore:
+                              type: number
+                              nullable: true
+                              example: 4.5
+                            totalRatings:
+                              type: integer
+                              example: 20
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
                       type: object
                       properties:
                         rankingMetric:
+                        path:
                           type: string
                         totalReviews:
                           type: integer
@@ -303,6 +340,10 @@ paths:
                           type: number
                         totalRatings:
                           type: integer
+                          example: sort
+                        message:
+                          type: string
+                          example: "Invalid enum value. Expected 'most-reviewed' | 'top-rated'"
         '500':
           description: Internal server error
           content:
@@ -691,9 +732,46 @@ paths:
                       type: string
                       example: en
                     communityStats:
+                      oneOf:
+                        - type: object
+                          required: [rankingMetric, totalReviews]
+                          properties:
+                            rankingMetric:
+                              type: string
+                              enum: [most-reviewed]
+                            totalReviews:
+                              type: integer
+                              example: 10
+                        - type: object
+                          required: [rankingMetric, totalRatings]
+                          properties:
+                            rankingMetric:
+                              type: string
+                              enum: [top-rated]
+                            avgScore:
+                              type: number
+                              nullable: true
+                              example: 4.5
+                            totalRatings:
+                              type: integer
+                              example: 20
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed
+                  details:
+                    type: array
+                    items:
                       type: object
                       properties:
                         rankingMetric:
+                        path:
                           type: string
                         totalReviews:
                           type: integer
@@ -701,6 +779,10 @@ paths:
                           type: number
                         totalRatings:
                           type: integer
+                          example: sort
+                        message:
+                          type: string
+                          example: "Invalid enum value. Expected 'most-reviewed' | 'top-rated'"
         '500':
           description: Internal server error
           content:
