@@ -61,17 +61,12 @@ const createReviewRecord = (overrides: Record<string, unknown> = {}) => ({
 
 /** Minimal TMDB response helpers remain the same */
 const tmdbMovieResponse = (tmdbId: number, title: string) => ({ id: tmdbId, title });
-const tmdbTvResponse = (tmdbId: number, name: string) => ({ id: tmdbId, name });
 
 const mockTmdbFetch = (body: object) => {
   (global.fetch as jest.Mock).mockResolvedValue({
     ok: true,
     json: async () => body,
   });
-};
-
-const mockTmdbFetchError = (status = 500) => {
-  (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status, json: async () => ({}) });
 };
 
 // ─── Setup ──────────────────────────────────────────────────────────────────
