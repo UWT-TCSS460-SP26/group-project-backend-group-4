@@ -10,6 +10,7 @@ Express + TypeScript API for the TCSS 460 group project.
 4. The only orgins that are CORS-allowed are: `https://group-project-frontend-group-4.onrender.com`, should you need to get your origin added, please file a bug report and include "CORS Request" in the title.
 5. You can file a bug report by going to the [bug tracker](https://bug-tracker-group4.onrender.com/)
 6. No currently known quirks, limits inclued Render's startup time as well as TMDB's rate limits
+7. The 'featured' media routes use local community data and update/cache the 'top-rated' and 'most-reviewed' results at scheduled intervals.
 
 ## Deployed URL
 
