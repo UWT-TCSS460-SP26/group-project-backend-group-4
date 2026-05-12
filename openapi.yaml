@@ -141,7 +141,7 @@ paths:
     get:
       tags: [Movies]
       summary: Featured Movies
-      description: Returns featured movies based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response. Results are cached server-side for 5 minutes.
+      description: Returns featured movies based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response. Results are only updated every 5 minutes, so new reviews/ ratings may take some time to be reflected.
       parameters:
         - name: sort
           in: query
@@ -347,7 +347,7 @@ paths:
     get:
       tags: [TV Shows]
       summary: Featured TV Shows
-      description: Returns featured TV shows based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response. Results are cached server-side for 5 minutes.
+      description: Returns featured TV shows based on community interactions, sorted by most-reviewed or top-rated. Items whose TMDB data is unavailable (404) are silently omitted from the response. Results are only updated every 5 minutes, so new reviews/ ratings may take some time to be reflected.
       parameters:
         - name: sort
           in: query
