@@ -11,6 +11,7 @@ import { loggerUtil as log } from './utils/logger';
 import { popularRouter, featuredRouter } from './routes/popular';
 import { ratingsRouter } from './routes/ratings';
 import issueRouter from './routes/issues';
+import { userRouter } from './routes/user';
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use(searchRouter);
 app.use(ratingsRouter);
 app.use(reviewRouter);
 app.use(issueRouter);
+app.use(userRouter);
 
 // 404 handler — must be after all routes
 app.use((_request: Request, response: Response) => {
