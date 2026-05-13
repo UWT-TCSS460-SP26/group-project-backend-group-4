@@ -18,21 +18,26 @@ import {
 } from '../middleware/validation';
 import { getUserReviews } from '../controllers/me';
 
-const router = Router();
+const reviewRouter = Router();
 
-router.get('/api/reviews', validateGetReviewsQuery, getReviews);
-router.get('/api/reviews/me', requireAuth, validateSearchPagination, getPersonalReviews);
-router.get('/api/reviews/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserReviews);
-router.get('/api/reviews/:id', validateIdParam, getReviewById);
+reviewRouter.get('/api/reviews', validateGetReviewsQuery, getReviews);
+reviewRouter.get('/api/reviews/me', requireAuth, validateSearchPagination, getPersonalReviews);
+reviewRouter.get(
+  '/api/reviews/me/enhanced',
+  requireAuth,
+  requireEnvVar('TMDB_API_KEY'),
+  getUserReviews
+);
+reviewRouter.get('/api/reviews/:id', validateIdParam, getReviewById);
 
-router.post('/api/reviews', requireAuth, validateCreateReviewBody, createReview);
-router.put(
+reviewRouter.post('/api/reviews', requireAuth, validateCreateReviewBody, createReview);
+reviewRouter.put(
   '/api/reviews/:id',
   requireAuth,
   validateIdParam,
   validateUpdateReviewBody,
   updateReview
 );
-router.delete('/api/reviews/:id', requireAuth, validateIdParam, deleteReview);
+reviewRouter.delete('/api/reviews/:id', requireAuth, validateIdParam, deleteReview);
 
-export { router as reviewRouter };
+export { reviewRouter };
