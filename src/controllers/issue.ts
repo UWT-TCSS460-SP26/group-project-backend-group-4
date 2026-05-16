@@ -95,6 +95,30 @@ export async function createIssue(req: Request, res: Response) {
       },
     });
     res.status(201).json({ message: 'Issue created', issue });
+
+    if (process.env.DISCORD_ISSUE_NOTIFICATION_WEBHOOK) {
+      await fetch(process.env.DISCORD_ISSUE_NOTIFICATION_WEBHOOK, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'Issue Reporter',
+          embeds: [
+            {
+              title: `New Issue #${issue.id}: ${issue.title}`,
+              description: `${issue.body}\nContact: ${issue.contact}\n\n${process.env.ISSUE_TRACKER_URL}/issue/${issue.id}`,
+              color: 16711680,
+              footer: {
+                text: 'Created At:',
+              },
+              timestamp: issue.createdAt,
+            },
+          ],
+          attachments: [],
+        }),
+      });
+    }
   } catch (error) {
     logger.error(`Error creating issue: `, error);
     res.status(500).json({ message: 'Internal Server Error' });

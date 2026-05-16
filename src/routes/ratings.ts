@@ -18,21 +18,26 @@ import {
 } from '../middleware/validation';
 import { getUserRatings } from '../controllers/me';
 
-const router = Router();
+const ratingsRouter = Router();
 
-router.get('/api/ratings', validateGetReviewsQuery, getRatings);
-router.get('/api/ratings/me', requireAuth, validateSearchPagination, getPersonalRatings);
-router.get('/api/ratings/me/enhanced', requireAuth, requireEnvVar('TMDB_API_KEY'), getUserRatings);
-router.get('/api/ratings/:id', validateIdParam, getRatingById);
+ratingsRouter.get('/api/ratings', validateGetReviewsQuery, getRatings);
+ratingsRouter.get('/api/ratings/me', requireAuth, validateSearchPagination, getPersonalRatings);
+ratingsRouter.get(
+  '/api/ratings/me/enhanced',
+  requireAuth,
+  requireEnvVar('TMDB_API_KEY'),
+  getUserRatings
+);
+ratingsRouter.get('/api/ratings/:id', validateIdParam, getRatingById);
 
-router.post('/api/ratings', requireAuth, validateCreateRatingBody, createRating);
-router.put(
+ratingsRouter.post('/api/ratings', requireAuth, validateCreateRatingBody, createRating);
+ratingsRouter.put(
   '/api/ratings/:id',
   requireAuth,
   validateIdParam,
   validateUpdateRatingBody,
   updateRating
 );
-router.delete('/api/ratings/:id', requireAuth, validateIdParam, deleteRating);
+ratingsRouter.delete('/api/ratings/:id', requireAuth, validateIdParam, deleteRating);
 
-export { router as ratingsRouter };
+export { ratingsRouter };

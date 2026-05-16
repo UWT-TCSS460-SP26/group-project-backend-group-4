@@ -1111,6 +1111,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/users/me:
+    get:
+      tags: [General]
+      summary: Get My Profile
+      description: Returns the authenticated user's profile data (everything except ratings and reviews).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved user profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          description: Missing or invalid bearer token, or authenticated user not found in local database.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/reviews/me/enhanced:
     get:
@@ -1557,6 +1583,34 @@ components:
               type: string
               nullable: true
               example: Fight Club
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 42
+        username:
+          type: string
+          example: moviecritic99
+        email:
+          type: string
+          example: user@example.com
+        subjectId:
+          type: string
+          example: auth0|abc123
+        role:
+          type: string
+          enum: [User, Moderator, Admin, SuperAdmin, Owner]
+          example: User
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-11-01T12:34:56.000Z'
+    UserProfileResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserProfile'
     ErrorResponse:
       type: object
       properties:
