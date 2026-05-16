@@ -1,328 +1,193 @@
 # Meetings
 
-# Week 2
+## Week 2 — Kickoff
 
-## Agenda Item 1:
+**Date:** 4/7/2026 · **Time:** 12:30 – 1:30 pm · **Attendees:** All members
 
-### Decide on a Meeting Manager (This person is NOT the group leader. The meeting manager’s role is to keep the group on task during the meeting)
+### Roles
 
-### Meeting Manager: Phelan Gormley
+| Role            | Assignee       |
+| --------------- | -------------- |
+| Meeting Manager | Phelan Gormley |
+| Meeting Scribe  | Joshua Kalcha  |
 
-## Agenda Item 2:
+### Team Introductions
 
-### Decide on a Meeting Scribe (This person documents the meeting minutes. Group, help the scribe in their role. Keep your own notes. Work slowly enough so that the scribe may document the meeting)
+| Name   | Preferred | Background               | Strengths                               | Weaknesses                | Availability Constraints |
+| ------ | --------- | ------------------------ | --------------------------------------- | ------------------------- | ------------------------ |
+| Phelan | Phelan    | Pierce College           | Programming since middle school         | New to TypeScript         | None                     |
+| Oisin  | Ocean     | Western Washington Univ. | Can dedicate extra time after this week | New to TypeScript         | Family care              |
+| Joshua | Josh      | Highline                 | Dedicates lots of time to projects      | Gets stressed easily      | Church 4 days/week       |
+| Nathan | Nathan    | UW                       | Adapts to new tools/languages quickly   | Prefers to avoid GUI work | Meetings Tue/Thu         |
 
-### Meeting Scribe: Joshua Kalcha
+> All members felt their 142/143 coursework prepared them for TCSS 460.
 
-## Agenda Item 3:
+### Fun Facts
 
-### Get to know each group member. Each group member answer (at least) the following questions: What is your name/nickname and what do you prefer to be called?
+- **Phelan** — Likes surfing Facebook Marketplace
+- **Oisin (Ocean)** — Likes to draw
+- **Josh** — Likes snowboarding
+- **Nathan** — Started learning to self-host software
 
-### Name: Phelan - Preferred name: Phelan
+---
 
-### Name: Oisin - Preferred name: Ocean
+### Group Structure
 
-### Name: Joshua - Preferred name: Josh
+- No dedicated group leader; tasks assigned weekly as a group
+- **Git SME:** Phelan
+- **Meeting Minutes:** Josh
 
-### Name: Nathan - Preferred name: Nathan
+---
 
-## Where did you do Freshman/Sophomore year and/or where did you take 142/143? Did your 142/143 prepare you for this course?
+### Past Experiences & Strategies
 
-### Phelan - Piece College, Yes they prepared me for the course
+| Member | Bad Experience                      | Proposed Strategy               |
+| ------ | ----------------------------------- | ------------------------------- |
+| Phelan | Teammates didn't meet expectations  | Be transparent                  |
+| Oisin  | Group procrastinated near deadlines | Set internal deadlines          |
+| Josh   | Teammates missed deadlines          | Communicate and honor deadlines |
+| Nathan | Nothing specific                    | Clearly define goals and tasks  |
 
-### Oisin - Western Washington University, Yes they prepared me for the course
+---
 
-### Joshua - Highline, Yes they prepared me for the course
+### Availability (at least 3 sync meetings/week)
 
-### Nathan - UW, Yes they prepared me for the course
+| Member | Mon / Wed / Fri | Tue / Thu       |
+| ------ | --------------- | --------------- |
+| Phelan | All day         | All day         |
+| Oisin  | All day         | 12:10 – 1:30 pm |
+| Josh   | Before 6 pm     | 12:10 – 1:30 pm |
+| Nathan | 1 – 6 pm        | 12:10 – 1:30 pm |
 
-## What are your programming strengths and weaknesses? BE HONEST! It’s ok that you are not a good programmer. Let your group know so that the group as a whole can work with you.
+---
 
-### Phelan
+### Wrap-up (Action Items)
 
-Weakness: Don’t know that much type script.
-Strength: been programming since middle school.
+- **Everyone:** Create branch `setup/<your-name>`, add `/hello/<your-name>` route, push, open PR to `main`
+- **Josh:** Team meeting minutes
+- **Phelan:** Customize OpenAPI info, deploy API, update README & GitHub About
+- **Oisin:** Remove the `/hello` example route
+- **Nathan:** Set up heartbeat endpoint
 
-### Oisin
+---
 
-Weakness: Don’t know that much type script.
-Strength: Can spend more time on the project/learning typescript after this week.
+## Week 3 — Sprint 1 Planning
 
-### Joshua
+**Date:** 4/14/2026 · **Time:** 12:30 – 1:30 pm · **Attendees:** All members
 
-Weakness: get stressed out a lot.
-Strength: Usually dedicate a lot of time to projects.
+### Decisions
 
-### Nathan
+- Everyone uses their own TMDB development API key
+- Use TMDB v3 API — do **not** touch production branch
 
-Weakness: don't want to work on GUI.
-Strength: can adapt to new tools/languages quickly .
+### Tasks
 
-## What other obligations take time away from your ability to work on this project? Work, Family/Kids, 20 credits this quarter, etc. BE HONEST Let your group know so that the group as a whole can work with you.
+| Member | Responsibilities          |
+| ------ | ------------------------- |
+| Nathan | Popular results endpoints |
+| Joshua | Search endpoints          |
+| Oisin  | Details endpoints         |
+| Phelan | Testing                   |
 
-### Phelan - Nothing
+---
 
-### Oisin - Taking care of family
+## Week 4 — Ratings & Reviews
 
-### Joshua - Church 4 days a week
+**Date:** 4/21/2026 · **Time:** 12:30 – 1:20 pm · **Attendees:** All members
 
-### Nathan - Meetings on Tuesdays and Thursdays
+### Setup Notes
 
-## What is something you want others to know about yourself?
+- After pulling, run `npm install` and `npx prisma generate`
+- Everyone needs a local PostgreSQL database
 
-### Phelan - I like to surf facebook marketplace
+### Tasks
 
-### Oisin - I like to draw
+| Member     | Responsibilities                                                                        |
+| ---------- | --------------------------------------------------------------------------------------- |
+| **Nathan** | Ratings CRUD, public GET by TMDB ID, OpenAPI docs, auth gates                           |
+| **Joshua** | Automated tests (all CRUD + auth flows), verify dev-login JWT                           |
+| **Oisin**  | Reviews CRUD, public GET by TMDB ID, OpenAPI docs, auth gates                           |
+| **Phelan** | Prisma schema (users/ratings/reviews), initial migration, seed admin, `/auth/dev-login` |
 
-### Joshua - I like to Snowboarding
+### Other Notes
 
-### Nathan - I started learning to self host software
+- Admins perform hard deletes
+- Everyone opens a PR; Phelan merges after review
+- Josh updates API docs for last week's endpoints
+- **Deadline:** Friday
 
-## Agenda Item 4:
+---
 
-Decide on a group structure.
-Do you want to have a dedicated group leader?
-Who are the Subject Matter Experts (SME) for different areas? GUI, OO, Logic, Management, etc.
-Students A and B pair program together while students C and D pair program together.
-Student A is a dedicated tester/Unit test creator.
-Consider your group's strengths and weaknesses. Pair a weak programmer with a strong programmer for pair programming sessions.
-Who has Git experience and/or wants to dive into working with Git and GitHub to become the group's Git SME?
-Etc.
+## Week 5 — Issues & Auth Migration
 
-### Group structure:
+**Date:** 4/28/2026 · **Time:** 12:30 – 1:20 pm · **Attendees:** All members
 
-We all get together and assign tasks for the week.
-Phelan will be in charge of git stuff.
-Josh is in charge of meeting minutes.
+### Tasks
 
-## Agenda Item 5:
+| Member     | Responsibilities                                                                 |
+| ---------- | -------------------------------------------------------------------------------- |
+| **Nathan** | Migrate auth tests to new stub, log all 500 errors, write `/issues` tests        |
+| **Joshua** | Role-gating helpers, JWKS RS256 middleware, remove dev-login + `jsonwebtoken`    |
+| **Oisin**  | Tests for reviews, enriched detail route (TMDB + community data)                 |
+| **Phelan** | Issue DB schema, add `subjectId @unique` on User, `POST /issues` with validation |
 
-Discuss your concerns for the group project. Air any bad experiences from group work in the past. Discuss what you want to get out of this group project. Discuss strategies you think can work for a successful group project.
+---
 
-### Phelan
+## Week 6 — Self-lists, Combined Routes & Admin Issues
 
-Bad experience - Teammates did not live up to expectations.
-Strategy - be transparent.
+**Date:** 5/5/2026 · **Time:** 12:30 – 1:20 pm · **Attendees:** All members
 
-### Oisin
+### Tasks
 
-Bad experience - group members procrastinated and turned in the project close to the deadline.
-Strategy - set deadlines for tasks.
+| Member     | Responsibilities                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| **Nathan** | Auth'd self-list reviews, community-ranked combined route, tests                            |
+| **Joshua** | Admin-gated GET/PATCH/DELETE `/issues`, pagination/filter/sort, tests                       |
+| **Oisin**  | Auth'd self-list ratings, rated-items + TMDB combined route, tests                          |
+| **Phelan** | Tests, Auth² security scheme in spec, partner README, full OpenAPI coverage, CORS allowlist |
 
-### Joshua
+---
 
-Bad experience - Teammates did not complete work on time.
-Strategy - communicate with each other and try to make the deadlines you set.
+## Week 7 — Final Merge
 
-### Nathan
+### Meeting 1
 
-Bad experience - Nothing specific.
-Strategy - Clearly define goals and tasks.
+**Date:** 5/12/2026 · **Time:** 12:30 – 1:20 pm · **Attendees:** All members
 
-## Agenda Item 6:
+#### Plan
 
-The group needs to meet synchronously (online is OK) AT LEAST 3 times a Week. What times/days work for everyone?
-https://www.when2meet.com/
+- **Friday 4:30 pm:** Merge session — present work, pick features, merge together
+- Everyone works individually until Friday
+- Accept invite to final repo, create a branch, write a ~200 word summary
+- Complete sprint tasks + issues page
 
-### Phelan
+#### Extra Work (Optional)
 
-Available all times.
+- Build a GitHub Issues-style frontend page (requires OAuth2 from Charles)
 
-### Oisin
+#### Backend Change (by Wednesday night)
 
-Available 12:10 - 1:30 pm tuesday and thursday.
-Available anytime monday, wednesday, friday.
+- Expose ability to query a user's role from the database _(Phelan)_
 
-### Joshua
+---
 
-Available on Monday, Wednesday, Friday before 6pm
-Or 12:10 - 1:30 pm on Tuesday and Thursday.
+### Meeting 2 — Frontend Showcase & Voting
 
-### Nathan
+**Date:** 5/15/2026 · **Time:** 4:30 – 5:00 pm · **Attendees:** All members
 
-Available 12:10 - 1:30 pm tuesday and thursday.
-Available Monday, Wednesday, Friday 1 - 6 pm
+#### Frontend Demos
 
-## Agenda Item 7:
+| Member | Status   | Style        | Login     | Notes                                      |
+| ------ | -------- | ------------ | --------- | ------------------------------------------ |
+| Ocean  | ✅ Works | GitHub-style | Paste JWT | Nice issue-detail popup                    |
+| Josh   | ✅ Works | Basic        | Auth2     | Kermit background, slightly buggy          |
+| Phelan | ✅ Works | GitHub-style | Auth2     | Best overall FE                            |
+| Nathan | ✅ Works | GitHub-style | Paste JWT | Good sort and search for admin issues list |
 
-Wrap-up
+> All bug reporters look roughly the same.
 
-### Everyone do
+#### Decisions
 
-Create a new branch off main (e.g., setup/your-name)
-Add a new route to the API (e.g., /hello/your-name that returns a JSON greeting)
-Commit your changes and push your branch
-Open a pull request to main
-
-### Josh
-
-Team meeting minutes
-
-### Phelan
-
-OpenAPI info section customized with team name, description, and deployed server URL
-API is deployed and responds at a public URL
-Deployed URL is in the repo README and GitHub About section
-
-### Oisin
-
-Deleting the hello route "As a team, we want to remove the example /hello route so that our API only contains code we own"
-
-### Nathan
-
-Setup heartbeat endpoint
-
-## Week 3
-
-### Meeting Date: 4/14/2026
-
-### Meeting Time: 12:30 - 1:30
-
-### Present: All members
-
-## Introduction
-
-### Everyone has their own development api key
-
-### Decide on how to split sprint 1 into tasks
-
-## Tasks
-
-### Nathan
-
-- Popular results endpoints
-
-### Joshua
-
-- search endpoints
-
-### Oisin
-
-- details endpoints
-
-### Phelan
-
-- testing
-
-## wrapping it up
-
-- Do not touch production branch
-- use v3 TMDB API
-
-## Week 4
-
-### Meeting Date: 4/21/2026
-
-### Meeting Time: 12:30 - 1:20
-
-### Present: All members
-
-## Tasks
-
-### Nathan
-
-- Ratings support create, read (single + list), update, delete
-- Public GET endpoints return ratings for a given TMDB identifier
-- OpenAPI Docs
-- Writes and admin actions are gated by requireAuth and appropriate role checks
-
-### Joshua
-
-- Automated tests cover success and error cases for every new endpoint
-- Write authenticated tests for every write path (create, update, delete) in both modules.
-- Verify dev-login route mints a JWT that passes requireAuth and role checks.
-
-### Oisin
-
-- Reviews support create, read (single + list), update, delete
-- Public GET endpoints return reviews for a given TMDB identifier
-- OpenAPI Docs
-- Writes and admin actions are gated by requireAuth and appropriate role checks
-
-### Phelan
-
-- Prisma schema defines users, ratings, and reviews — no movies or TV tables
-- Initial migration is committed to the repository under prisma/migrations/
-- Seed script creates at least one admin account
-- /auth/dev-login is mounted and mints working JWTs
-
-## Setup
-
-- After pulling, install…
-- Npx prisma generate to generate actual client
-- Everyone get a postgres database setup
-
-## Other
-
-- Admins have hard delete
-- Everyone create a pr, phelan will merge once he reviewed it
-- Josh update api doc for endpoints from last week
-- Finish endpoints by friday
-
-## Week 5
-
-### Meeting Date: 4/28/2026
-
-### Meeting Time: 12:30 - 1:20 pm
-
-### Present: All members
-
-## Tasks
-
-### Nathan
-
-- Migrate tests that need auth to new stub pattern
-- Make sure that any time we return a 500 error code, WE LOG THE REASON WHY
-- Tests for /issues
-
-### Joshua
-
-- Implement role gating helpers
-- JWKS-based RS256 verification middleware in place; dev-login route, JWT_SECRET, and jsonwebtoken dep removed
-
-### Oisin
-
-- Tests for your routes
-- Enriched movie/show detail route returns TMDB metadata combined with your community's aggregate and recent reviews
-
-### Phelan
-
-- Create the db schema for issues (also the subjectId String @unique on User thing)
-- POST /issues accepts and persists bug reports; input validated; response shape documented
-
-## Week 6
-
-### Meeting Date: 5/5/2026
-
-### Meeting Time: 12:30 - 1:20 pm
-
-### Present: All members
-
-## Tasks
-
-### Nathan
-
-- Authenticated self-list routes (your team's chosen shape) return the caller's own reviews; no client-supplied user id is trusted
-- Combined route — community-ranked list (top-rated and/or most-reviewed) — live, public, with a SQL-side aggregate
-- Tests
-
-### Joshua
-
-- Admin-gated GET /issues (list) and GET /issues/:id (detail) live; pagination/filtering/sort behavior documented
-- Admin-gated PATCH /issues/:id walks reports through your status workflow; partial-vs-full body semantics documented
-- Admin-gated DELETE /issues/:id removes a report; response shape documented
-- Tests
-
-### Oisin
-
-- Combined route — user's rated items joined with TMDB metadata — live and authenticated against the sub claim
-- Authenticated self-list routes (your team's chosen shape) return the caller's own ratings; no client-supplied user id is trusted
-- Tests
-
-### Phelan
-
-- Tests
-- Security scheme in the spec names Auth² as the issuer and your audience name explicitly
-- Partner-facing README answers all six questions from the handoff story
-- OpenAPI spec at /api-docs covers every route in the API: schemas, realistic example payloads, documented error shapes for 400/401/403/404/500
-- CORS allowlist accepts your downstream partner's consumer-app origin (or their dev origin, with a documented env-var update path for production)
+- **Chosen frontend:** Phelan's bug reporter & admin issues page + Josh's Kermit background
+- Josh collects workflows and posts meeting minutes
+- Phelan merges selected items from Josh's FE into his
